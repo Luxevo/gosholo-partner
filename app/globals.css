@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* PWA-friendly: prevent zoom on input focus */
+  touch-action: manipulation;
+}
+
+/* PWA-friendly: prevent text selection on interactive elements */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* PWA-friendly: improve touch targets */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive-sm {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm lg:text-base;
+  }
+  
+  .text-responsive-lg {
+    @apply text-base lg:text-lg;
+  }
+  
+  .text-responsive-xl {
+    @apply text-lg lg:text-xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-2xl lg:text-3xl;
+  }
+  
+  /* Responsive spacing utilities */
+  .p-responsive {
+    @apply p-4 lg:p-6;
+  }
+  
+  .px-responsive {
+    @apply px-4 lg:px-6;
+  }
+  
+  .py-responsive {
+    @apply py-4 lg:py-6;
+  }
+  
+  .gap-responsive {
+    @apply gap-3 lg:gap-4;
+  }
+  
+  .space-y-responsive {
+    @apply space-y-4 lg:space-y-6;
+  }
+  
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* white */
+    --foreground: 192 100% 20%; /* #016167 as text for contrast */
+    --card: 0 0% 100%;
+    --card-foreground: 192 100% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 192 100% 20%;
+    --primary: 192 100% 20%; /* #016167 */
+    --primary-foreground: 0 0% 100%; /* white */
+    --secondary: 188 59% 60%; /* #5BC4DB */
+    --secondary-foreground: 192 100% 20%;
+    --muted: 0 0% 100%;
+    --muted-foreground: 192 100% 20%;
+    --accent: 16 100% 60%; /* #FF6233 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 16 100% 60%; /* #FF6233 as destructive */
+    --destructive-foreground: 0 0% 100%;
+    --border: 192 100% 20%;
+    --input: 192 100% 20%;
+    --ring: 192 100% 20%;
+    --chart-1: 192 100% 20%;
+    --chart-2: 188 59% 60%;
+    --chart-3: 16 100% 60%;
+    --chart-4: 0 0% 100%;
+    --chart-5: 0 0% 100%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 192 100% 20%;
+    --sidebar-primary: 192 100% 20%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 188 59% 60%;
+    --sidebar-accent-foreground: 192 100% 20%;
+    --sidebar-border: 192 100% 20%;
+    --sidebar-ring: 16 100% 60%;
+  }
+  .dark {
+    --background: 192 100% 20%; /* #016167 */
+    --foreground: 0 0% 100%; /* white */
+    --card: 192 100% 20%;
+    --card-foreground: 0 0% 100%;
+    --popover: 192 100% 20%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%; /* white */
+    --primary-foreground: 192 100% 20%;
+    --secondary: 188 59% 60%; /* #5BC4DB */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 192 100% 20%;
+    --muted-foreground: 0 0% 100%;
+    --accent: 16 100% 60%; /* #FF6233 */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 16 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 100%;
+    --chart-1: 0 0% 100%;
+    --chart-2: 188 59% 60%;
+    --chart-3: 16 100% 60%;
+    --chart-4: 192 100% 20%;
+    --chart-5: 192 100% 20%;
+    --sidebar-background: 192 100% 20%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 192 100% 20%;
+    --sidebar-accent: 16 100% 60%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100%;
+    --sidebar-ring: 188 59% 60%;
+  }
+}
+
+@layer base {
+  * {
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
