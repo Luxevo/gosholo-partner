@@ -48,35 +48,7 @@ export default function EvenementsPage() {
     }
   ])
 
-  const [newEvent, setNewEvent] = useState<Omit<Event, "id" | "attendees">>({
-    title: "",
-    description: "",
-    location: "",
-    startDate: "",
-    endDate: "",
-    status: "draft"
-  })
-
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [showEventForm, setShowEventForm] = useState(false)
-
-  const handleCreateEvent = () => {
-    const event: Event = {
-      id: Date.now().toString(),
-      ...newEvent,
-      attendees: 0
-    }
-    setEvents([...events, event])
-    setNewEvent({
-      title: "",
-      description: "",
-      location: "",
-      startDate: "",
-      endDate: "",
-      status: "draft"
-    })
-    setIsDialogOpen(false)
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -99,20 +71,6 @@ export default function EvenementsPage() {
   return (
     <DashboardLayout>
       <div className="p-4 lg:p-6 space-y-4 lg:space-y-6 bg-white">
-        {!showEventForm && (
-          <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto mb-4" onClick={() => setShowEventForm(true)}>
-            <Plus className="h-4 w-4" />
-            Créer un événement
-          </Button>
-        )}
-        {showEventForm && (
-          <div className="mb-6">
-            <EventCreationFlow />
-            <Button variant="ghost" className="mt-2" onClick={() => setShowEventForm(false)}>
-              Annuler
-            </Button>
-          </div>
-        )}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-brand-primary">Événements</h1>
@@ -120,9 +78,9 @@ export default function EvenementsPage() {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 bg-brand-primary text-white hover:bg-brand-primary/80 w-full sm:w-auto">
+              <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto mb-4" onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
-                Nouvel événement
+                Créer un événement
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -132,79 +90,7 @@ export default function EvenementsPage() {
                   Remplissez les informations pour créer un nouvel événement.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Titre de l'événement</Label>
-                    <Input
-                      id="title"
-                      value={newEvent.title}
-                      onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
-                      placeholder="Ex: Atelier de cuisine"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Lieu</Label>
-                    <Input
-                      id="location"
-                      value={newEvent.location}
-                      onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
-                      placeholder="Ex: Paris"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
-                    placeholder="Décrivez votre événement..."
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Date de début</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={newEvent.startDate}
-                      onChange={(e) => setNewEvent({...newEvent, startDate: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">Date de fin</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={newEvent.endDate}
-                      onChange={(e) => setNewEvent({...newEvent, endDate: e.target.value})}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Statut</Label>
-                  <Select value={newEvent.status} onValueChange={(value) => setNewEvent({...newEvent, status: value as any})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Brouillon</SelectItem>
-                      <SelectItem value="active">Actif</SelectItem>
-                      <SelectItem value="inactive">Inactif</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
-                  Annuler
-                </Button>
-                <Button onClick={handleCreateEvent} className="w-full sm:w-auto">
-                  Créer l'événement
-                </Button>
-              </div>
+              <EventCreationFlow onCancel={() => setIsDialogOpen(false)} />
             </DialogContent>
           </Dialog>
         </div>

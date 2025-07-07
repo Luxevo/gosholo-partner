@@ -64,7 +64,7 @@ export default function OffresPage() {
     status: "draft"
   })
 
-  const [showOfferForm, setShowOfferForm] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleCreateOffer = () => {
     const offer: Offer = {
@@ -83,7 +83,7 @@ export default function OffresPage() {
       endDate: "",
       status: "draft"
     })
-    setShowOfferForm(false)
+    setIsDialogOpen(false)
   }
 
   const getStatusColor = (status: string) => {
@@ -107,20 +107,29 @@ export default function OffresPage() {
   return (
     <DashboardLayout>
       <div className="p-4 lg:p-6 space-y-4 lg:space-y-6 bg-white">
-        {!showOfferForm && (
-          <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto mb-4" onClick={() => setShowOfferForm(true)}>
-            <Plus className="h-4 w-4" />
-            Créer une offre
-          </Button>
-        )}
-        {showOfferForm && (
-          <div className="mb-6">
-            <OfferCreationFlow />
-            <Button variant="ghost" className="mt-2" onClick={() => setShowOfferForm(false)}>
-              Annuler
-            </Button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-brand-primary">Offres</h1>
+            <p className="text-brand-primary/70 text-sm lg:text-base">Gérez vos offres et promotions</p>
           </div>
-        )}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto mb-4" onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4" />
+                Créer une offre
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Créer une nouvelle offre</DialogTitle>
+                <DialogDescription>
+                  Remplissez les informations pour créer une nouvelle offre.
+                </DialogDescription>
+              </DialogHeader>
+              <OfferCreationFlow onCancel={() => setIsDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="grid gap-4 lg:gap-6">
           {offers.map((offer) => (

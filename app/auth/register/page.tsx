@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -57,14 +57,46 @@ export default function RegisterPage() {
     e.preventDefault()
 
     if (!validateForm()) return
-
     setIsLoading(true)
+    setErrors({})
 
-    // Simulation d'inscription
-    setTimeout(() => {
+    const supabase = createClient()
+
+    // Étape 1 : Créer l'utilisateur
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    if (signUpError || !signUpData.user) {
       setIsLoading(false)
-      setIsSuccess(true)
-    }, 2000)
+      setErrors({ email: signUpError?.message || "Erreur lors de la création du compte" })
+      return
+    }
+
+    const user = signUpData.user
+
+    // Étape 2 : Insérer dans la table "profiles"
+    const { error: profileError } = await supabase.from("profiles").insert({
+      uuid: user.id,
+      email: user.email,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      phone: formData.phone,
+      avatar_url: user.user_metadata?.avatar_url ?? null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+
+    if (profileError) {
+      setIsLoading(false)
+      setErrors({ email: "Le compte a été créé, mais l'enregistrement du profil a échoué." })
+      return
+    }
+
+    setIsLoading(false)
+    setIsSuccess(true)
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -429,6 +461,6 @@ export default function RegisterPage() {
           </p>
         </div>
       </div>
-    </div>
+    </div>    
   )
 }

@@ -15,7 +15,11 @@ const steps = [
   "Confirmation & Boost"
 ]
 
-export default function OfferCreationFlow() {
+interface OfferCreationFlowProps {
+  onCancel?: () => void
+}
+
+export default function OfferCreationFlow({ onCancel }: OfferCreationFlowProps) {
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({
     title: "",
@@ -124,9 +128,16 @@ export default function OfferCreationFlow() {
         <div className="text-xs text-secondary mt-2">
           Vous pourrez marquer l'offre comme "complète" manuellement quand vous aurez atteint votre limite de clients, en magasin ou en ligne.
         </div>
-        <Button className="bg-accent hover:bg-accent/80 text-white mt-4 w-full" onClick={() => setStep(1)}>
-          Suivant : Disponibilité
-        </Button>
+        <div className="flex justify-between gap-2 mt-4">
+          {onCancel && (
+            <Button variant="outline" className="w-1/2" onClick={onCancel}>
+              Annuler
+            </Button>
+          )}
+          <Button className="bg-accent hover:bg-accent/80 text-white w-full" onClick={() => setStep(1)}>
+            Suivant : Disponibilité
+          </Button>
+        </div>
       </div>
     </>
   )
@@ -165,6 +176,11 @@ export default function OfferCreationFlow() {
             Aperçu de mon offre
           </Button>
         </div>
+        {onCancel && (
+          <Button variant="ghost" className="w-full mt-2" onClick={onCancel}>
+            Annuler
+          </Button>
+        )}
       </div>
     </>
   )

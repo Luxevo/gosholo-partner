@@ -1,8 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +14,9 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {
+  const supabase = createClient()
+  const router = useRouter()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -22,25 +27,31 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
-    // Simulation d'authentification
-    if (email === "demo@gosholo.com" && password === "demo123") {
-      // Définir le cookie d'authentification
-      document.cookie = "auth-token=demo-user-token; path=/; max-age=86400" // 24h
-
-      // Redirection vers le dashboard
-      window.location.href = "/"
-    } else {
-      setError("Email ou mot de passe incorrect")
+  
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  
+    if (error || !data.session) {
+      setError("Email ou mot de passe incorrect.")
+      setIsLoading(false)
+      return
     }
-
+  
+    // 🔁 Vérifie la session actuelle
+    const { data: sessionData } = await supabase.auth.getSession()
+  
+    if (sessionData.session) {
+      router.push("/commerces")
+    } else {
+      setError("Une erreur est survenue. Veuillez réessayer.")
+    }
+  
     setIsLoading(false)
   }
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        {/* Logo et titre */}
         <div className="text-center space-y-2">
           <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
             <span className="text-2xl font-bold text-white">G</span>
@@ -49,7 +60,6 @@ export default function LoginPage() {
           <p className="text-brand-primary/70">Connectez-vous à votre tableau de bord</p>
         </div>
 
-        {/* Compte de démonstration */}
         <Alert className="border-brand-primary/20 bg-brand-primary/5">
           <AlertDescription className="text-sm">
             <strong>Compte de démonstration :</strong>
@@ -60,7 +70,6 @@ export default function LoginPage() {
           </AlertDescription>
         </Alert>
 
-        {/* Formulaire de connexion */}
         <Card className="border-brand-primary/20">
           <CardHeader className="space-y-1">
             <CardTitle className="text-xl text-brand-primary">Connexion</CardTitle>
@@ -146,7 +155,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Lien vers inscription */}
         <div className="text-center">
           <p className="text-sm text-brand-primary/70">
             Pas encore de compte ?{" "}

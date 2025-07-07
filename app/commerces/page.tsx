@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Store, Plus, Edit, MoreVertical, Rocket, CheckCircle, XCircle, Calendar } from "lucide-react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import OfferCreationFlow from "@/components/offer-creation-flow"
+import EventCreationFlow from "@/components/event-creation-flow"
 
 interface Offer {
   id: string
@@ -68,6 +72,33 @@ export default function CommercesPage() {
       events: [],
     },
   ])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false)
+  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false)
+  const [newCommerce, setNewCommerce] = useState({
+    name: "",
+    quartier: "",
+    logo: "",
+  })
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+
+  const handleAddCommerce = () => {
+    if (!newCommerce.name) return;
+    setCommerces([
+      ...commerces,
+      {
+        id: Date.now().toString(),
+        name: newCommerce.name,
+        quartier: newCommerce.quartier,
+        logo: newCommerce.logo || "/placeholder-logo.png",
+        offers: [],
+        events: [],
+      },
+    ])
+    setNewCommerce({ name: "", quartier: "", logo: "" })
+    setLogoPreview(null)
+    setIsDialogOpen(false)
+  }
   return (
     <DashboardLayout>
       <div className="p-4 lg:p-6 space-y-6 bg-white">
@@ -76,10 +107,50 @@ export default function CommercesPage() {
             <h1 className="text-2xl lg:text-3xl font-bold text-primary">Commerces</h1>
             <p className="text-primary/70 text-sm lg:text-base">Gérez vos commerces et établissements</p>
           </div>
-          <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto">
-            <Plus className="h-4 w-4" />
-            Nouveau commerce
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-accent hover:bg-accent/80 text-white text-base px-6 py-3 flex items-center gap-2" onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-5 w-5" /> Ajouter un commerce à mon compte
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Ajouter un commerce</DialogTitle>
+                <DialogDescription>Remplissez les informations pour ajouter un nouveau commerce à votre compte.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <Input
+                  placeholder="Nom du commerce"
+                  value={newCommerce.name}
+                  onChange={e => setNewCommerce({ ...newCommerce, name: e.target.value })}
+                />
+                <Input
+                  placeholder="Quartier (optionnel)"
+                  value={newCommerce.quartier}
+                  onChange={e => setNewCommerce({ ...newCommerce, quartier: e.target.value })}
+                />
+                <div>
+                  <label className="block text-sm text-primary mb-1">Logo (optionnel)</label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setNewCommerce(c => ({ ...c, logo: URL.createObjectURL(file) }))
+                        setLogoPreview(URL.createObjectURL(file))
+                      }
+                    }}
+                  />
+                  {logoPreview && <img src={logoPreview} alt="Aperçu logo" className="mt-2 rounded w-20 h-20 object-cover" />}
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Annuler</Button>
+                <Button onClick={handleAddCommerce} disabled={!newCommerce.name}>Ajouter</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
         <div className="space-y-6">
           {commerces.map((commerce) => (
@@ -140,8 +211,8 @@ export default function CommercesPage() {
                   ) : (
                     <div className="flex items-center justify-between bg-muted rounded-md px-3 py-2 mb-2">
                       <span className="text-secondary text-sm">Aucune offre en cours</span>
-                      <Button size="sm" className="bg-accent hover:bg-accent/80 text-white text-xs px-3 py-1">
-                        <Plus className="h-4 w-4 mr-1" /> Créer une offre
+                      <Button size="icon" className="bg-accent hover:bg-accent/80 text-white text-xs p-2" onClick={() => setIsOfferDialogOpen(true)}>
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   )}
@@ -188,8 +259,8 @@ export default function CommercesPage() {
                   ) : (
                     <div className="flex items-center justify-between bg-muted rounded-md px-3 py-2 mb-2">
                       <span className="text-secondary text-sm">Aucun événement en cours</span>
-                      <Button size="sm" className="bg-accent hover:bg-accent/80 text-white text-xs px-3 py-1">
-                        <Plus className="h-4 w-4 mr-1" /> Créer un événement
+                      <Button size="icon" className="bg-accent hover:bg-accent/80 text-white text-xs p-2" onClick={() => setIsEventDialogOpen(true)}>
+                        <Plus className="h-4 w-4" />
                       </Button>
                     </div>
                   )}
@@ -203,14 +274,32 @@ export default function CommercesPage() {
               </CardContent>
             </Card>
           ))}
-          {/* Ajouter un commerce à mon compte */}
-          <div className="flex justify-center mt-8">
-            <Button className="bg-accent hover:bg-accent/80 text-white text-base px-6 py-3 flex items-center gap-2">
-              <Plus className="h-5 w-5" /> Ajouter un commerce à mon compte
-            </Button>
-          </div>
         </div>
       </div>
+      {/* Offer creation dialog */}
+      <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Créer une nouvelle offre</DialogTitle>
+            <DialogDescription>
+              Remplissez les informations pour créer une nouvelle offre.
+            </DialogDescription>
+          </DialogHeader>
+          <OfferCreationFlow onCancel={() => setIsOfferDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
+      {/* Event creation dialog */}
+      <Dialog open={isEventDialogOpen} onOpenChange={setIsEventDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Créer un nouvel événement</DialogTitle>
+            <DialogDescription>
+              Remplissez les informations pour créer un nouvel événement.
+            </DialogDescription>
+          </DialogHeader>
+          <EventCreationFlow onCancel={() => setIsEventDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   )
 } 
