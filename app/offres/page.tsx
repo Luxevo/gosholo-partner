@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,86 +11,111 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3 } from "lucide-react"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
 
 interface Offer {
   id: string
+  commerce_id: string
   title: string
-  description: string
-  discount: string
-  category: string
-  startDate: string
-  endDate: string
-  status: "active" | "inactive" | "draft"
-  views: number
-  conversions: number
+  short_description: string
+  image_url: string
+  type: "en_magasin" | "en_ligne" | "les_deux"
+  business_address: string
+  conditions: string
+  status: "active" | "inactive" | "brouillon" | "draft" | "actif" | "inactif"
+  created_at: string
+  updated_at: string
 }
 
 export default function OffresPage() {
-  const [offers, setOffers] = useState<Offer[]>([
-    {
-      id: "1",
-      title: "Réduction 20% sur les vêtements",
-      description: "Profitez de 20% de réduction sur toute notre collection de vêtements",
-      discount: "20%",
-      category: "Mode",
-      startDate: "2024-01-15",
-      endDate: "2024-02-15",
-      status: "active",
-      views: 245,
-      conversions: 18
-    },
-    {
-      id: "2",
-      title: "Happy Hours -50%",
-      description: "Tous les jeudis de 18h à 20h, profitez de 50% de réduction",
-      discount: "50%",
-      category: "Restaurant",
-      startDate: "2024-01-20",
-      endDate: "2024-03-20",
-      status: "active",
-      views: 189,
-      conversions: 32
-    }
-  ])
-
-  const [newOffer, setNewOffer] = useState<Omit<Offer, "id" | "views" | "conversions">>({
-    title: "",
-    description: "",
-    discount: "",
-    category: "",
-    startDate: "",
-    endDate: "",
-    status: "draft"
-  })
-
+  const supabase = createClient()
+  const [offers, setOffers] = useState<Offer[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingOffers, setIsLoadingOffers] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
-  const handleCreateOffer = () => {
-    const offer: Offer = {
-      id: Date.now().toString(),
-      ...newOffer,
-      views: 0,
-      conversions: 0
+  // Load offers from database on component mount
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        console.log('Loading offers...')
+        
+        // Check authentication first
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        if (userError) {
+          console.error('Authentication error:', userError)
+          setIsLoadingOffers(false)
+          return
+        }
+
+        if (!user) {
+          console.log('No user found')
+          setIsLoadingOffers(false)
+          return
+        }
+
+        console.log('User authenticated:', user.id)
+
+        // First get user's commerces
+        const { data: commercesData, error: commercesError } = await supabase
+          .from('commerces')
+          .select('id')
+          .eq('profile_id', user.id)
+
+        if (commercesError) {
+          console.error('Error loading commerces:', commercesError)
+          setIsLoadingOffers(false)
+          return
+        }
+
+        if (!commercesData || commercesData.length === 0) {
+          console.log('No commerces found for user')
+          setOffers([])
+          setIsLoadingOffers(false)
+          return
+        }
+
+        const commerceIds = commercesData.map(c => c.id)
+
+        // Query offers for user's commerces
+        const { data: offersData, error } = await supabase
+          .from('offers')
+          .select('*')
+          .in('commerce_id', commerceIds)
+
+        if (error) {
+          console.error('Database error:', error)
+          setIsLoadingOffers(false)
+          return
+        }
+
+        console.log('Offers loaded:', offersData)
+        setOffers(offersData || [])
+      } catch (error) {
+        console.error('Unexpected error:', error)
+      } finally {
+        setIsLoadingOffers(false)
+      }
     }
-    setOffers([...offers, offer])
-    setNewOffer({
-      title: "",
-      description: "",
-      discount: "",
-      category: "",
-      startDate: "",
-      endDate: "",
-      status: "draft"
-    })
-    setIsDialogOpen(false)
-  }
+
+    loadOffers()
+  }, [])
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active": return "bg-green-100 text-green-800"
-      case "inactive": return "bg-red-100 text-red-800"
-      case "draft": return "bg-gray-100 text-gray-800"
+      case "active":
+      case "actif":
+        return "bg-green-100 text-green-800"
+      case "inactive":
+      case "inactif":
+        return "bg-red-100 text-red-800"
+      case "draft":
+      case "brouillon":
+        return "bg-gray-100 text-gray-800"
       default: return "bg-gray-100 text-gray-800"
     }
   }
@@ -104,18 +129,43 @@ export default function OffresPage() {
     })
   }
 
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case "en_magasin":
+        return "En magasin"
+      case "en_ligne":
+        return "En ligne"
+      case "les_deux":
+        return "Les deux"
+      default:
+        return type
+    }
+  }
+
+  const handleEditOffer = (offer: Offer) => {
+    setEditingOffer(offer)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleOfferUpdated = () => {
+    setIsEditDialogOpen(false)
+    setEditingOffer(null)
+    // Reload offers to show updated data
+    window.location.reload()
+  }
+
   return (
     <DashboardLayout>
-      <div className="p-4 lg:p-6 space-y-4 lg:space-y-6 bg-white">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-brand-primary">Offres</h1>
-            <p className="text-brand-primary/70 text-sm lg:text-base">Gérez vos offres et promotions</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-primary">Offres</h1>
+            <p className="text-primary/70 text-sm lg:text-base">Gérez vos offres et promotions</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 bg-accent text-white hover:bg-accent/80 w-full sm:w-auto mb-4" onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4" />
+              <Button className="bg-accent hover:bg-accent/80 text-white">
+                <Plus className="h-4 w-4 mr-2" />
                 Créer une offre
               </Button>
             </DialogTrigger>
@@ -129,63 +179,122 @@ export default function OffresPage() {
               <OfferCreationFlow onCancel={() => setIsDialogOpen(false)} />
             </DialogContent>
           </Dialog>
+
+          {/* Edit Offer Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Modifier l'offre</DialogTitle>
+                <DialogDescription>
+                  Modifiez les informations de votre offre.
+                </DialogDescription>
+              </DialogHeader>
+              {editingOffer && (
+                <OfferCreationFlow 
+                  onCancel={() => setIsEditDialogOpen(false)}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <div className="grid gap-4 lg:gap-6">
-          {offers.map((offer) => (
-            <Card key={offer.id} className="bg-white border border-brand-primary/20">
-              <CardHeader className="pb-3">
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
-                      <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-brand-primary flex-shrink-0" />
-                      <span className="truncate">{offer.title}</span>
-                    </CardTitle>
-                    <CardDescription className="mt-2 text-brand-primary/70 text-sm lg:text-base line-clamp-2">
-                      {offer.description}
-                    </CardDescription>
+        <div className="space-y-6">
+          {isLoadingOffers ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-secondary">Chargement des offres...</p>
+              </div>
+            </div>
+          ) : offers.length === 0 ? (
+            <div className="text-center py-8">
+              <Tag className="h-12 w-12 text-secondary mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-primary mb-2">Aucune offre</h3>
+              <p className="text-secondary mb-4">Vous n'avez pas encore créé d'offres pour vos commerces.</p>
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="bg-accent hover:bg-accent/80 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Créer votre première offre
+              </Button>
+            </div>
+          ) : (
+            offers.map((offer) => (
+              <Card key={offer.id} className="bg-white border border-primary/20">
+                <CardHeader className="pb-3 flex flex-row items-center gap-4">
+                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={offer.image_url || "/placeholder-logo.png"}
+                      alt={offer.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder-logo.png";
+                      }}
+                    />
                   </div>
-                  <Badge className={getStatusColor(offer.status)}>
-                    {offer.status === "active" ? "Active" : offer.status === "inactive" ? "Inactive" : "Brouillon"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-brand-success flex-shrink-0" />
-                    <span className="text-sm font-medium text-brand-primary truncate">{offer.discount}</span>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg text-primary">{offer.title}</CardTitle>
+                    <div className="flex items-center gap-2 text-secondary text-sm">
+                      <Tag className="h-4 w-4" />
+                      <span>{getTypeLabel(offer.type)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {offer.status === "active" || offer.status === "actif" ? "Active" : 
+                         offer.status === "inactive" || offer.status === "inactif" ? "Inactive" : 
+                         offer.status === "draft" || offer.status === "brouillon" ? "Brouillon" : offer.status}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-brand-primary flex-shrink-0" />
-                    <span className="text-sm text-brand-primary/70 truncate">{offer.category}</span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditOffer(offer)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Modifier
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1">
-                    <Calendar className="h-4 w-4 text-brand-secondary flex-shrink-0" />
-                    <span className="text-sm text-brand-primary/70 truncate">
-                      {formatDate(offer.startDate)} - {formatDate(offer.endDate)}
-                    </span>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <p className="text-secondary text-sm">{offer.short_description}</p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">{getTypeLabel(offer.type)}</div>
+                        <div className="text-xs text-secondary">Type</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">{formatDate(offer.created_at)}</div>
+                        <div className="text-xs text-secondary">Créée le</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">0</div>
+                        <div className="text-xs text-secondary">Vues</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">0</div>
+                        <div className="text-xs text-secondary">Utilisations</div>
+                      </div>
+                    </div>
+                    {offer.conditions && (
+                      <div className="text-sm text-secondary pt-2 border-t border-primary/10">
+                        <strong>Conditions:</strong> {offer.conditions}
+                      </div>
+                    )}
+                    {offer.business_address && (
+                      <div className="text-sm text-secondary">
+                        <strong>Adresse:</strong> {offer.business_address}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1">
-                    <Users className="h-4 w-4 text-brand-accent flex-shrink-0" />
-                    <span className="text-sm text-brand-primary/70 truncate">
-                      {offer.views} vues, {offer.conversions} conversions
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-brand-primary/10">
-                  <Button variant="outline" size="sm" className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary/10 flex-1 sm:flex-none">
-                    <Edit className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
-                    Modifier
-                  </Button>
-                  <Button variant="outline" size="sm" className="border-brand-primary/20 text-brand-primary hover:bg-brand-primary/10 flex-1 sm:flex-none">
-                    <BarChart3 className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
-                    Voir les statistiques
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </DashboardLayout>

@@ -6,17 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store } from "lucide-react"
-
-const navigation = [
-  { name: "Tableau de bord", href: "/", icon: Home, badge: null },
-  { name: "Commerces", href: "/commerces", icon: Store, badge: null },
-  { name: "Offres", href: "/offres", icon: Tag, badge: 4 },
-  { name: "Événements", href: "/evenements", icon: Calendar, badge: 3 },
-  { name: "Boosts & visibilité", href: "/boosts", icon: Zap, badge: 15 },
-  { name: "Paiements", href: "/paiements", icon: CreditCard, badge: null },
-  { name: "Profil & compte", href: "/profil", icon: User, badge: null },
-  { name: "Support", href: "/support", icon: HelpCircle, badge: 1 },
-]
+import { useDashboard } from "@/contexts/dashboard-context"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -25,6 +15,18 @@ interface SidebarProps {
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
+  const { counts: { commerces, offers, events, isLoading } } = useDashboard()
+
+  const navigation = [
+    { name: "Tableau de bord", href: "/", icon: Home, badge: null },
+    { name: "Commerces", href: "/commerces", icon: Store, badge: isLoading ? null : commerces },
+    { name: "Offres", href: "/offres", icon: Tag, badge: isLoading ? null : offers },
+    { name: "Événements", href: "/evenements", icon: Calendar, badge: isLoading ? null : events },
+    { name: "Boosts & visibilité", href: "/boosts", icon: Zap, badge: 15 },
+    { name: "Paiements", href: "/paiements", icon: CreditCard, badge: null },
+    { name: "Profil & compte", href: "/profil", icon: User, badge: null },
+    { name: "Support", href: "/support", icon: HelpCircle, badge: 1 },
+  ]
 
   return (
     <div className="flex h-full flex-col bg-white border-r border-brand-primary/20">
