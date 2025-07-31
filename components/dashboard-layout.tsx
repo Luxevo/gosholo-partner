@@ -13,15 +13,14 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Calculer le total des boosts (simulation)
-  const totalBoosts = 15
+
 
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header totalBoosts={totalBoosts} onMenuClick={() => setSidebarOpen(true)} showMobileMenu={true} />
+        <Header onMenuClick={() => setSidebarOpen(true)} showMobileMenu={true} />
 
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto px-4 py-6">{children}</div>
