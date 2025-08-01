@@ -293,7 +293,7 @@ export default function ProfilPage() {
               <CardDescription>Pour les professionnels</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-3xl font-bold">19€<span className="text-lg font-normal">/mois</span></div>
+                              <div className="text-3xl font-bold">$19<span className="text-lg font-normal">/mois</span></div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center">
                   <CheckCircle className="h-4 w-4 text-green-500 mr-2" />

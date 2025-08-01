@@ -76,7 +76,7 @@ export default function PaiementsPage() {
           {
             id: '1',
             amount: 19.00,
-            currency: 'EUR',
+            currency: 'USD',
             description: 'Abonnement Pro - Janvier 2025',
             status: 'completed',
             created_at: '2025-01-01T00:00:00Z',
@@ -85,7 +85,7 @@ export default function PaiementsPage() {
           {
             id: '2',
             amount: 19.00,
-            currency: 'EUR',
+            currency: 'USD',
             description: 'Abonnement Pro - Décembre 2024',
             status: 'completed',
             created_at: '2024-12-01T00:00:00Z',
@@ -215,7 +215,7 @@ export default function PaiementsPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Prix mensuel</span>
-                  <span className="text-lg font-bold">19€/mois</span>
+                  <span className="text-lg font-bold">$19/mois</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Prochaine facturation</span>
@@ -252,7 +252,7 @@ export default function PaiementsPage() {
                     {isUpgrading ? 'Traitement...' : (
                       <>
                         <Crown className="h-4 w-4 mr-2" />
-                        Passer au Pro - 19€/mois
+                        Passer au Pro - $19/mois
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </>
                     )}

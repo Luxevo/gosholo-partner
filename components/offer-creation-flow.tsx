@@ -193,7 +193,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
                 Titre de l'offre * <span className="text-red-500">*</span>
               </label>
               <Input
-                placeholder="Ex: 2 cafés pour 5€, 10% sur tout"
+                placeholder="Ex: 2 cafés pour $5, 10% sur tout"
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 required
