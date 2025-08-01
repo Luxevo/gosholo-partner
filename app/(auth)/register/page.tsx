@@ -46,7 +46,7 @@ export default function RegisterPage() {
     setErrors({})
     const supabase = createClient()
 
-    // Étape 1 : Création de l'utilisateur avec metadata (profile creation handled by trigger)
+    // Create user account
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -65,7 +65,24 @@ export default function RegisterPage() {
       return
     }
 
-    // No manual insert into profiles! Trigger will handle it.
+    // Create profile in database
+    if (signUpData.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: signUpData.user.id,
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone: formData.phone
+        })
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError)
+        // Don't fail registration if profile creation fails
+      }
+    }
+
     setIsLoading(false)
     setIsSuccess(true)
   }
@@ -90,7 +107,7 @@ export default function RegisterPage() {
               Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.
             </p>
             <Button asChild className="w-full bg-brand-primary hover:bg-brand-primary/90">
-              <Link href="/auth/login">
+              <Link href="/login">
                 Se connecter
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
@@ -285,7 +302,7 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-brand-primary/80">
           Vous avez déjà un compte ?{" "}
-          <Link href="/auth/login" className="underline hover:text-brand-primary">
+          <Link href="/login" className="underline hover:text-brand-primary">
             Connectez-vous
           </Link>
         </p>

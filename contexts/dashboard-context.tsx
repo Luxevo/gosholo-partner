@@ -43,7 +43,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
         .select('id')
-        .eq('profile_id', user.id)
+        .eq('user_id', user.id)
 
       if (commercesError) {
         console.error('Error loading commerces:', commercesError)

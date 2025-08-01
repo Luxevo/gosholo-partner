@@ -17,15 +17,16 @@ import OfferCreationFlow from "@/components/offer-creation-flow"
 interface Offer {
   id: string
   commerce_id: string
+  user_id: string
   title: string
-  short_description: string
-  image_url: string
-  type: "en_magasin" | "en_ligne" | "les_deux"
-  business_address: string
-  conditions: string
-  status: "active" | "inactive" | "brouillon" | "draft" | "actif" | "inactif"
-  created_at: string
-  updated_at: string
+  description: string
+  picture: string | null
+  offer_type: "in_store" | "online" | "both"
+  uses_commerce_location: boolean
+  custom_location: string | null
+  condition: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export default function OffresPage() {
@@ -37,71 +38,73 @@ export default function OffresPage() {
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
+  // Load offers from database
+  const loadOffers = async () => {
+    try {
+      console.log('Loading offers...')
+      setIsLoadingOffers(true)
+      
+      // Check authentication first
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        console.error('Authentication error:', userError)
+        setIsLoadingOffers(false)
+        return
+      }
+
+      if (!user) {
+        console.log('No user found')
+        setIsLoadingOffers(false)
+        return
+      }
+
+      console.log('User authenticated:', user.id)
+
+      // First get user's commerces
+      const { data: commercesData, error: commercesError } = await supabase
+        .from('commerces')
+        .select('id')
+        .eq('user_id', user.id)
+
+      if (commercesError) {
+        console.error('Error loading commerces:', commercesError)
+        setIsLoadingOffers(false)
+        return
+      }
+
+      if (!commercesData || commercesData.length === 0) {
+        console.log('No commerces found for user')
+        setOffers([])
+        setIsLoadingOffers(false)
+        return
+      }
+
+      const commerceIds = commercesData.map(c => c.id)
+
+      // Query offers for user's commerces
+      const { data: offersData, error } = await supabase
+        .from('offers')
+        .select('*')
+        .in('commerce_id', commerceIds)
+
+      if (error) {
+        console.error('Database error:', error)
+        setIsLoadingOffers(false)
+        return
+      }
+
+      console.log('Offers loaded:', offersData)
+      setOffers(offersData || [])
+    } catch (error) {
+      console.error('Unexpected error:', error)
+    } finally {
+      setIsLoadingOffers(false)
+    }
+  }
+
   // Load offers from database on component mount
   useEffect(() => {
-    const loadOffers = async () => {
-      try {
-        console.log('Loading offers...')
-        
-        // Check authentication first
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        
-        if (userError) {
-          console.error('Authentication error:', userError)
-          setIsLoadingOffers(false)
-          return
-        }
-
-        if (!user) {
-          console.log('No user found')
-          setIsLoadingOffers(false)
-          return
-        }
-
-        console.log('User authenticated:', user.id)
-
-        // First get user's commerces
-        const { data: commercesData, error: commercesError } = await supabase
-          .from('commerces')
-          .select('id')
-          .eq('profile_id', user.id)
-
-        if (commercesError) {
-          console.error('Error loading commerces:', commercesError)
-          setIsLoadingOffers(false)
-          return
-        }
-
-        if (!commercesData || commercesData.length === 0) {
-          console.log('No commerces found for user')
-          setOffers([])
-          setIsLoadingOffers(false)
-          return
-        }
-
-        const commerceIds = commercesData.map(c => c.id)
-
-        // Query offers for user's commerces
-        const { data: offersData, error } = await supabase
-          .from('offers')
-          .select('*')
-          .in('commerce_id', commerceIds)
-
-        if (error) {
-          console.error('Database error:', error)
-          setIsLoadingOffers(false)
-          return
-        }
-
-        console.log('Offers loaded:', offersData)
-        setOffers(offersData || [])
-      } catch (error) {
-        console.error('Unexpected error:', error)
-      } finally {
-        setIsLoadingOffers(false)
-      }
-    }
-
     loadOffers()
   }, [])
 
@@ -131,11 +134,11 @@ export default function OffresPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case "en_magasin":
+      case "in_store":
         return "En magasin"
-      case "en_ligne":
+      case "online":
         return "En ligne"
-      case "les_deux":
+      case "both":
         return "Les deux"
       default:
         return type
@@ -151,7 +154,13 @@ export default function OffresPage() {
     setIsEditDialogOpen(false)
     setEditingOffer(null)
     // Reload offers to show updated data
-    window.location.reload()
+    loadOffers()
+  }
+
+  const handleOfferCreated = () => {
+    setIsDialogOpen(false)
+    // Reload offers to show the new offer
+    loadOffers()
   }
 
   return (
@@ -176,7 +185,7 @@ export default function OffresPage() {
                   Remplissez les informations pour créer une nouvelle offre.
                 </DialogDescription>
               </DialogHeader>
-              <OfferCreationFlow onCancel={() => setIsDialogOpen(false)} />
+              <OfferCreationFlow onCancel={handleOfferCreated} />
             </DialogContent>
           </Dialog>
 
@@ -225,7 +234,7 @@ export default function OffresPage() {
                 <CardHeader className="pb-3 flex flex-row items-center gap-4">
                   <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                     <img
-                      src={offer.image_url || "/placeholder-logo.png"}
+                      src={offer.picture || "/placeholder-logo.png"}
                       alt={offer.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -238,13 +247,11 @@ export default function OffresPage() {
                     <CardTitle className="text-lg text-primary">{offer.title}</CardTitle>
                     <div className="flex items-center gap-2 text-secondary text-sm">
                       <Tag className="h-4 w-4" />
-                      <span>{getTypeLabel(offer.type)}</span>
+                      <span>{getTypeLabel(offer.offer_type)}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className="text-xs">
-                        {offer.status === "active" || offer.status === "actif" ? "Active" : 
-                         offer.status === "inactive" || offer.status === "inactif" ? "Inactive" : 
-                         offer.status === "draft" || offer.status === "brouillon" ? "Brouillon" : offer.status}
+                        {offer.uses_commerce_location ? "En magasin" : "Adresse spécifique"}
                       </Badge>
                     </div>
                   </div>
@@ -261,14 +268,14 @@ export default function OffresPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <p className="text-secondary text-sm">{offer.short_description}</p>
+                    <p className="text-secondary text-sm">{offer.description}</p>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{getTypeLabel(offer.type)}</div>
+                        <div className="text-2xl font-bold text-primary">{getTypeLabel(offer.offer_type)}</div>
                         <div className="text-xs text-secondary">Type</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{formatDate(offer.created_at)}</div>
+                        <div className="text-2xl font-bold text-primary">{offer.created_at ? formatDate(offer.created_at) : "N/A"}</div>
                         <div className="text-xs text-secondary">Créée le</div>
                       </div>
                       <div className="text-center">
@@ -280,14 +287,14 @@ export default function OffresPage() {
                         <div className="text-xs text-secondary">Utilisations</div>
                       </div>
                     </div>
-                    {offer.conditions && (
+                    {offer.condition && (
                       <div className="text-sm text-secondary pt-2 border-t border-primary/10">
-                        <strong>Conditions:</strong> {offer.conditions}
+                        <strong>Conditions:</strong> {offer.condition}
                       </div>
                     )}
-                    {offer.business_address && (
+                    {offer.custom_location && (
                       <div className="text-sm text-secondary">
-                        <strong>Adresse:</strong> {offer.business_address}
+                        <strong>Adresse:</strong> {offer.custom_location}
                       </div>
                     )}
                   </div>

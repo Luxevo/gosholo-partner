@@ -16,8 +16,12 @@ interface Commerce {
   id: string
   name: string
   address: string
-  logo_url: string
-  type: string
+  category: string
+  description: string | null
+  email: string | null
+  phone: string | null
+  website: string | null
+  image_url: string | null
   offers: any[]
   events: any[]
 }
@@ -36,14 +40,22 @@ export default function CommercesPage() {
   const [newCommerce, setNewCommerce] = useState({
     name: "",
     address: "",
-    type: "restaurant",
-    logo_url: ""
+    category: "Restaurant",
+    description: "",
+    email: "",
+    phone: "",
+    website: "",
+    image_url: ""
   })
   const [editCommerce, setEditCommerce] = useState({
     name: "",
     address: "",
-    type: "restaurant",
-    logo_url: ""
+    category: "Restaurant",
+    description: "",
+    email: "",
+    phone: "",
+    website: "",
+    image_url: ""
   })
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
@@ -74,7 +86,7 @@ export default function CommercesPage() {
         const { data: commercesData, error } = await supabase
           .from('commerces')
           .select('*')
-          .eq('profile_id', user.id)
+          .eq('user_id', user.id)
 
         if (error) {
           console.error('Database error:', error)
@@ -89,8 +101,12 @@ export default function CommercesPage() {
           id: commerce.id,
           name: commerce.name,
           address: commerce.address || "",
-          logo_url: commerce.logo_url || "/placeholder-logo.png",
-          type: commerce.type || "restaurant",
+          category: commerce.category || "Restaurant",
+          description: commerce.description || null,
+          email: commerce.email || null,
+          phone: commerce.phone || null,
+          website: commerce.website || null,
+          image_url: commerce.image_url || "/placeholder-logo.png",
           offers: [],
           events: [],
         }))
@@ -170,11 +186,15 @@ export default function CommercesPage() {
       const { data: commerceData, error: insertError } = await supabase
         .from('commerces')
         .insert({
-          profile_id: user.id,
+          user_id: user.id,
           name: newCommerce.name,
-          address: newCommerce.address || null,
-          type: newCommerce.type,
-          logo_url: newCommerce.logo_url || null,
+          address: newCommerce.address,
+          category: newCommerce.category,
+          description: newCommerce.description || null,
+          email: newCommerce.email || null,
+          phone: newCommerce.phone || null,
+          website: newCommerce.website || null,
+          image_url: newCommerce.image_url || null,
         })
         .select()
         .single()
@@ -194,14 +214,18 @@ export default function CommercesPage() {
           id: commerceData.id,
           name: commerceData.name,
           address: commerceData.address || "",
-          logo_url: commerceData.logo_url || "/placeholder-logo.png",
-          type: commerceData.type || "restaurant",
+          category: commerceData.category || "Restaurant",
+          description: commerceData.description || null,
+          email: commerceData.email || null,
+          phone: commerceData.phone || null,
+          website: commerceData.website || null,
+          image_url: commerceData.image_url || "/placeholder-logo.png",
           offers: [],
           events: [],
         }
       ])
 
-      setNewCommerce({ name: "", address: "", type: "restaurant", logo_url: "" })
+      setNewCommerce({ name: "", address: "", category: "restaurant", description: "", email: "", phone: "", website: "", image_url: "" })
       setLogoPreview(null)
       setIsDialogOpen(false)
     } catch (error) {
@@ -241,9 +265,13 @@ export default function CommercesPage() {
         .from('commerces')
         .update({
           name: editCommerce.name,
-          address: editCommerce.address || null,
-          type: editCommerce.type,
-          logo_url: editCommerce.logo_url || null,
+          address: editCommerce.address,
+          category: editCommerce.category,
+          description: editCommerce.description || null,
+          email: editCommerce.email || null,
+          phone: editCommerce.phone || null,
+          website: editCommerce.website || null,
+          image_url: editCommerce.image_url || null,
         })
         .eq('id', editingCommerce.id)
         .select()
@@ -264,13 +292,17 @@ export default function CommercesPage() {
               ...commerce,
               name: commerceData.name,
               address: commerceData.address || "",
-              logo_url: commerceData.logo_url || "/placeholder-logo.png",
-              type: commerceData.type || "restaurant",
+              category: commerceData.category || "Restaurant",
+              description: commerceData.description || null,
+              email: commerceData.email || null,
+              phone: commerceData.phone || null,
+              website: commerceData.website || null,
+              image_url: commerceData.image_url || "/placeholder-logo.png",
             }
           : commerce
       ))
 
-      setEditCommerce({ name: "", address: "", type: "restaurant", logo_url: "" })
+      setEditCommerce({ name: "", address: "", category: "restaurant", description: "", email: "", phone: "", website: "", image_url: "" })
       setEditingCommerce(null)
       setIsEditDialogOpen(false)
     } catch (error) {
@@ -295,7 +327,7 @@ export default function CommercesPage() {
                 Ajouter un commerce
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Ajouter un commerce</DialogTitle>
                 <DialogDescription>
@@ -322,27 +354,73 @@ export default function CommercesPage() {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <label htmlFor="type" className="text-sm font-medium">Type de commerce</label>
+                  <label htmlFor="category" className="text-sm font-medium">Catégorie de commerce</label>
                   <select
-                    id="type"
-                    value={newCommerce.type}
-                    onChange={(e) => setNewCommerce({ ...newCommerce, type: e.target.value })}
+                    id="category"
+                    value={newCommerce.category}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, category: e.target.value })}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <option value="restaurant">Restaurant</option>
-                    <option value="cafe">Café</option>
-                    <option value="boulangerie">Boulangerie</option>
-                    <option value="epicerie">Épicerie</option>
-                    <option value="autre">Autre</option>
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Café">Café</option>
+                    <option value="Boulangerie">Boulangerie</option>
+                    <option value="Épicerie">Épicerie</option>
+                    <option value="Commerce">Commerce</option>
+                    <option value="Service">Service</option>
+                    <option value="Santé">Santé</option>
+                    <option value="Beauté">Beauté</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Culture">Culture</option>
+                    <option value="Éducation">Éducation</option>
+                    <option value="Autre">Autre</option>
                   </select>
                 </div>
                 <div className="grid gap-2">
-                  <label htmlFor="logo" className="text-sm font-medium">URL du logo</label>
+                  <label htmlFor="description" className="text-sm font-medium">Description (optionnel)</label>
                   <Input
-                    id="logo"
-                    value={newCommerce.logo_url}
-                    onChange={(e) => setNewCommerce({ ...newCommerce, logo_url: e.target.value })}
-                    placeholder="URL de l'image du logo"
+                    id="description"
+                    value={newCommerce.description}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, description: e.target.value })}
+                    placeholder="Description de votre commerce"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="email" className="text-sm font-medium">Email (optionnel)</label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newCommerce.email}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, email: e.target.value })}
+                    placeholder="contact@moncommerce.com"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="phone" className="text-sm font-medium">Téléphone (optionnel)</label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={newCommerce.phone}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, phone: e.target.value })}
+                    placeholder="01 23 45 67 89"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="website" className="text-sm font-medium">Site web (optionnel)</label>
+                  <Input
+                    id="website"
+                    type="url"
+                    value={newCommerce.website}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, website: e.target.value })}
+                    placeholder="https://moncommerce.com"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="image" className="text-sm font-medium">URL de l'image (optionnel)</label>
+                  <Input
+                    id="image"
+                    value={newCommerce.image_url}
+                    onChange={(e) => setNewCommerce({ ...newCommerce, image_url: e.target.value })}
+                    placeholder="URL de l'image du commerce"
                   />
                 </div>
               </div>
@@ -382,7 +460,7 @@ export default function CommercesPage() {
                 <CardHeader className="pb-3 flex flex-row items-center gap-4">
                   <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                     <img
-                      src={commerce.logo_url}
+                      src={commerce.image_url || "/placeholder-logo.png"}
                       alt={commerce.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -399,7 +477,7 @@ export default function CommercesPage() {
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className="text-xs">
-                        {commerce.type}
+                        {commerce.category}
                       </Badge>
                     </div>
                   </div>
@@ -434,8 +512,12 @@ export default function CommercesPage() {
                         setEditCommerce({
                           name: commerce.name,
                           address: commerce.address,
-                          type: commerce.type,
-                          logo_url: commerce.logo_url,
+                          category: commerce.category,
+                          description: commerce.description || "",
+                          email: commerce.email || "",
+                          phone: commerce.phone || "",
+                          website: commerce.website || "",
+                          image_url: commerce.image_url || "",
                         });
                         setIsEditDialogOpen(true);
                       }}
@@ -501,7 +583,7 @@ export default function CommercesPage() {
 
       {/* Edit Commerce Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier le commerce</DialogTitle>
             <DialogDescription>
@@ -528,27 +610,73 @@ export default function CommercesPage() {
               />
             </div>
             <div className="grid gap-2">
-              <label htmlFor="editType" className="text-sm font-medium">Type de commerce</label>
+              <label htmlFor="editCategory" className="text-sm font-medium">Catégorie de commerce</label>
               <select
-                id="editType"
-                value={editCommerce.type}
-                onChange={(e) => setEditCommerce({ ...editCommerce, type: e.target.value })}
+                id="editCategory"
+                value={editCommerce.category}
+                onChange={(e) => setEditCommerce({ ...editCommerce, category: e.target.value })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <option value="restaurant">Restaurant</option>
-                <option value="cafe">Café</option>
-                <option value="boulangerie">Boulangerie</option>
-                <option value="epicerie">Épicerie</option>
-                <option value="autre">Autre</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="Café">Café</option>
+                <option value="Boulangerie">Boulangerie</option>
+                <option value="Épicerie">Épicerie</option>
+                <option value="Commerce">Commerce</option>
+                <option value="Service">Service</option>
+                <option value="Santé">Santé</option>
+                <option value="Beauté">Beauté</option>
+                <option value="Sport">Sport</option>
+                <option value="Culture">Culture</option>
+                <option value="Éducation">Éducation</option>
+                <option value="Autre">Autre</option>
               </select>
             </div>
             <div className="grid gap-2">
-              <label htmlFor="editLogo" className="text-sm font-medium">URL du logo</label>
+              <label htmlFor="editDescription" className="text-sm font-medium">Description (optionnel)</label>
               <Input
-                id="editLogo"
-                value={editCommerce.logo_url}
-                onChange={(e) => setEditCommerce({ ...editCommerce, logo_url: e.target.value })}
-                placeholder="URL de l'image du logo"
+                id="editDescription"
+                value={editCommerce.description}
+                onChange={(e) => setEditCommerce({ ...editCommerce, description: e.target.value })}
+                placeholder="Description de votre commerce"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="editEmail" className="text-sm font-medium">Email (optionnel)</label>
+              <Input
+                id="editEmail"
+                type="email"
+                value={editCommerce.email}
+                onChange={(e) => setEditCommerce({ ...editCommerce, email: e.target.value })}
+                placeholder="contact@moncommerce.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="editPhone" className="text-sm font-medium">Téléphone (optionnel)</label>
+              <Input
+                id="editPhone"
+                type="tel"
+                value={editCommerce.phone}
+                onChange={(e) => setEditCommerce({ ...editCommerce, phone: e.target.value })}
+                placeholder="01 23 45 67 89"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="editWebsite" className="text-sm font-medium">Site web (optionnel)</label>
+              <Input
+                id="editWebsite"
+                type="url"
+                value={editCommerce.website}
+                onChange={(e) => setEditCommerce({ ...editCommerce, website: e.target.value })}
+                placeholder="https://moncommerce.com"
+              />
+            </div>
+            <div className="grid gap-2">
+              <label htmlFor="editImage" className="text-sm font-medium">URL de l'image (optionnel)</label>
+              <Input
+                id="editImage"
+                value={editCommerce.image_url}
+                onChange={(e) => setEditCommerce({ ...editCommerce, image_url: e.target.value })}
+                placeholder="URL de l'image du commerce"
               />
             </div>
           </div>

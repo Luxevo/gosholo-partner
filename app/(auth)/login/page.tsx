@@ -35,16 +35,33 @@ export default function LoginPage() {
       setIsLoading(false)
       return
     }
-  
-    // 🔁 Vérifie la session actuelle
-    const { data: sessionData } = await supabase.auth.getSession()
-  
-    if (sessionData.session) {
-      router.push("/commerces")
-    } else {
-      setError("Une erreur est survenue. Veuillez réessayer.")
+
+    // Check if user has a profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profileError || !profile) {
+      // Create profile if it doesn't exist
+      const { error: createProfileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: data.user.id,
+          email: data.user.email!,
+          first_name: data.user.user_metadata?.first_name || null,
+          last_name: data.user.user_metadata?.last_name || null,
+          phone: data.user.user_metadata?.phone || null
+        })
+
+      if (createProfileError) {
+        console.error('Error creating profile:', createProfileError)
+      }
     }
-  
+
+    // Redirect to commerces page
+    router.push("/commerces")
     setIsLoading(false)
   }
   
@@ -134,7 +151,7 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between">
                 <Link
-                  href="/auth/forgot-password"
+                  href="/forgot-password"
                   className="text-sm text-brand-primary hover:text-brand-primary/80 underline"
                 >
                   Mot de passe oublié ?
@@ -159,7 +176,7 @@ export default function LoginPage() {
           <p className="text-sm text-brand-primary/70">
             Pas encore de compte ?{" "}
             <Link
-              href="/auth/register"
+              href="/register"
               className="text-brand-primary hover:text-brand-primary/80 font-medium underline"
             >
               Créer un compte

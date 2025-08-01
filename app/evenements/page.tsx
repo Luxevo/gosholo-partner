@@ -17,18 +17,15 @@ import EventCreationFlow from "@/components/event-creation-flow"
 interface Event {
   id: string
   commerce_id: string
+  user_id: string
   title: string
-  short_description: string
-  image_url: string
-  location: string
-  conditions: string
-  max_participants: number
-  participants_count: number
-  status: "active" | "inactive" | "brouillon" | "draft" | "actif" | "inactif"
-  start_date: string
-  end_date: string
-  created_at: string
-  updated_at: string
+  description: string
+  picture: string | null
+  uses_commerce_location: boolean
+  custom_location: string | null
+  condition: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export default function EvenementsPage() {
@@ -40,88 +37,90 @@ export default function EvenementsPage() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
+  // Load events from database
+  const loadEvents = async () => {
+    try {
+      console.log('Loading events...')
+      setIsLoadingEvents(true)
+      
+      // Check authentication first
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError) {
+        console.error('Authentication error:', userError)
+        setIsLoadingEvents(false)
+        return
+      }
+
+      if (!user) {
+        console.log('No user found')
+        setIsLoadingEvents(false)
+        return
+      }
+
+      console.log('User authenticated:', user.id)
+
+      // First get user's commerces
+      const { data: commercesData, error: commercesError } = await supabase
+        .from('commerces')
+        .select('id')
+        .eq('user_id', user.id)
+
+      if (commercesError) {
+        console.error('Error loading commerces:', commercesError)
+        setIsLoadingEvents(false)
+        return
+      }
+
+      if (!commercesData || commercesData.length === 0) {
+        console.log('No commerces found for user')
+        setEvents([])
+        setIsLoadingEvents(false)
+        return
+      }
+
+      const commerceIds = commercesData.map(c => c.id)
+
+      // Query events for user's commerces
+      const { data: eventsData, error } = await supabase
+        .from('events')
+        .select('*')
+        .in('commerce_id', commerceIds)
+
+      if (error) {
+        console.error('Database error:', error)
+        setIsLoadingEvents(false)
+        return
+      }
+
+      console.log('Events loaded:', eventsData)
+      setEvents(eventsData || [])
+    } catch (error) {
+      console.error('Unexpected error:', error)
+    } finally {
+      setIsLoadingEvents(false)
+    }
+  }
+
   // Load events from database on component mount
   useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        console.log('Loading events...')
-        
-        // Check authentication first
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        
-        if (userError) {
-          console.error('Authentication error:', userError)
-          setIsLoadingEvents(false)
-          return
-        }
-
-        if (!user) {
-          console.log('No user found')
-          setIsLoadingEvents(false)
-          return
-        }
-
-        console.log('User authenticated:', user.id)
-
-        // First get user's commerces
-        const { data: commercesData, error: commercesError } = await supabase
-          .from('commerces')
-          .select('id')
-          .eq('profile_id', user.id)
-
-        if (commercesError) {
-          console.error('Error loading commerces:', commercesError)
-          setIsLoadingEvents(false)
-          return
-        }
-
-        if (!commercesData || commercesData.length === 0) {
-          console.log('No commerces found for user')
-          setEvents([])
-          setIsLoadingEvents(false)
-          return
-        }
-
-        const commerceIds = commercesData.map(c => c.id)
-
-        // Query events for user's commerces
-        const { data: eventsData, error } = await supabase
-          .from('events')
-          .select('*')
-          .in('commerce_id', commerceIds)
-
-        if (error) {
-          console.error('Database error:', error)
-          setIsLoadingEvents(false)
-          return
-        }
-
-        console.log('Events loaded:', eventsData)
-        setEvents(eventsData || [])
-      } catch (error) {
-        console.error('Unexpected error:', error)
-      } finally {
-        setIsLoadingEvents(false)
-      }
-    }
-
     loadEvents()
   }, [])
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-      case "actif":
-        return "bg-green-100 text-green-800"
-      case "inactive":
-      case "inactif":
-        return "bg-red-100 text-red-800"
-      case "draft":
-      case "brouillon":
-        return "bg-gray-100 text-gray-800"
-      default: return "bg-gray-100 text-gray-800"
-    }
+  const handleEventUpdated = () => {
+    setIsEditDialogOpen(false)
+    setEditingEvent(null)
+    // Reload events to show updated data
+    loadEvents()
   }
+
+  const handleEventCreated = () => {
+    setIsDialogOpen(false)
+    // Reload events to show the new event
+    loadEvents()
+  }
+
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -135,13 +134,6 @@ export default function EvenementsPage() {
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event)
     setIsEditDialogOpen(true)
-  }
-
-  const handleEventUpdated = () => {
-    setIsEditDialogOpen(false)
-    setEditingEvent(null)
-    // Reload events to show updated data
-    window.location.reload()
   }
 
   return (
@@ -166,7 +158,7 @@ export default function EvenementsPage() {
                   Remplissez les informations pour créer un nouvel événement.
                 </DialogDescription>
               </DialogHeader>
-              <EventCreationFlow onCancel={() => setIsDialogOpen(false)} />
+              <EventCreationFlow onCancel={handleEventCreated} />
             </DialogContent>
           </Dialog>
 
@@ -215,7 +207,7 @@ export default function EvenementsPage() {
                 <CardHeader className="pb-3 flex flex-row items-center gap-4">
                   <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                     <img
-                      src={event.image_url || "/placeholder-logo.png"}
+                      src={event.picture || "/placeholder-logo.png"}
                       alt={event.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -228,13 +220,11 @@ export default function EvenementsPage() {
                     <CardTitle className="text-lg text-primary">{event.title}</CardTitle>
                     <div className="flex items-center gap-2 text-secondary text-sm">
                       <MapPin className="h-4 w-4" />
-                      <span>{event.location}</span>
+                      <span>{event.uses_commerce_location ? "Adresse du commerce" : event.custom_location}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className="text-xs">
-                        {event.status === "active" || event.status === "actif" ? "Active" : 
-                         event.status === "inactive" || event.status === "inactif" ? "Inactive" : 
-                         event.status === "draft" || event.status === "brouillon" ? "Brouillon" : event.status}
+                        {event.uses_commerce_location ? "En magasin" : "Adresse spécifique"}
                       </Badge>
                     </div>
                   </div>
@@ -251,28 +241,28 @@ export default function EvenementsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <p className="text-secondary text-sm">{event.short_description}</p>
+                    <p className="text-secondary text-sm">{event.description}</p>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{formatDate(event.start_date)}</div>
-                        <div className="text-xs text-secondary">Date début</div>
+                        <div className="text-2xl font-bold text-primary">{event.created_at ? formatDate(event.created_at) : "N/A"}</div>
+                        <div className="text-xs text-secondary">Créé le</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{formatDate(event.end_date)}</div>
+                        <div className="text-2xl font-bold text-primary">N/A</div>
                         <div className="text-xs text-secondary">Date fin</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{event.participants_count}</div>
+                        <div className="text-2xl font-bold text-primary">0</div>
                         <div className="text-xs text-secondary">Participants</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{event.max_participants}</div>
+                        <div className="text-2xl font-bold text-primary">N/A</div>
                         <div className="text-xs text-secondary">Max participants</div>
                       </div>
                     </div>
-                    {event.conditions && (
+                    {event.condition && (
                       <div className="text-sm text-secondary pt-2 border-t border-primary/10">
-                        <strong>Conditions:</strong> {event.conditions}
+                        <strong>Conditions:</strong> {event.condition}
                       </div>
                     )}
                   </div>
