@@ -192,8 +192,8 @@ export type Database = {
           description: string
           id: string
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
-          picture: string | null
           title: string
+          is_active: boolean
           updated_at: string | null
           user_id: string
           uses_commerce_location: boolean
@@ -205,6 +205,7 @@ export type Database = {
           custom_location?: string | null
           description: string
           id?: string
+          is_active?: boolean
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
           picture?: string | null
           title: string

@@ -10,6 +10,12 @@ Un tableau de bord moderne et responsive pour les commerçants Gosholo, optimis�
 - **PWA Ready**: Installation possible sur mobile comme une application native
 - **Touch-Friendly**: Interactions optimisées pour le tactile
 
+### Gestion des Offres
+- **Expiration automatique**: Les offres sont automatiquement désactivées après 30 jours
+- **Statut visuel**: Indicateurs de statut (Actif, Expire bientôt, Expirée)
+- **Filtrage**: Possibilité de filtrer par statut (Toutes, Actives, Expirées)
+- **Compteur de jours**: Affichage du nombre de jours restants pour chaque offre
+
 ### Navigation
 - **Sidebar responsive**: Menu latéral qui se transforme en drawer sur mobile
 - **Header adaptatif**: Barre de navigation qui s'adapte à la taille d'écran
@@ -66,6 +72,8 @@ Un tableau de bord moderne et responsive pour les commerçants Gosholo, optimis�
 - **Icons**: Lucide React
 - **TypeScript**: Type safety
 - **PWA**: Web App Manifest
+- **Database**: Supabase
+- **State Management**: React Context + Hooks
 
 ## 📁 Structure du Projet
 

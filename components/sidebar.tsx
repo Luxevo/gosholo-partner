@@ -20,11 +20,10 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   const navigation = [
     { name: "Tableau de bord", href: "/", icon: Home, badge: null },
-    { name: "Commerces", href: "/commerces", icon: Store, badge: isLoading ? null : commerces },
-    { name: "Offres", href: "/offres", icon: Tag, badge: isLoading ? null : offers },
-    { name: "Événements", href: "/evenements", icon: Calendar, badge: isLoading ? null : events },
-    { name: "Boosts & visibilité", href: "/boosts", icon: Zap, badge: 15 },
-    { name: "Paiements", href: "/paiements", icon: CreditCard, badge: null },
+    { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
+    { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
+    { name: "Boosts & visibilité", href: "/dashboard/boosts", icon: Zap, badge: 15 },
+    { name: "Paiements", href: "/dashboard/paiements", icon: CreditCard, badge: null },
     { name: "Profil & compte", href: "/profil", icon: User, badge: null },
     { name: "Support", href: "/support", icon: HelpCircle, badge: 1 },
   ]

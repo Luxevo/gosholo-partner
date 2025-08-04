@@ -1,8 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { DashboardProvider } from "@/contexts/dashboard-context"
 import { DashboardLayout } from "@/components/dashboard-layout"
@@ -26,12 +24,12 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <DashboardProvider>
+            <DashboardLayout>
               {children}
-            <Toaster />
+            </DashboardLayout>
           </DashboardProvider>
-        </ThemeProvider>
+          <Toaster />
       </body>
     </html>
   )

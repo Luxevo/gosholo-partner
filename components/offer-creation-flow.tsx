@@ -24,7 +24,6 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
   const [form, setForm] = useState({
     title: "",
     short_description: "",
-    image_url: "",
     type: "en_magasin" as "en_magasin" | "en_ligne" | "les_deux",
     business_address: "",
     conditions: "",
@@ -97,12 +96,12 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
           user_id: user.id,
           title: form.title,
           description: form.short_description,
-          picture: form.image_url || null,
           offer_type: form.type === "en_magasin" ? "in_store" : 
                      form.type === "en_ligne" ? "online" : "both",
           uses_commerce_location: !form.business_address,
           custom_location: form.business_address || null,
           condition: form.conditions || null,
+          is_active: true, // Explicitly set as active
         })
         .select()
         .single()
@@ -122,7 +121,6 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
       setForm({
         title: "",
         short_description: "",
-        image_url: "",
         type: "en_magasin",
         business_address: "",
         conditions: "",
@@ -214,30 +212,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-primary mb-2">
-                Image de l'offre (optionnel)
-              </label>
-              <Input
-                placeholder="URL de l'image"
-                value={form.image_url}
-                onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
-              />
-              <div className="text-xs text-secondary mt-1">
-                Ajouter une image attire 2x plus l'attention des utilisateurs.
-              </div>
-              {form.image_url && (
-                <img 
-                  src={form.image_url} 
-                  alt="Aperçu" 
-                  className="mt-2 rounded w-32 h-32 object-cover" 
-                  onError={(e) => { 
-                    const target = e.target as HTMLImageElement; 
-                    target.style.display = 'none'; 
-                  }} 
-                />
-              )}
-            </div>
+           
 
                          <div>
                <label className="block text-sm font-medium text-primary mb-2">

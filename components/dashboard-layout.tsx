@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { useOfferExpiration } from "@/hooks/use-offer-expiration"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -13,7 +14,8 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-
+  // Set up periodic offer expiration checks (every 30 minutes)
+  useOfferExpiration(30)
 
   return (
     <div className="flex h-screen bg-gray-50">
