@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store } from "lucide-react"
 import { useDashboard } from "@/contexts/dashboard-context"
+import Image from "next/image"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -30,20 +31,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-white border-r border-brand-primary/20">
-      {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-6 border-b border-brand-primary/20">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-            <span className="text-sm font-bold text-white">G</span>
-          </div>
-          <span className="text-lg font-semibold text-brand-primary">Gosholo Partner</span>
-        </div>
-        {onClose && (
-          <Button variant="ghost" size="icon" onClick={onClose} className="lg:hidden">
-            <X className="h-5 w-5" />
-          </Button>
-        )}
-      </div>
+<Image src="/logo.png" alt="Gosholo Partner" width={220} height={100} />
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">
