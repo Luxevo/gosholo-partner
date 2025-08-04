@@ -46,41 +46,31 @@ export default function RegisterPage() {
     setErrors({})
     const supabase = createClient()
 
-    // Create user account
+
+
+    // Create user account with metadata
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
         data: {
-          phone: formData.phone,
           first_name: formData.firstName,
           last_name: formData.lastName,
+          phone: formData.phone,
         }
       }
     })
 
-    if (signUpError || !signUpData.user) {
+    if (signUpError) {
       setIsLoading(false)
-      setErrors({ email: signUpError?.message || "Erreur lors de la création du compte" })
+      setErrors({ email: signUpError.message || "Erreur lors de la création du compte" })
       return
     }
 
-    // Create profile in database
-    if (signUpData.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: signUpData.user.id,
-          email: formData.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: formData.phone
-        })
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError)
-        // Don't fail registration if profile creation fails
-      }
+    if (!signUpData.user) {
+      setIsLoading(false)
+      setErrors({ email: "Aucun utilisateur créé. Vérifiez votre email pour confirmer votre compte." })
+      return
     }
 
     setIsLoading(false)
