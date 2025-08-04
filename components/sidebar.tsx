@@ -22,10 +22,10 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: "Tableau de bord", href: "/", icon: Home, badge: null },
     { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
-    { name: "Boosts & visibilité", href: "/dashboard/boosts", icon: Zap, badge: 15 },
-    { name: "Paiements", href: "/dashboard/paiements", icon: CreditCard, badge: null },
-    { name: "Profil & compte", href: "/profil", icon: User, badge: null },
-    { name: "Support", href: "/support", icon: HelpCircle, badge: 1 },
+    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: 15 },
+    { name: "Historique", href: "/dashboard/paiements", icon: CreditCard, badge: null },
+    { name: "Profil & compte", href: "/dashboard/profil", icon: User, badge: null },
+    { name: "Support", href: "/dashboard/support", icon: HelpCircle, badge: 1 },
   ]
 
   return (

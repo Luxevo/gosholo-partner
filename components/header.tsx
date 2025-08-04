@@ -11,18 +11,66 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Bell, Settings, LogOut, User, Menu } from "lucide-react"
+import { Bell, Settings, LogOut, User, Menu, Zap, Crown, Star } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { useState, useEffect } from "react"
 
 interface HeaderProps {
   onMenuClick?: () => void
   showMobileMenu?: boolean
 }
 
+interface UserData {
+  boostCredits: number
+  subscriptionPlan: 'free' | 'pro'
+}
+
 export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
+  const [userData, setUserData] = useState<UserData>({ boostCredits: 0, subscriptionPlan: 'free' });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (userError || !user) {
+          console.error('Authentication error:', userError)
+          return
+        }
+
+        // Get user subscription
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('plan_type')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        // Get boost credits
+        const { data: boostCreditsData } = await supabase
+          .from('boost_credits')
+          .select('credits_available')
+          .eq('user_id', user.id)
+          .single()
+
+        setUserData({
+          boostCredits: boostCreditsData?.credits_available || 0,
+          subscriptionPlan: subscriptionData?.plan_type || 'free'
+        })
+      } catch (error) {
+        console.error('Error fetching user data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [supabase])
 
   const handleLogout = async () => {
     try {
@@ -53,6 +101,27 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Boost Credits */}
+          <div className="flex items-center space-x-2 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200">
+            <Zap className="h-4 w-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">
+              {isLoading ? '...' : userData.boostCredits}
+            </span>
+            <span className="text-xs text-orange-600">boost{userData.boostCredits !== 1 ? 's' : ''}</span>
+          </div>
+
+          {/* Subscription Plan */}
+          <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200">
+            {userData.subscriptionPlan === 'pro' ? (
+              <Crown className="h-4 w-4 text-yellow-600" />
+            ) : (
+              <Star className="h-4 w-4 text-gray-500" />
+            )}
+            <span className="text-sm font-medium text-blue-700">
+              {isLoading ? '...' : userData.subscriptionPlan === 'pro' ? 'Pro' : 'Gratuit'}
+            </span>
+          </div>
+
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
@@ -60,8 +129,6 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               3
             </Badge>
           </Button>
-
-
 
           {/* User Menu */}
           <DropdownMenu>
