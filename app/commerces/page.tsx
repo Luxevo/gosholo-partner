@@ -313,7 +313,7 @@ export default function CommercesPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -688,6 +688,6 @@ export default function CommercesPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </div>
   )
 } 

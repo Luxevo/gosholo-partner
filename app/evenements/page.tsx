@@ -137,7 +137,6 @@ export default function EvenementsPage() {
   }
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -272,6 +271,5 @@ export default function EvenementsPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
   )
 }

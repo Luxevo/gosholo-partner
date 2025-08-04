@@ -123,7 +123,7 @@ export default function ProfilPage() {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
+      <div>
         <div className="p-6">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/4"></div>
@@ -133,12 +133,12 @@ export default function ProfilPage() {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </div>
     )
   }
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -371,6 +371,6 @@ export default function ProfilPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   )
 }

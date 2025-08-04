@@ -22,7 +22,7 @@ export default function SupportPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="p-4 lg:p-6 max-w-xl mx-auto space-y-8">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-1">Support</h1>
@@ -86,6 +86,6 @@ export default function SupportPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   )
 }

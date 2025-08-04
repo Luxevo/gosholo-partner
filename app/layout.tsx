@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { DashboardProvider } from "@/contexts/dashboard-context"
+import { DashboardLayout } from "@/components/dashboard-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <DashboardProvider>
-            {children}
+            <DashboardLayout>
+              {children}
+            </DashboardLayout>
             <Toaster />
           </DashboardProvider>
         </ThemeProvider>

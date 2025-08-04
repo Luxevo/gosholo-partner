@@ -172,7 +172,7 @@ export default function PaiementsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -430,6 +430,6 @@ export default function PaiementsPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   )
 }

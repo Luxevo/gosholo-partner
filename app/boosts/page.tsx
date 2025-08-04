@@ -251,7 +251,7 @@ export default function BoostsPage() {
   }
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -473,6 +473,6 @@ export default function BoostsPage() {
           </Alert>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   )
 }
