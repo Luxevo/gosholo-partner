@@ -11,25 +11,49 @@ import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 
+interface Offer {
+  id: string
+  commerce_id: string
+  user_id: string
+  title: string
+  description: string
+  picture: string | null
+  offer_type: "in_store" | "online" | "both"
+  uses_commerce_location: boolean
+  custom_location: string | null
+  condition: string | null
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
 interface OfferCreationFlowProps {
   onCancel?: () => void
   commerceId?: string
+  offer?: Offer // For editing existing offers
 }
 
-export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreationFlowProps) {
+export default function OfferCreationFlow({ onCancel, commerceId, offer }: OfferCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
+  
+  // Determine if we're in edit mode
+  const isEditMode = !!offer
+  
+  // Initialize form with offer data if editing, otherwise with defaults
   const [form, setForm] = useState({
-    title: "",
-    short_description: "",
-    type: "en_magasin" as "en_magasin" | "en_ligne" | "les_deux",
-    business_address: "",
-    conditions: "",
+    title: offer?.title || "",
+    short_description: offer?.description || "",
+    type: offer?.offer_type === "in_store" ? "en_magasin" as "en_magasin" | "en_ligne" | "les_deux" :
+          offer?.offer_type === "online" ? "en_ligne" as "en_magasin" | "en_ligne" | "les_deux" :
+          "les_deux" as "en_magasin" | "en_ligne" | "les_deux",
+    business_address: offer?.custom_location || "",
+    conditions: offer?.condition || "",
     startDate: format(new Date(), "yyyy-MM-dd"),
     endDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-    selectedCommerceId: commerceId || "",
+    selectedCommerceId: offer?.commerce_id || commerceId || "",
   })
 
   // Load user's commerces
@@ -45,7 +69,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
           setCommerces(commercesData || [])
           
           // Auto-select commerce if only one available and no commerceId provided
-          if (commercesData && commercesData.length === 1 && !commerceId) {
+          if (commercesData && commercesData.length === 1 && !commerceId && !offer) {
             setForm(f => ({ ...f, selectedCommerceId: commercesData[0].id }))
           }
         }
@@ -54,7 +78,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
       }
     }
     loadCommerces()
-  }, [commerceId])
+  }, [commerceId, offer])
 
   const handleSaveOffer = async () => {
     if (!form.title || !form.short_description || !form.selectedCommerceId) {
@@ -88,52 +112,83 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
         return
       }
 
-      // Insert offer into database
-      const { data: offerData, error: insertError } = await supabase
-        .from('offers')
-        .insert({
-          commerce_id: targetCommerceId,
-          user_id: user.id,
-          title: form.title,
-          description: form.short_description,
-          offer_type: form.type === "en_magasin" ? "in_store" : 
-                     form.type === "en_ligne" ? "online" : "both",
-          uses_commerce_location: !form.business_address,
-          custom_location: form.business_address || null,
-          condition: form.conditions || null,
-          is_active: true, // Explicitly set as active
-        })
-        .select()
-        .single()
-
-      if (insertError) {
-        console.error('Database insert error:', insertError)
-        setIsLoading(false)
-        return
+      const offerData = {
+        commerce_id: targetCommerceId,
+        user_id: user.id,
+        title: form.title,
+        description: form.short_description,
+        offer_type: form.type === "en_magasin" ? "in_store" : 
+                   form.type === "en_ligne" ? "online" : "both",
+        uses_commerce_location: !form.business_address,
+        custom_location: form.business_address || null,
+        condition: form.conditions || null,
       }
 
-      console.log('Offer created:', offerData)
+      let result
+      
+      if (isEditMode && offer) {
+        // Update existing offer
+        const { data: updateData, error: updateError } = await supabase
+          .from('offers')
+          .update({
+            ...offerData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', offer.id)
+          .select()
+          .single()
+
+        if (updateError) {
+          console.error('Database update error:', updateError)
+          setIsLoading(false)
+          return
+        }
+
+        result = updateData
+        console.log('Offer updated:', result)
+      } else {
+        // Create new offer
+        const { data: insertData, error: insertError } = await supabase
+          .from('offers')
+          .insert({
+            ...offerData,
+            is_active: true, // Explicitly set as active for new offers
+          })
+          .select()
+          .single()
+
+        if (insertError) {
+          console.error('Database insert error:', insertError)
+          setIsLoading(false)
+          return
+        }
+
+        result = insertData
+        console.log('Offer created:', result)
+      }
       
       // Refresh dashboard counts
       refreshCounts()
       
       // Reset form and close
-      setForm({
-        title: "",
-        short_description: "",
-        type: "en_magasin",
-        business_address: "",
-        conditions: "",
-        startDate: format(new Date(), "yyyy-MM-dd"),
-        endDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-        selectedCommerceId: "",
-      })
+      if (!isEditMode) {
+        setForm({
+          title: "",
+          short_description: "",
+          type: "en_magasin",
+          business_address: "",
+          conditions: "",
+          startDate: format(new Date(), "yyyy-MM-dd"),
+          endDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+          selectedCommerceId: "",
+        })
+      }
       
       if (onCancel) {
         onCancel()
       }
     } catch (error) {
-      console.error('Unexpected error adding offer:', error)
+      console.error('Unexpected error saving offer:', error)
     } finally {
       setIsLoading(false)
     }
@@ -142,7 +197,9 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
   return (
     <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
       <CardHeader className="pb-4">
-        <CardTitle className="text-xl text-primary">Créer une nouvelle offre</CardTitle>
+        <CardTitle className="text-xl text-primary">
+          {isEditMode ? "Modifier l'offre" : "Créer une nouvelle offre"}
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Commerce Selection */}
@@ -166,6 +223,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
               <Select 
                 value={form.selectedCommerceId} 
                 onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
+                disabled={isEditMode} // Disable commerce selection in edit mode
               >
                 <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
                   <SelectValue placeholder="Sélectionner un commerce (obligatoire)" />
@@ -212,23 +270,21 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
               />
             </div>
 
-           
-
-                         <div>
-               <label className="block text-sm font-medium text-primary mb-2">
-                 Type d'offre
-               </label>
-               <Select value={form.type} onValueChange={(value: any) => setForm(f => ({ ...f, type: value }))}>
-                 <SelectTrigger>
-                   <SelectValue placeholder="Sélectionner un type" />
-                 </SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="en_magasin">En magasin</SelectItem>
-                   <SelectItem value="en_ligne">En ligne</SelectItem>
-                   <SelectItem value="les_deux">Les deux</SelectItem>
-                 </SelectContent>
-               </Select>
-             </div>
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Type d'offre
+              </label>
+              <Select value={form.type} onValueChange={(value: any) => setForm(f => ({ ...f, type: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en_magasin">En magasin</SelectItem>
+                  <SelectItem value="en_ligne">En ligne</SelectItem>
+                  <SelectItem value="les_deux">Les deux</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
@@ -292,7 +348,7 @@ export default function OfferCreationFlow({ onCancel, commerceId }: OfferCreatio
             onClick={handleSaveOffer}
             disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
           >
-            {isLoading ? "Sauvegarde..." : "Créer l'offre"}
+            {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'offre" : "Créer l'offre")}
           </Button>
         </div>
       </CardContent>

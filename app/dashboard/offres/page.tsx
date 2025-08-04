@@ -142,7 +142,7 @@ const OfferCard = ({ offer, onEdit }: OfferCardProps) => {
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Modifiée le:</span>
-                <span>{formatDate(offer.updated_at)}</span>
+                <span className="text-blue-600 font-medium">{formatDate(offer.updated_at)}</span>
               </div>
             )}
           </div>
@@ -399,6 +399,7 @@ export default function OffresPage() {
           </DialogHeader>
           {editingOffer && (
             <OfferCreationFlow 
+              offer={editingOffer}
               onCancel={handleOfferUpdated}
             />
           )}
