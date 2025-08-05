@@ -23,14 +23,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
     { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: 15 },
-    { name: "Historique", href: "/dashboard/paiements", icon: CreditCard, badge: null },
     { name: "Profil & compte", href: "/dashboard/profil", icon: User, badge: null },
     { name: "Support", href: "/dashboard/support", icon: HelpCircle, badge: 1 },
   ]
 
   return (
     <div className="flex h-full flex-col bg-white border-r border-brand-primary/20">
-<Image src="/logo.png" alt="Gosholo Partner" width={220} height={100} />
+<Image src="/images/logo.png" alt="Gosholo Partner" width={220} height={100} />
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-6 space-y-2">

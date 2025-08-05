@@ -61,7 +61,7 @@ export default function LoginPage() {
     }
 
     // Redirect to commerces page
-    router.push("/commerces")
+    router.push("/dashboard")
     setIsLoading(false)
   }
   
