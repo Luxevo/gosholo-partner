@@ -12,6 +12,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 
 interface EventCreationFlowProps {
   onCancel?: () => void
+  commerceId?: string
   editingEvent?: {
     id: string
     commerce_id: string
@@ -27,7 +28,7 @@ interface EventCreationFlowProps {
   onEventUpdated?: () => void
 }
 
-export default function EventCreationFlow({ onCancel, editingEvent, onEventUpdated }: EventCreationFlowProps) {
+export default function EventCreationFlow({ onCancel, commerceId, editingEvent, onEventUpdated }: EventCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const [isLoading, setIsLoading] = useState(false)
@@ -40,7 +41,7 @@ export default function EventCreationFlow({ onCancel, editingEvent, onEventUpdat
     uses_commerce_location: editingEvent?.uses_commerce_location ?? true,
     custom_location: editingEvent?.custom_location || "",
     condition: editingEvent?.condition || "",
-    selectedCommerceId: editingEvent?.commerce_id || "",
+    selectedCommerceId: editingEvent?.commerce_id || commerceId || "",
   })
 
   // Load user's commerces
@@ -219,9 +220,10 @@ export default function EventCreationFlow({ onCancel, editingEvent, onEventUpdat
                 <Select 
                   value={form.selectedCommerceId} 
                   onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
+                  disabled={!!editingEvent || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
                 >
                   <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
-                    <SelectValue placeholder="Sélectionner un commerce (obligatoire)" />
+                    <SelectValue placeholder={commerceId ? "Commerce pré-sélectionné" : "Sélectionner un commerce (obligatoire)"} />
                   </SelectTrigger>
                   <SelectContent>
                     {commerces.map((commerce) => (

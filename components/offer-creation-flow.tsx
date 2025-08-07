@@ -487,10 +487,10 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
               <Select 
                 value={form.selectedCommerceId} 
                 onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
-                disabled={isEditMode} // Disable commerce selection in edit mode
+                disabled={isEditMode || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
               >
                 <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
-                  <SelectValue placeholder="Sélectionner un commerce (obligatoire)" />
+                  <SelectValue placeholder={commerceId ? "Commerce pré-sélectionné" : "Sélectionner un commerce (obligatoire)"} />
                 </SelectTrigger>
                 <SelectContent>
                   {commerces.map((commerce) => (

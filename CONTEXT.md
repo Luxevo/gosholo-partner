@@ -98,6 +98,8 @@ gosholo-partner/
   is_active: boolean
   uses_commerce_location: boolean
   custom_location: string | null
+  start_date: string | null
+  end_date: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -221,6 +223,11 @@ gosholo-partner/
 - **Status tracking**: Active, Expiring soon, Expired
 - **Type support**: In-store, Online, Both
 - **Location options**: Use commerce location or custom location
+- **3-step creation flow**: Form → Preview → Confirmation
+- **Date management**: Start and end dates for offer validity
+- **Form validation**: Comprehensive validation with error messages
+- **Preview mode**: Review offer details before publishing
+- **Confirmation step**: Final confirmation with visibility information
 
 #### Events
 - **Event management**: Create and manage business events
@@ -251,6 +258,17 @@ gosholo-partner/
 - Global state management for dashboard counts
 - Real-time data fetching from Supabase
 - Loading states and error handling
+
+### Offer Creation Flow (`components/offer-creation-flow.tsx`)
+- **3-step creation process**: Form → Preview → Confirmation
+- **Form validation**: Comprehensive validation with error messages
+- **Preview mode**: Review offer details before publishing
+- **Confirmation step**: Final confirmation with visibility information
+- **Date management**: Start and end dates for offer validity
+- **Commerce selection**: Auto-selection if only one available
+- **Edit mode**: Direct save without preview/confirmation steps
+- **Success notifications**: Toast messages for successful operations
+- **Error handling**: User-friendly error messages
 
 ### Offer Utilities (`lib/offer-utils.ts`)
 - `checkAndDeactivateOffers()`: Automatic expiration management
@@ -311,7 +329,9 @@ gosholo-partner/
 2. Frontend calls `check_content_limit()`
 3. If limit reached → Show upgrade prompt
 4. If within limit → Allow creation
-5. Content count updated in dashboard context
+5. **For offers**: 3-step process (Form → Preview → Confirmation)
+6. **For events**: Direct creation
+7. Content count updated in dashboard context
 
 ### Boost Application Flow
 1. User selects content to boost
@@ -431,7 +451,7 @@ For questions about implementation details, contact the development team. Regula
 - Subscription status accuracy
 - Performance of limit checking functions
 
-**Last Updated**: Current Date
-**Version**: 1.0
+**Last Updated**: January 27, 2025
+**Version**: 1.1
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)

@@ -1,10 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { 
   Store, 
   Tag, 
@@ -23,6 +24,12 @@ import {
   Zap,
 } from "lucide-react"
 import Link from "next/link"
+import CommerceCreationFlow from "@/components/commerce-creation-flow"
+import CommerceManagementFlow from "@/components/commerce-management-flow"
+import OfferCreationFlow from "@/components/offer-creation-flow"
+import EventCreationFlow from "@/components/event-creation-flow"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 
 // CommerceCard Component
 interface CommerceCardProps {
@@ -30,6 +37,15 @@ interface CommerceCardProps {
 }
 
 const CommerceCard = ({ commerce }: CommerceCardProps) => {
+  const { toast } = useToast()
+  const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
+  const [editingOffer, setEditingOffer] = useState<any>(null)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<{type: 'offer' | 'event', item: any} | null>(null)
+  const [isCreateOfferDialogOpen, setIsCreateOfferDialogOpen] = useState(false)
+  const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false)
+  const [isManageCommerceDialogOpen, setIsManageCommerceDialogOpen] = useState(false)
+  
   const activeOffers = commerce.offers?.filter((offer: any) => offer.is_active) || []
   const upcomingEvents = commerce.events || [] // For now, consider all events as upcoming
 
@@ -42,18 +58,112 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
     return { label: 'À venir', variant: 'default' as const }
   }
 
+  const handleEditOffer = (offer: any) => {
+    setEditingOffer(offer)
+    setIsEditOfferDialogOpen(true)
+  }
+
+  const handleOfferUpdated = () => {
+    setIsEditOfferDialogOpen(false)
+    setEditingOffer(null)
+    // Refresh the dashboard to show updated data
+    window.location.reload()
+  }
+
+  const handleCreateOffer = () => {
+    setIsCreateOfferDialogOpen(true)
+  }
+
+  const handleOfferCreated = () => {
+    setIsCreateOfferDialogOpen(false)
+    // Refresh the dashboard to show updated data
+    window.location.reload()
+  }
+
+  const handleCreateEvent = () => {
+    setIsCreateEventDialogOpen(true)
+  }
+
+  const handleEventCreated = () => {
+    setIsCreateEventDialogOpen(false)
+    // Refresh the dashboard to show updated data
+    window.location.reload()
+  }
+
+  const handleManageCommerce = () => {
+    setIsManageCommerceDialogOpen(true)
+  }
+
+  const handleCommerceUpdated = () => {
+    setIsManageCommerceDialogOpen(false)
+    // Refresh the dashboard to show updated data
+    window.location.reload()
+  }
+
+  const handleDeleteOffer = (offer: any) => {
+    setItemToDelete({ type: 'offer', item: offer })
+    setIsDeleteConfirmOpen(true)
+  }
+
+  const handleDeleteEvent = (event: any) => {
+    setItemToDelete({ type: 'event', item: event })
+    setIsDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return
+
+    try {
+      const supabase = createClient()
+      const table = itemToDelete.type === 'offer' ? 'offers' : 'events'
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('id', itemToDelete.item.id)
+
+      if (error) {
+        console.error(`Error deleting ${itemToDelete.type}:`, error)
+        toast({
+          title: "Erreur",
+          description: `Erreur lors de la suppression de l'${itemToDelete.type === 'offer' ? 'offre' : 'événement'}`,
+          variant: "destructive"
+        })
+        return
+      }
+
+      toast({
+        title: "Succès",
+        description: `${itemToDelete.type === 'offer' ? 'Offre' : 'Événement'} supprimé avec succès`,
+      })
+
+      setIsDeleteConfirmOpen(false)
+      setItemToDelete(null)
+      
+      // Refresh the dashboard to show updated data
+      window.location.reload()
+    } catch (error) {
+      console.error(`Unexpected error deleting ${itemToDelete.type}:`, error)
+      toast({
+        title: "Erreur",
+        description: "Erreur inattendue lors de la suppression",
+        variant: "destructive"
+      })
+    }
+  }
+
+
+
   return (
-    <Card className="mb-6">
+    <>
+      <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span>{commerce.name}</span>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/commerces/${commerce.id}`}>
-              Gérer ce commerce
-            </Link>
-          </Button>
+                     <Button variant="outline" size="sm" onClick={handleManageCommerce}>
+             Gérer ce commerce
+           </Button>
         </CardTitle>
         <CardDescription>
           {commerce.address}
@@ -76,38 +186,46 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
                       <Badge variant={getOfferStatus(offer).variant} className="text-xs">
                         {getOfferStatus(offer).label}
                       </Badge>
-                      <span className="text-xs text-gray-500">
-                        Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Zap className="h-4 w-4 text-orange-600" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Edit className="h-4 w-4 text-gray-600" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
-                  </div>
+                                             <span className="text-xs text-gray-500">
+                         Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
+                       </span>
+                     </div>
+                   </div>
+                   <div className="flex items-center space-x-1">
+                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                       <Zap className="h-4 w-4 text-orange-600" />
+                     </Button>
+                     <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       className="h-8 w-8 p-0"
+                       onClick={() => handleEditOffer(offer)}
+                     >
+                       <Edit className="h-4 w-4 text-gray-600" />
+                     </Button>
+                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                       <CheckCircle className="h-4 w-4 text-green-600" />
+                     </Button>
+                     <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       className="h-8 w-8 p-0"
+                       onClick={() => handleDeleteOffer(offer)}
+                     >
+                       <Trash2 className="h-4 w-4 text-red-600" />
+                     </Button>
+                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <p className="text-gray-600 text-sm mb-2">Aucune offre en cours</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/offres">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Créer une offre
-                </Link>
-              </Button>
-            </div>
+                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+               <p className="text-gray-600 text-sm mb-2">Aucune offre en cours</p>
+               <Button variant="outline" size="sm" onClick={handleCreateOffer}>
+                 <Plus className="h-4 w-4 mr-1" />
+                 Créer une offre
+               </Button>
+             </div>
           )}
         </div>
 
@@ -142,7 +260,12 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleDeleteEvent(event)}
+                    >
                       <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
                   </div>
@@ -150,21 +273,116 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
               </div>
             ))
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-              <p className="text-gray-600 text-sm mb-2">Aucun événement à venir</p>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/evenements">
-                  <Plus className="h-4 w-4 mr-1" />
-                  Créer un événement
-                </Link>
-              </Button>
-            </div>
+                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+               <p className="text-gray-600 text-sm mb-2">Aucun événement à venir</p>
+               <Button variant="outline" size="sm" onClick={handleCreateEvent}>
+                 <Plus className="h-4 w-4 mr-1" />
+                 Créer un événement
+               </Button>
+             </div>
           )}
         </div>
       </CardContent>
     </Card>
-  )
-}
+
+    {/* Edit Offer Dialog */}
+    <Dialog open={isEditOfferDialogOpen} onOpenChange={setIsEditOfferDialogOpen}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Modifier l'offre</DialogTitle>
+          <DialogDescription>
+            Modifiez les informations de votre offre.
+          </DialogDescription>
+        </DialogHeader>
+        {editingOffer && (
+          <OfferCreationFlow 
+            offer={editingOffer}
+            onCancel={handleOfferUpdated}
+          />
+                 )}
+       </DialogContent>
+     </Dialog>
+
+     {/* Delete Confirmation Dialog */}
+     <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+       <DialogContent className="sm:max-w-[425px]">
+         <DialogHeader>
+           <DialogTitle>Confirmer la suppression</DialogTitle>
+           <DialogDescription>
+             Êtes-vous sûr de vouloir supprimer {itemToDelete?.type === 'offer' ? 'cette offre' : 'cet événement'} ? 
+             Cette action est irréversible.
+           </DialogDescription>
+         </DialogHeader>
+         <div className="py-4">
+           <p className="text-sm text-muted-foreground">
+             <strong>{itemToDelete?.item?.title}</strong>
+           </p>
+         </div>
+         <div className="flex justify-end space-x-2">
+           <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
+             Annuler
+           </Button>
+           <Button 
+             variant="destructive" 
+             onClick={confirmDelete}
+           >
+             Supprimer
+           </Button>
+         </div>
+       </DialogContent>
+     </Dialog>
+
+     {/* Create Offer Dialog */}
+     <Dialog open={isCreateOfferDialogOpen} onOpenChange={setIsCreateOfferDialogOpen}>
+       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+         <DialogHeader>
+           <DialogTitle>Créer une nouvelle offre</DialogTitle>
+           <DialogDescription>
+             Créez une nouvelle offre pour {commerce.name}.
+           </DialogDescription>
+         </DialogHeader>
+         <OfferCreationFlow 
+           commerceId={commerce.id}
+           onCancel={handleOfferCreated}
+         />
+       </DialogContent>
+     </Dialog>
+
+     {/* Create Event Dialog */}
+     <Dialog open={isCreateEventDialogOpen} onOpenChange={setIsCreateEventDialogOpen}>
+       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+         <DialogHeader>
+           <DialogTitle>Créer un nouvel événement</DialogTitle>
+           <DialogDescription>
+             Créez un nouvel événement pour {commerce.name}.
+           </DialogDescription>
+         </DialogHeader>
+                   <EventCreationFlow 
+            commerceId={commerce.id}
+            onCancel={handleEventCreated}
+          />
+       </DialogContent>
+     </Dialog>
+
+     {/* Manage Commerce Dialog */}
+     <Dialog open={isManageCommerceDialogOpen} onOpenChange={setIsManageCommerceDialogOpen}>
+       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+         <DialogHeader>
+           <DialogTitle>Gérer le commerce</DialogTitle>
+           <DialogDescription>
+             Modifiez les informations de {commerce.name}.
+           </DialogDescription>
+         </DialogHeader>
+         <CommerceManagementFlow 
+           commerce={commerce}
+           onCancel={handleCommerceUpdated}
+           onCommerceUpdated={handleCommerceUpdated}
+         />
+       </DialogContent>
+     </Dialog>
+     </>
+   )
+ }
 
 // Mock data for exclusive offers
 const exclusiveOffers = [
@@ -195,7 +413,8 @@ const exclusiveOffers = [
 ]
 
 export default function Dashboard() {
-  const { counts, userProfile, commerces, isLoading } = useDashboard()
+  const { counts, userProfile, commerces, isLoading, refreshCounts } = useDashboard()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Get user's display name
   const getUserDisplayName = () => {
@@ -259,12 +478,23 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl lg:text-3xl font-bold text-primary">Vos commerces</h1>
-          <Button asChild>
-            <Link href="/dashboard/commerces">
-              <Plus className="h-4 w-4 mr-2" />
-              Ajouter un commerce
-            </Link>
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un commerce
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Créer un nouveau commerce</DialogTitle>
+                <DialogDescription>
+                  Remplissez les informations pour créer un nouveau commerce.
+                </DialogDescription>
+              </DialogHeader>
+              <CommerceCreationFlow onCancel={() => setIsDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
         </div>
         {isLoading ? (
           <div className="text-center py-8">
@@ -281,18 +511,14 @@ export default function Dashboard() {
               <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commerce</h3>
               <p className="text-gray-600 mb-4">Commencez par ajouter votre premier commerce</p>
-              <Button asChild>
-                <Link href="/dashboard/commerces">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter un commerce
-                </Link>
-              </Button>
+                             <Button onClick={() => setIsDialogOpen(true)}>
+                 <Plus className="h-4 w-4 mr-2" />
+                 Ajouter un commerce
+               </Button>
             </CardContent>
           </Card>
         )}
       </div>
-
-      
     </div>
   )
 }
