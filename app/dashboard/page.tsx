@@ -260,7 +260,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl lg:text-3xl font-bold text-primary">Vos commerces</h1>
           <Button asChild>
-            <Link href="/commerces">
+            <Link href="/dashboard/commerces">
               <Plus className="h-4 w-4 mr-2" />
               Ajouter un commerce
             </Link>
@@ -282,7 +282,7 @@ export default function Dashboard() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commerce</h3>
               <p className="text-gray-600 mb-4">Commencez par ajouter votre premier commerce</p>
               <Button asChild>
-                <Link href="/commerces">
+                <Link href="/dashboard/commerces">
                   <Plus className="h-4 w-4 mr-2" />
                   Ajouter un commerce
                 </Link>
@@ -292,78 +292,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* JMQ Partnership Section */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <CardContent className="p-6">
-          <div className="flex items-start space-x-4">
-            {/* JMQ Logo */}
-            <div className="flex-shrink-0">
-              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">JMQ</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* JMQ Content */}
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">J'aime mon quartier</h3>
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                  Partenaire officiel
-                </Badge>
-              </div>
-              
-              <p className="text-gray-700 mb-3">
-                <strong>Gagnez aussi en visibilité dans votre quartier</strong><br />
-                J'aime mon quartier — notre support papier distribué localement à des milliers de foyers — est une belle façon de compléter votre présence sur gosholo.<br />
-                Touchez vos voisins en ligne et en boîte aux lettres.
-              </p>
-              
-              <p className="text-gray-600 mb-4 text-sm">
-                Vous êtes intéressé ? On vous contacte sans pression.
-              </p>
-              
-              <div className="flex items-center space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                  asChild
-                >
-                  <a 
-                    href="https://jaimemonquartier.ca" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-1"
-                  >
-                    <span>🔗 jaimemonquartier.ca</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </Button>
-              </div>
-              
-              {/* Déjà membre section */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Déjà membre ?</h4>
-                <p className="text-gray-600 text-sm mb-3">
-                  Entrez votre code promo pour obtenir un mois gratuit
-                </p>
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Code promo"
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                    Valider
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      
     </div>
   )
 }

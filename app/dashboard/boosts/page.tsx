@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Input } from "@/components/ui/input"
 import { 
   Zap, 
   Sparkles, 
@@ -17,7 +18,10 @@ import {
   Tag,
   CheckCircle,
   AlertCircle,
-  ArrowRight
+  ArrowRight,
+  CreditCard,
+  X,
+  Check
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
@@ -43,6 +47,16 @@ export default function BoostsPage() {
   const [subscription, setSubscription] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplyingBoost, setIsApplyingBoost] = useState<string | null>(null)
+  
+  // Code promo states
+  const [promoCode, setPromoCode] = useState("")
+  const [isValidatingCode, setIsValidatingCode] = useState(false)
+  const [codeValidationResult, setCodeValidationResult] = useState<{
+    isValid: boolean
+    message: string
+    discount?: number
+  } | null>(null)
+  const [showStripeForm, setShowStripeForm] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -233,9 +247,76 @@ export default function BoostsPage() {
     }
   }
 
+  // Validate promo code
+  const validatePromoCode = async () => {
+    if (!promoCode.trim()) return
+    
+    setIsValidatingCode(true)
+    setCodeValidationResult(null)
+    
+    try {
+      // Simulate API call to validate promo code
+      // In real implementation, this would call your backend
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Mock validation logic - replace with actual API call
+      const isValid = promoCode.toLowerCase() === 'jmq2025'
+      
+      if (isValid) {
+        setCodeValidationResult({
+          isValid: true,
+          message: "Code promo valide ! Vous obtenez 1 mois gratuit.",
+          discount: 0
+        })
+        setShowStripeForm(true)
+      } else {
+        setCodeValidationResult({
+          isValid: false,
+          message: "Code promo invalide. Veuillez vérifier et réessayer."
+        })
+      }
+    } catch (error) {
+      setCodeValidationResult({
+        isValid: false,
+        message: "Erreur lors de la validation. Veuillez réessayer."
+      })
+    } finally {
+      setIsValidatingCode(false)
+    }
+  }
+
+  // Handle Stripe payment
+  const handleStripePayment = async () => {
+    try {
+      // In real implementation, this would redirect to Stripe Checkout
+      // or open Stripe Elements for card input
+      console.log("Redirecting to Stripe payment...")
+      
+             // Mock successful payment
+       alert("Paiement réussi ! Votre abonnement Pro est maintenant actif avec 1 mois gratuit.")
+      setShowStripeForm(false)
+      setPromoCode("")
+      setCodeValidationResult(null)
+      
+      // Refresh subscription data
+      // You would typically reload the subscription data here
+      
+    } catch (error) {
+      console.error("Payment error:", error)
+      alert("Erreur lors du paiement. Veuillez réessayer.")
+    }
+  }
+
+  // Clear promo code validation
+  const clearPromoCode = () => {
+    setPromoCode("")
+    setCodeValidationResult(null)
+    setShowStripeForm(false)
+  }
+
   if (isLoading) {
     return (
-      <DashboardLayout>
+    
         <div className="p-6">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 rounded w-1/4"></div>
@@ -246,7 +327,7 @@ export default function BoostsPage() {
             </div>
           </div>
         </div>
-      </DashboardLayout>
+  
     )
   }
 
@@ -255,7 +336,7 @@ export default function BoostsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Boosts & Visibilité</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">Boosts & Abonnements</h1>
           <p className="text-primary/70">Améliorez la visibilité de vos offres et événements</p>
         </div>
 
@@ -472,6 +553,140 @@ export default function BoostsPage() {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Code Promo Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Code Promo</CardTitle>
+            <CardDescription>
+              Vous avez un code promo ?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Code Input */}
+              <div className="flex space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Entrez votre code promo"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  className="flex-1"
+                  disabled={isValidatingCode}
+                />
+                <Button 
+                  onClick={validatePromoCode}
+                  disabled={!promoCode.trim() || isValidatingCode}
+                >
+                  {isValidatingCode ? "Validation..." : "Appliquer"}
+                </Button>
+                {promoCode && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={clearPromoCode}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              {/* Validation Result */}
+              {codeValidationResult && (
+                <Alert className={codeValidationResult.isValid ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+                  {codeValidationResult.isValid ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <AlertDescription className={codeValidationResult.isValid ? "text-green-800" : "text-red-800"}>
+                    {codeValidationResult.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Stripe Payment Form */}
+              {showStripeForm && (
+                <Card className="border-green-200 bg-green-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-green-800">
+                      <CreditCard className="h-5 w-5" />
+                      <span>Paiement Sécurisé</span>
+                    </CardTitle>
+                                         <CardDescription className="text-green-700">
+                       1 mois gratuit grâce à votre code promo !
+                     </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-white p-4 rounded-lg border">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Numéro de carte
+                          </label>
+                          <Input 
+                            type="text" 
+                            placeholder="1234 5678 9012 3456"
+                            className="font-mono"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Date d'expiration
+                            </label>
+                            <Input 
+                              type="text" 
+                              placeholder="MM/AA"
+                              className="font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              CVC
+                            </label>
+                            <Input 
+                              type="text" 
+                              placeholder="123"
+                              className="font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                                         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                       <div className="flex items-center space-x-2 text-sm text-blue-800">
+                         <Check className="h-4 w-4" />
+                         <span>1 mois gratuit</span>
+                       </div>
+                       <div className="flex items-center space-x-2 text-sm text-blue-800 mt-1">
+                         <Check className="h-4 w-4" />
+                         <span>Puis tarif normal</span>
+                       </div>
+                     </div>
+
+                    <div className="flex space-x-2">
+                      <Button 
+                        onClick={handleStripePayment}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Payer en toute sécurité
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setShowStripeForm(false)}
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

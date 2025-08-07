@@ -1,19 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit } from "lucide-react"
-import { DashboardLayout } from "@/components/dashboard-layout"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
 
+// Types
 interface Event {
   id: string
   commerce_id: string
@@ -28,14 +24,183 @@ interface Event {
   updated_at: string | null
 }
 
+type FilterType = 'all' | 'active' | 'inactive'
+
+// Utility functions
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+}
+
+// EventCard Component
+interface EventCardProps {
+  event: Event
+  onEdit: (event: Event) => void
+}
+
+const EventCard = ({ event, onEdit }: EventCardProps) => {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg font-semibold text-primary">
+              {event.title}
+            </CardTitle>
+            <CardDescription className="mt-1 text-sm text-muted-foreground">
+              {event.description}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              Événement
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(event)}
+              className="h-8 w-8 p-0"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Event Details */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Type:</span>
+              <span>{event.uses_commerce_location ? "En magasin" : "Adresse spécifique"}</span>
+            </div>
+            
+            {event.condition && (
+              <div className="flex items-start gap-2 text-sm">
+                <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <span className="font-medium">Conditions:</span>
+                <span className="text-muted-foreground">{event.condition}</span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2 text-sm">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Localisation:</span>
+              <span>
+                {event.uses_commerce_location 
+                  ? "Emplacement du commerce" 
+                  : event.custom_location || "Non spécifié"
+                }
+              </span>
+            </div>
+          </div>
+          
+          {/* Timing and Status */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Créé le:</span>
+              <span>{event.created_at ? formatDate(event.created_at) : "N/A"}</span>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Participants:</span>
+              <span>0 (max: N/A)</span>
+            </div>
+            
+            {event.updated_at && event.updated_at !== event.created_at && (
+              <div className="flex items-center gap-2 text-sm">
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Modifié le:</span>
+                <span className="text-blue-600 font-medium">{formatDate(event.updated_at)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Filter Buttons Component
+interface FilterButtonsProps {
+  filterActive: FilterType
+  onFilterChange: (filter: FilterType) => void
+  events: Event[]
+}
+
+const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsProps) => {
+  const activeCount = events.length // For now, all events are considered active
+  const inactiveCount = 0 // No inactive events for now
+  
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button
+        variant={filterActive === 'all' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onFilterChange('all')}
+      >
+        Tous ({events.length})
+      </Button>
+      <Button
+        variant={filterActive === 'active' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onFilterChange('active')}
+      >
+        Actifs ({activeCount})
+      </Button>
+      <Button
+        variant={filterActive === 'inactive' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onFilterChange('inactive')}
+      >
+        Inactifs ({inactiveCount})
+      </Button>
+    </div>
+  )
+}
+
+// Loading Component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center py-12">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+      <p className="text-muted-foreground">Chargement des événements...</p>
+    </div>
+  </div>
+)
+
+// Empty State Component
+const EmptyState = () => (
+  <div className="text-center py-12">
+    <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
+      <Calendar className="h-12 w-12 text-muted-foreground" />
+    </div>
+    <h3 className="text-lg font-semibold text-primary mb-2">Aucun événement trouvé</h3>
+    <p className="text-muted-foreground mb-4">
+      Commencez par créer votre premier événement pour attirer plus de clients.
+    </p>
+  </div>
+)
+
+// Main Component
 export default function EvenementsPage() {
   const supabase = createClient()
+  
+  // State
   const [events, setEvents] = useState<Event[]>([])
-  const [isLoading, setIsLoading] = useState(false)
   const [isLoadingEvents, setIsLoadingEvents] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [filterActive, setFilterActive] = useState<FilterType>('all')
 
   // Load events from database
   const loadEvents = async () => {
@@ -102,174 +267,117 @@ export default function EvenementsPage() {
     }
   }
 
-  // Load events from database on component mount
+  // Load events on component mount
   useEffect(() => {
     loadEvents()
   }, [])
 
-  const handleEventUpdated = () => {
-    setIsEditDialogOpen(false)
-    setEditingEvent(null)
-    // Reload events to show updated data
-    loadEvents()
-  }
+  // Filtered events
+  const filteredEvents = useMemo(() => {
+    switch (filterActive) {
+      case 'active':
+        return events.filter(event => true) // All events are considered active for now
+      case 'inactive':
+        return events.filter(event => false) // No inactive events for now
+      default:
+        return events
+    }
+  }, [events, filterActive])
 
-  const handleEventCreated = () => {
-    setIsDialogOpen(false)
-    // Reload events to show the new event
-    loadEvents()
-  }
-
-  
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    })
-  }
-
+  // Event handlers
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event)
     setIsEditDialogOpen(true)
   }
 
+  const handleEventCreated = () => {
+    setIsDialogOpen(false)
+    loadEvents()
+  }
+
+  const handleEventUpdated = () => {
+    setIsEditDialogOpen(false)
+    setEditingEvent(null)
+    loadEvents()
+  }
+
+  const handleFilterChange = (filter: FilterType) => {
+    setFilterActive(filter)
+  }
+
   return (
-      <div className="space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-primary">Événements</h1>
-            <p className="text-primary/70 text-sm lg:text-base">Gérez vos événements et ateliers</p>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-accent hover:bg-accent/80 text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Créer un événement
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Créer un nouvel événement</DialogTitle>
-                <DialogDescription>
-                  Remplissez les informations pour créer un nouvel événement.
-                </DialogDescription>
-              </DialogHeader>
-              <EventCreationFlow onCancel={handleEventCreated} />
-            </DialogContent>
-          </Dialog>
-
-          {/* Edit Event Dialog */}
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Modifier l'événement</DialogTitle>
-                <DialogDescription>
-                  Modifiez les informations de votre événement.
-                </DialogDescription>
-              </DialogHeader>
-              {editingEvent && (
-                <EventCreationFlow 
-                  onCancel={() => setIsEditDialogOpen(false)}
-                />
-              )}
-            </DialogContent>
-          </Dialog>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">Événements</h1>
+          <p className="text-muted-foreground text-sm lg:text-base">
+            Gérez vos événements et ateliers
+          </p>
         </div>
-
-        <div className="space-y-6">
-          {isLoadingEvents ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-secondary">Chargement des événements...</p>
-              </div>
-            </div>
-          ) : events.length === 0 ? (
-            <div className="text-center py-8">
-              <Calendar className="h-12 w-12 text-secondary mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-primary mb-2">Aucun événement</h3>
-              <p className="text-secondary mb-4">Vous n'avez pas encore créé d'événements pour vos commerces.</p>
-              <Button 
-                onClick={() => setIsDialogOpen(true)}
-                className="bg-accent hover:bg-accent/80 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Créer votre premier événement
-              </Button>
-            </div>
-          ) : (
-            events.map((event) => (
-              <Card key={event.id} className="bg-white border border-primary/20">
-                <CardHeader className="pb-3 flex flex-row items-center gap-4">
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
-                    <img
-                      src={event.picture || "/placeholder-logo.png"}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/placeholder-logo.png";
-                      }}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-lg text-primary">{event.title}</CardTitle>
-                    <div className="flex items-center gap-2 text-secondary text-sm">
-                      <MapPin className="h-4 w-4" />
-                      <span>{event.uses_commerce_location ? "Adresse du commerce" : event.custom_location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
-                        {event.uses_commerce_location ? "En magasin" : "Adresse spécifique"}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditEvent(event)}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      Modifier
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <p className="text-secondary text-sm">{event.description}</p>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">{event.created_at ? formatDate(event.created_at) : "N/A"}</div>
-                        <div className="text-xs text-secondary">Créé le</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">N/A</div>
-                        <div className="text-xs text-secondary">Date fin</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">0</div>
-                        <div className="text-xs text-secondary">Participants</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-primary">N/A</div>
-                        <div className="text-xs text-secondary">Max participants</div>
-                      </div>
-                    </div>
-                    {event.condition && (
-                      <div className="text-sm text-secondary pt-2 border-t border-primary/10">
-                        <strong>Conditions:</strong> {event.condition}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-accent hover:bg-accent/80 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Créer un événement
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Créer un nouvel événement</DialogTitle>
+              <DialogDescription>
+                Remplissez les informations pour créer un nouvel événement.
+              </DialogDescription>
+            </DialogHeader>
+            <EventCreationFlow onCancel={handleEventCreated} />
+          </DialogContent>
+        </Dialog>
       </div>
-  )
-}
+
+      {/* Filters */}
+      <FilterButtons 
+        filterActive={filterActive}
+        onFilterChange={handleFilterChange}
+        events={events}
+      />
+
+      {/* Content */}
+      <div className="space-y-4">
+        {isLoadingEvents ? (
+          <LoadingSpinner />
+        ) : filteredEvents.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="grid gap-4">
+            {filteredEvents.map((event) => (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                onEdit={handleEditEvent}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Modifier l'événement</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations de votre événement.
+            </DialogDescription>
+          </DialogHeader>
+          {editingEvent && (
+            <EventCreationFlow 
+              event={editingEvent}
+              onCancel={handleEventUpdated}
+            />
+          )}
+        </DialogContent>
+             </Dialog>
+     </div>
+   )
+ }

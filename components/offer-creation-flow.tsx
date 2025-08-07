@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store } from "lucide-react"
+import { Store, Tag, Calendar, DollarSign, MapPin, Check } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -25,6 +26,8 @@ interface Offer {
   is_active: boolean
   created_at: string | null
   updated_at: string | null
+  start_date: string | null
+  end_date: string | null 
 }
 
 interface OfferCreationFlowProps {
@@ -42,6 +45,10 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   // Determine if we're in edit mode
   const isEditMode = !!offer
   
+  // Preview and confirmation mode states
+  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [isConfirmationMode, setIsConfirmationMode] = useState(false)
+  
   // Initialize form with offer data if editing, otherwise with defaults
   const [form, setForm] = useState({
     title: offer?.title || "",
@@ -51,8 +58,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           "les_deux" as "en_magasin" | "en_ligne" | "les_deux",
     business_address: offer?.custom_location || "",
     conditions: offer?.condition || "",
-    startDate: format(new Date(), "yyyy-MM-dd"),
-    endDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+    start_date: offer?.start_date || format(new Date(), "yyyy-MM-dd"),
+    end_date: offer?.end_date || format(new Date() , "yyyy-MM-dd"),
     selectedCommerceId: offer?.commerce_id || commerceId || "",
   })
 
@@ -80,8 +87,45 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     loadCommerces()
   }, [commerceId, offer])
 
+  const validateForm = () => {
+    const errors = []
+    if (!form.title) errors.push('Titre requis')
+    if (!form.short_description) errors.push('Description requise')
+    if (!form.selectedCommerceId) errors.push('Commerce requis')
+    if (!form.start_date) errors.push('Date de début requise')
+    if (!form.end_date) errors.push('Date de fin requise')
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    }
+  }
+
+  const handlePreviewOffer = () => {
+    const validation = validateForm()
+    if (!validation.isValid) {
+      alert(`Veuillez corriger les erreurs suivantes :\n${validation.errors.join('\n')}`)
+      return
+    }
+    setIsPreviewMode(true)
+  }
+
+  const handleBackToEdit = () => {
+    setIsPreviewMode(false)
+    setIsConfirmationMode(false)
+  }
+
+  const handleConfirmPublish = () => {
+    setIsConfirmationMode(true)
+  }
+
+  const handleBackToPreview = () => {
+    setIsConfirmationMode(false)
+  }
+
   const handleSaveOffer = async () => {
-    if (!form.title || !form.short_description || !form.selectedCommerceId) {
+    const validation = validateForm()
+    if (!validation.isValid) {
       console.error('Missing required fields:', { 
         title: !!form.title, 
         description: !!form.short_description, 
@@ -122,7 +166,12 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         uses_commerce_location: !form.business_address,
         custom_location: form.business_address || null,
         condition: form.conditions || null,
+        start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
+        end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
       }
+
+      console.log('Saving offer with data:', offerData)
+      console.log('Form dates:', { start_date: form.start_date, end_date: form.end_date })
 
       let result
       
@@ -178,8 +227,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           type: "en_magasin",
           business_address: "",
           conditions: "",
-          startDate: format(new Date(), "yyyy-MM-dd"),
-          endDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+          start_date: format(new Date(), "yyyy-MM-dd"),
+          end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 jours plus tard par défaut
           selectedCommerceId: "",
         })
       }
@@ -194,14 +243,229 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     }
   }
 
+  // Confirmation Component
+  const OfferConfirmation = () => {
+    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
+    
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <Check className="h-8 w-8 text-green-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Confirmer la publication
+          </h2>
+          <p className="text-muted-foreground">
+            Êtes-vous sûr de vouloir publier cette offre ?
+          </p>
+        </div>
+
+        {/* Confirmation Card */}
+        <Card className="border-2 border-green-200 bg-green-50/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold text-primary">
+                  {form.title}
+                </CardTitle>
+                <CardDescription className="mt-1 text-sm text-muted-foreground">
+                  {form.short_description}
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                Prêt à publier
+              </Badge>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Store className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Commerce:</span>
+                <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Période:</span>
+                <span>
+                  Du {new Date(form.start_date).toLocaleDateString('fr-FR')} 
+                  au {new Date(form.end_date).toLocaleDateString('fr-FR')}
+                </span>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div className="space-y-2 text-sm text-blue-800">
+                  <div>
+                    <span className="font-medium">Votre offre sera maintenant en ligne !</span>
+                  </div>
+                  <p>
+                    Elle sera visible sur votre fiche commerce, sur la carte, et dans les sections de l'application.
+                  </p>
+                  <p>
+                    Vous pourrez la modifier ou la désactiver à tout moment. (Lors d'un changement ou de la désactivation, les utilisateurs ayant ajouté votre offre en favori seront avertis.)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between gap-4 pt-4 border-t">
+          <Button variant="outline" onClick={handleBackToPreview}>
+            ← Retour à la prévisualisation
+          </Button>
+          <Button 
+            className="bg-green-600 hover:bg-green-700 text-white" 
+            onClick={handleSaveOffer}
+            disabled={isLoading}
+          >
+            {isLoading ? "Publication..." : "Publier l'offre"}
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Preview Component
+  const OfferPreview = () => {
+    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
+    const getTypeLabel = (type: string) => {
+      switch (type) {
+        case "en_magasin": return "En magasin"
+        case "en_ligne": return "En ligne"
+        case "les_deux": return "Les deux"
+        default: return type
+      }
+    }
+
+    const formatDate = (dateString: string) => {
+      if (!dateString) return "Non spécifié"
+      const date = new Date(dateString)
+      return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Prévisualisation de votre offre
+          </h2>
+          <p className="text-muted-foreground">
+            Vérifiez que toutes les informations sont correctes avant de publier
+          </p>
+        </div>
+
+        {/* Preview Card */}
+        <Card className="border-2 border-blue-200 bg-blue-50/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold text-primary">
+                  {form.title}
+                </CardTitle>
+                <CardDescription className="mt-1 text-sm text-muted-foreground">
+                  {form.short_description}
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                Prévisualisation
+              </Badge>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Offer Details */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Type:</span>
+                  <span>{getTypeLabel(form.type)}</span>
+                </div>
+                
+                {form.conditions && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <span className="font-medium">Condition:</span>
+                    <span className="text-muted-foreground">{form.conditions}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Localisation:</span>
+                  <span>
+                    {form.business_address 
+                      ? form.business_address 
+                      : selectedCommerce?.address || "Emplacement du commerce"
+                    }
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <Store className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Commerce:</span>
+                  <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+                </div>
+              </div>
+              
+              {/* Dates */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Début:</span>
+                  <span className="text-green-600 font-medium">{formatDate(form.start_date)}</span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Fin:</span>
+                  <span className="text-red-600 font-medium">{formatDate(form.end_date)}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between gap-4 pt-4 border-t">
+          <Button variant="outline" onClick={handleBackToEdit}>
+            ← Retour modifier
+          </Button>
+          <Button 
+            className="bg-accent hover:bg-accent/80 text-white" 
+            onClick={handleConfirmPublish}
+            disabled={isLoading}
+          >
+            Continuer vers la publication
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl text-primary">
-          {isEditMode ? "Modifier l'offre" : "Créer une nouvelle offre"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      {isConfirmationMode ? (
+        <OfferConfirmation />
+      ) : isPreviewMode ? (
+        <OfferPreview />
+      ) : (
+        <>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl text-primary">
+              {isEditMode ? "Modifier l'offre" : "Créer une nouvelle offre"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
         {/* Commerce Selection */}
         <div className="space-y-4">
           <div>
@@ -316,8 +580,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 </label>
                 <Input
                   type="date"
-                  value={form.startDate}
-                  onChange={e => setForm(f => ({ ...f, startDate: e.target.value }))}
+                  value={form.start_date}
+                  onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
                   required
                 />
               </div>
@@ -327,8 +591,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 </label>
                 <Input
                   type="date"
-                  value={form.endDate}
-                  onChange={e => setForm(f => ({ ...f, endDate: e.target.value }))}
+                  value={form.end_date}
+                  onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
                   required
                 />
               </div>
@@ -345,13 +609,15 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           )}
           <Button 
             className="bg-accent hover:bg-accent/80 text-white flex-1" 
-            onClick={handleSaveOffer}
+            onClick={isEditMode ? handleSaveOffer : handlePreviewOffer}
             disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
           >
-            {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'offre" : "Créer l'offre")}
+            {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'offre" : "Voir l'offre")}
           </Button>
         </div>
-      </CardContent>
+          </CardContent>
+        </>
+      )}
     </Card>
   )
 }

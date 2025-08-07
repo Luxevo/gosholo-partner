@@ -25,6 +25,8 @@ interface Offer {
   is_active: boolean
   created_at: string | null
   updated_at: string | null
+  start_date: string | null
+  end_date: string | null
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
@@ -143,6 +145,22 @@ const OfferCard = ({ offer, onEdit }: OfferCardProps) => {
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Modifiée le:</span>
                 <span className="text-blue-600 font-medium">{formatDate(offer.updated_at)}</span>
+              </div>
+            )}
+            
+            {offer.start_date && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Début:</span>
+                <span className="text-green-600 font-medium">{formatDate(offer.start_date)}</span>
+              </div>
+            )}
+            
+            {offer.end_date && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Fin:</span>
+                <span className="text-red-600 font-medium">{formatDate(offer.end_date)}</span>
               </div>
             )}
           </div>
@@ -286,6 +304,10 @@ export default function OffresPage() {
       }
 
       console.log('Offers loaded:', offersData)
+      console.log('First offer dates:', offersData?.[0] ? {
+        start_date: offersData[0].start_date,
+        end_date: offersData[0].end_date
+      } : 'No offers')
       setOffers(offersData || [])
     } catch (error) {
       console.error('Unexpected error:', error)
