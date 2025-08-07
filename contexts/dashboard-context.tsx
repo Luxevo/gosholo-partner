@@ -10,9 +10,60 @@ interface DashboardCounts {
   isLoading: boolean
 }
 
+interface UserProfile {
+  id: string
+  email: string
+  first_name: string | null
+  last_name: string | null
+  phone: string | null
+  avatar_url: string | null
+}
+
+interface Commerce {
+  id: string
+  name: string
+  description: string | null
+  address: string
+  category: string
+  email: string | null
+  phone: string | null
+  website: string | null
+  image_url: string | null
+  status: string
+  created_at: string | null
+  updated_at: string | null
+  offers?: Offer[]
+  events?: Event[]
+}
+
+interface Offer {
+  id: string
+  title: string
+  description: string
+  offer_type: "in_store" | "online" | "both"
+  condition: string | null
+  picture: string | null
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+}
+
+interface Event {
+  id: string
+  title: string
+  description: string
+  condition: string | null
+  picture: string | null
+  created_at: string | null
+  updated_at: string | null
+}
+
 interface DashboardContextType {
   counts: DashboardCounts
+  userProfile: UserProfile | null
+  commerces: Commerce[]
   refreshCounts: () => void
+  isLoading: boolean
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined)
@@ -24,10 +75,13 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     events: 0,
     isLoading: true
   })
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [commerces, setCommerces] = useState<Commerce[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const fetchCounts = async () => {
+  const fetchData = async () => {
     try {
-      setCounts(prev => ({ ...prev, isLoading: true }))
+      setIsLoading(true)
       const supabase = createClient()
       
       // Check authentication first
@@ -35,50 +89,76 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       
       if (userError || !user) {
         console.error('Authentication error:', userError)
-        setCounts(prev => ({ ...prev, isLoading: false }))
+        setIsLoading(false)
         return
       }
 
-      // Get user's commerces
+      // Get user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (profileError) {
+        console.error('Error loading profile:', profileError)
+      } else {
+        setUserProfile(profileData)
+      }
+
+      // Get user's commerces with offers and events
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
 
       if (commercesError) {
         console.error('Error loading commerces:', commercesError)
-        setCounts(prev => ({ ...prev, isLoading: false }))
+        setIsLoading(false)
         return
       }
 
       const commerceIds = commercesData?.map(c => c.id) || []
       const commercesCount = commerceIds.length
 
-      // Get offers count for user's commerces
+      // Get offers for user's commerces
       let offersCount = 0
+      let offersData: any[] = []
       if (commerceIds.length > 0) {
-        const { count: offersData, error: offersError } = await supabase
+        const { data: offers, error: offersError } = await supabase
           .from('offers')
-          .select('*', { count: 'exact', head: true })
+          .select('*')
           .in('commerce_id', commerceIds)
 
         if (!offersError) {
-          offersCount = offersData || 0
+          offersData = offers || []
+          offersCount = offersData.length
         }
       }
 
-      // Get events count for user's commerces
+      // Get events for user's commerces
       let eventsCount = 0
+      let eventsData: any[] = []
       if (commerceIds.length > 0) {
-        const { count: eventsData, error: eventsError } = await supabase
+        const { data: events, error: eventsError } = await supabase
           .from('events')
-          .select('*', { count: 'exact', head: true })
+          .select('*')
           .in('commerce_id', commerceIds)
 
         if (!eventsError) {
-          eventsCount = eventsData || 0
+          eventsData = events || []
+          eventsCount = eventsData.length
         }
       }
+
+      // Combine commerces with their offers and events
+      const commercesWithContent = (commercesData || []).map(commerce => ({
+        ...commerce,
+        offers: offersData.filter(offer => offer.commerce_id === commerce.id),
+        events: eventsData.filter(event => event.commerce_id === commerce.id)
+      }))
+
+      setCommerces(commercesWithContent)
 
       setCounts({
         commerces: commercesCount,
@@ -86,23 +166,25 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         events: eventsCount,
         isLoading: false
       })
+      setIsLoading(false)
 
     } catch (error) {
-      console.error('Error fetching dashboard counts:', error)
+      console.error('Error fetching dashboard data:', error)
       setCounts(prev => ({ ...prev, isLoading: false }))
+      setIsLoading(false)
     }
   }
 
   const refreshCounts = () => {
-    fetchCounts()
+    fetchData()
   }
 
   useEffect(() => {
-    fetchCounts()
+    fetchData()
   }, [])
 
   return (
-    <DashboardContext.Provider value={{ counts, refreshCounts }}>
+    <DashboardContext.Provider value={{ counts, userProfile, commerces, refreshCounts, isLoading }}>
       {children}
     </DashboardContext.Provider>
   )

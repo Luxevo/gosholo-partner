@@ -19,7 +19,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { counts: { commerces, offers, events, isLoading } } = useDashboard()
 
   const navigation = [
-    { name: "Tableau de bord", href: "/", icon: Home, badge: null },
+    { name: "Tableau de bord", href: "/dashboard", icon: Home, badge: null },
     { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
     { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: 15 },
