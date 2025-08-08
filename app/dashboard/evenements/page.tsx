@@ -20,8 +20,11 @@ interface Event {
   uses_commerce_location: boolean
   custom_location: string | null
   condition: string | null
+  is_active: boolean
   created_at: string | null
   updated_at: string | null
+  start_date: string | null
+  end_date: string | null
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
@@ -73,33 +76,27 @@ const EventCard = ({ event, onEdit }: EventCardProps) => {
       
       <CardContent className="pt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Event Details */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Type:</span>
-              <span>{event.uses_commerce_location ? "En magasin" : "Adresse spécifique"}</span>
-            </div>
-            
-            {event.condition && (
-              <div className="flex items-start gap-2 text-sm">
-                <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                <span className="font-medium">Conditions:</span>
-                <span className="text-muted-foreground">{event.condition}</span>
-              </div>
-            )}
-            
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Localisation:</span>
-              <span>
-                {event.uses_commerce_location 
-                  ? "Emplacement du commerce" 
-                  : event.custom_location || "Non spécifié"
-                }
-              </span>
-            </div>
-          </div>
+                     {/* Event Details */}
+           <div className="space-y-3">
+             {event.condition && (
+               <div className="flex items-start gap-2 text-sm">
+                 <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
+                 <span className="font-medium">Conditions:</span>
+                 <span className="text-muted-foreground">{event.condition}</span>
+               </div>
+             )}
+             
+             <div className="flex items-center gap-2 text-sm">
+               <MapPin className="h-4 w-4 text-muted-foreground" />
+               <span className="font-medium">Localisation:</span>
+               <span>
+                 {event.uses_commerce_location 
+                   ? "Emplacement du commerce" 
+                   : event.custom_location || "Non spécifié"
+                 }
+               </span>
+             </div>
+           </div>
           
           {/* Timing and Status */}
           <div className="space-y-3">
@@ -109,17 +106,27 @@ const EventCard = ({ event, onEdit }: EventCardProps) => {
               <span>{event.created_at ? formatDate(event.created_at) : "N/A"}</span>
             </div>
             
-            <div className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Participants:</span>
-              <span>0 (max: N/A)</span>
-            </div>
-            
             {event.updated_at && event.updated_at !== event.created_at && (
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Modifié le:</span>
                 <span className="text-blue-600 font-medium">{formatDate(event.updated_at)}</span>
+              </div>
+            )}
+            
+            {event.start_date && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Début:</span>
+                <span className="text-green-600 font-medium">{formatDate(event.start_date)}</span>
+              </div>
+            )}
+            
+            {event.end_date && (
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Fin:</span>
+                <span className="text-red-600 font-medium">{formatDate(event.end_date)}</span>
               </div>
             )}
           </div>
@@ -372,7 +379,7 @@ export default function EvenementsPage() {
           </DialogHeader>
           {editingEvent && (
             <EventCreationFlow 
-              event={editingEvent}
+              commerceId={editingEvent.commerce_id}
               onCancel={handleEventUpdated}
             />
           )}

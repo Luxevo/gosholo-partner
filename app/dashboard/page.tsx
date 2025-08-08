@@ -40,6 +40,8 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const { toast } = useToast()
   const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<any>(null)
+  const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<any>(null)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{type: 'offer' | 'event', item: any} | null>(null)
   const [isCreateOfferDialogOpen, setIsCreateOfferDialogOpen] = useState(false)
@@ -66,6 +68,18 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const handleOfferUpdated = () => {
     setIsEditOfferDialogOpen(false)
     setEditingOffer(null)
+    // Refresh the dashboard to show updated data
+    window.location.reload()
+  }
+
+  const handleEditEvent = (event: any) => {
+    setEditingEvent(event)
+    setIsEditEventDialogOpen(true)
+  }
+
+  const handleEventUpdated = () => {
+    setIsEditEventDialogOpen(false)
+    setEditingEvent(null)
     // Refresh the dashboard to show updated data
     window.location.reload()
   }
@@ -254,7 +268,12 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <Zap className="h-4 w-4 text-orange-600" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleEditEvent(event)}
+                    >
                       <Edit className="h-4 w-4 text-gray-600" />
                     </Button>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -357,10 +376,28 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
              Créez un nouvel événement pour {commerce.name}.
            </DialogDescription>
          </DialogHeader>
-                   <EventCreationFlow 
-            commerceId={commerce.id}
-            onCancel={handleEventCreated}
-          />
+         <EventCreationFlow 
+           commerceId={commerce.id}
+           onCancel={handleEventCreated}
+         />
+       </DialogContent>
+     </Dialog>
+
+     {/* Edit Event Dialog */}
+     <Dialog open={isEditEventDialogOpen} onOpenChange={setIsEditEventDialogOpen}>
+       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+         <DialogHeader>
+           <DialogTitle>Modifier l'événement</DialogTitle>
+           <DialogDescription>
+             Modifiez les informations de votre événement.
+           </DialogDescription>
+         </DialogHeader>
+         {editingEvent && (
+           <EventCreationFlow 
+             event={editingEvent}
+             onCancel={handleEventUpdated}
+           />
+         )}
        </DialogContent>
      </Dialog>
 

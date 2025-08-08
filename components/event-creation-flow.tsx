@@ -1,89 +1,132 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store } from "lucide-react"
+import { Store, Calendar, MapPin, Check, Users } from "lucide-react"
+import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+
+interface Event {
+  id: string
+  commerce_id: string
+  user_id: string
+  title: string
+  description: string
+  picture: string | null
+  uses_commerce_location: boolean
+  custom_location: string | null
+  condition: string | null
+  is_active: boolean
+  created_at: string | null
+  updated_at: string | null
+  start_date: string | null
+  end_date: string | null
+}
 
 interface EventCreationFlowProps {
   onCancel?: () => void
   commerceId?: string
-  editingEvent?: {
-    id: string
-    commerce_id: string
-    title: string
-    description: string
-    picture: string
-    uses_commerce_location: boolean
-    custom_location: string
-    condition: string
-    created_at: string
-    updated_at: string
-  }
-  onEventUpdated?: () => void
+  event?: Event // For editing existing events
 }
 
-export default function EventCreationFlow({ onCancel, commerceId, editingEvent, onEventUpdated }: EventCreationFlowProps) {
+export default function EventCreationFlow({ onCancel, commerceId, event }: EventCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
   
-  const [form, setForm] = useState({
-    title: editingEvent?.title || "",
-    description: editingEvent?.description || "",
-    picture: editingEvent?.picture || "",
-    uses_commerce_location: editingEvent?.uses_commerce_location ?? true,
-    custom_location: editingEvent?.custom_location || "",
-    condition: editingEvent?.condition || "",
-    selectedCommerceId: editingEvent?.commerce_id || commerceId || "",
-  })
+  // Determine if we're in edit mode
+  const isEditMode = !!event
+  
+  // Preview and confirmation mode states
+  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  const [isConfirmationMode, setIsConfirmationMode] = useState(false)
+  
+     // Initialize form with event data if editing, otherwise with defaults
+   const [form, setForm] = useState({
+     title: event?.title || "",
+     short_description: event?.description || "",
+     business_address: event?.custom_location || "",
+     conditions: event?.condition || "",
+     start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
+     end_date: event?.end_date || format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 days later by default
+     selectedCommerceId: event?.commerce_id || commerceId || "",
+   })
 
   // Load user's commerces
   useEffect(() => {
-    if (!editingEvent) {
-      const loadCommerces = async () => {
-        try {
-          const { data: { user } } = await supabase.auth.getUser()
-          if (user) {
-            const { data: commercesData } = await supabase
-              .from('commerces')
-              .select('id, name, category, address')
-              .eq('user_id', user.id)
-            setCommerces(commercesData || [])
-            
-            // Auto-select commerce if only one available
-            if (commercesData && commercesData.length === 1) {
-              setForm(f => ({ ...f, selectedCommerceId: commercesData[0].id }))
-            }
+    const loadCommerces = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: commercesData } = await supabase
+            .from('commerces')
+            .select('id, name, category, address')
+            .eq('user_id', user.id)
+          setCommerces(commercesData || [])
+          
+          // Auto-select commerce if only one available and no commerceId provided
+          if (commercesData && commercesData.length === 1 && !commerceId && !event) {
+            setForm(f => ({ ...f, selectedCommerceId: commercesData[0].id }))
           }
-        } catch (error) {
-          console.error('Error loading commerces:', error)
         }
+      } catch (error) {
+        console.error('Error loading commerces:', error)
       }
-      loadCommerces()
     }
-  }, [editingEvent])
+    loadCommerces()
+  }, [commerceId, event])
 
-  const handleSaveEvent = async () => {
-    if (!form.title || !form.description || (!editingEvent && !form.selectedCommerceId)) {
-      console.error('Missing required fields:', { 
-        title: !!form.title, 
-        description: !!form.description, 
-        commerce: !!form.selectedCommerceId 
-      })
-      setIsLoading(false)
+  const validateForm = () => {
+    const errors = []
+    if (!form.title) errors.push('Titre requis')
+    if (!form.short_description) errors.push('Description requise')
+    if (!form.selectedCommerceId) errors.push('Commerce requis')
+    if (!form.start_date) errors.push('Date de début requise')
+    if (!form.end_date) errors.push('Date de fin requise')
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    }
+  }
+
+  const handlePreviewEvent = () => {
+    const validation = validateForm()
+    if (!validation.isValid) {
+      alert(`Veuillez corriger les erreurs suivantes :\n${validation.errors.join('\n')}`)
       return
     }
+    setIsPreviewMode(true)
+  }
 
-    // Validate location logic
-    if (!form.uses_commerce_location && !form.custom_location.trim()) {
-      console.error('Custom location required when not using commerce location')
+  const handleBackToEdit = () => {
+    setIsPreviewMode(false)
+    setIsConfirmationMode(false)
+  }
+
+  const handleConfirmPublish = () => {
+    setIsConfirmationMode(true)
+  }
+
+  const handleBackToPreview = () => {
+    setIsConfirmationMode(false)
+  }
+
+  const handleSaveEvent = async () => {
+    const validation = validateForm()
+    if (!validation.isValid) {
+      console.error('Missing required fields:', { 
+        title: !!form.title, 
+        description: !!form.short_description, 
+        commerce: !!form.selectedCommerceId 
+      })
       setIsLoading(false)
       return
     }
@@ -100,20 +143,41 @@ export default function EventCreationFlow({ onCancel, commerceId, editingEvent, 
         return
       }
 
-      if (editingEvent) {
+      // Use selected commerce - this is now mandatory
+      const targetCommerceId = form.selectedCommerceId
+      
+      if (!targetCommerceId) {
+        console.error('No commerce selected - this should not happen due to validation')
+        setIsLoading(false)
+        return
+      }
+
+             const eventData = {
+         commerce_id: targetCommerceId,
+         user_id: user.id,
+         title: form.title,
+         description: form.short_description,
+         uses_commerce_location: !form.business_address,
+         custom_location: form.business_address || null,
+         condition: form.conditions || null,
+         start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
+         end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
+       }
+
+      console.log('Saving event with data:', eventData)
+      console.log('Form dates:', { start_date: form.start_date, end_date: form.end_date })
+
+      let result
+      
+      if (isEditMode && event) {
         // Update existing event
-        const { data: eventData, error: updateError } = await supabase
+        const { data: updateData, error: updateError } = await supabase
           .from('events')
           .update({
-            title: form.title,
-            description: form.description,
-            picture: form.picture || null,
-            uses_commerce_location: form.uses_commerce_location,
-            custom_location: form.uses_commerce_location ? null : form.custom_location,
-            condition: form.condition || null,
+            ...eventData,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', editingEvent.id)
+          .eq('id', event.id)
           .select()
           .single()
 
@@ -123,36 +187,15 @@ export default function EventCreationFlow({ onCancel, commerceId, editingEvent, 
           return
         }
 
-        console.log('Event updated:', eventData)
-        
-        // Refresh dashboard counts
-        refreshCounts()
-        
-        if (onEventUpdated) {
-          onEventUpdated()
-        }
+        result = updateData
+        console.log('Event updated:', result)
       } else {
-        // Create new event - commerce selection is mandatory
-        const targetCommerceId = form.selectedCommerceId
-        
-        if (!targetCommerceId) {
-          console.error('No commerce selected - this should not happen due to validation')
-          setIsLoading(false)
-          return
-        }
-
-        // Insert event into database
-        const { data: eventData, error: insertError } = await supabase
+        // Create new event
+        const { data: insertData, error: insertError } = await supabase
           .from('events')
           .insert({
-            commerce_id: targetCommerceId,
-            user_id: user.id,
-            title: form.title,
-            description: form.description,
-            picture: form.picture || null,
-            uses_commerce_location: form.uses_commerce_location,
-            custom_location: form.uses_commerce_location ? null : form.custom_location,
-            condition: form.condition || null,
+            ...eventData,
+            is_active: true, // Explicitly set as active for new events
           })
           .select()
           .single()
@@ -163,25 +206,28 @@ export default function EventCreationFlow({ onCancel, commerceId, editingEvent, 
           return
         }
 
-        console.log('Event created:', eventData)
-        
-        // Refresh dashboard counts
-        refreshCounts()
-        
-        // Reset form and close
-        setForm({
-          title: "",
-          description: "",
-          picture: "",
-          uses_commerce_location: true,
-          custom_location: "",
-          condition: "",
-          selectedCommerceId: "",
-        })
-        
-        if (onCancel) {
-          onCancel()
-        }
+        result = insertData
+        console.log('Event created:', result)
+      }
+      
+      // Refresh dashboard counts
+      refreshCounts()
+      
+             // Reset form and close
+       if (!isEditMode) {
+         setForm({
+           title: "",
+           short_description: "",
+           business_address: "",
+           conditions: "",
+           start_date: format(new Date(), "yyyy-MM-dd"),
+           end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+           selectedCommerceId: "",
+         })
+       }
+      
+      if (onCancel) {
+        onCancel()
       }
     } catch (error) {
       console.error('Unexpected error saving event:', error)
@@ -190,186 +236,353 @@ export default function EventCreationFlow({ onCancel, commerceId, editingEvent, 
     }
   }
 
-  return (
-    <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl text-primary">
-          {editingEvent ? "Modifier l'événement" : "Créer un nouvel événement"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Commerce Selection (only for new events) */}
-        {!editingEvent && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-primary mb-2">
-                Commerce * <span className="text-red-500">*</span>
-              </label>
-              {commerces.length === 0 ? (
-                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                  <div className="text-red-500 mb-2">
-                    <Store className="h-12 w-12 mx-auto mb-2" />
-                    <p className="font-medium">Aucun commerce disponible</p>
-                  </div>
-                  <p className="text-secondary mb-4">Vous devez d'abord créer un commerce avant de pouvoir créer un événement.</p>
-                  <Button variant="outline" onClick={onCancel}>
-                    Retour au tableau de bord
-                  </Button>
-                </div>
-              ) : (
-                <Select 
-                  value={form.selectedCommerceId} 
-                  onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
-                  disabled={!!editingEvent || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
-                >
-                  <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
-                    <SelectValue placeholder={commerceId ? "Commerce pré-sélectionné" : "Sélectionner un commerce (obligatoire)"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {commerces.map((commerce) => (
-                      <SelectItem key={commerce.id} value={commerce.id}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{commerce.name}</span>
-                          <span className="text-xs text-secondary">{commerce.category} • {commerce.address}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+  // Confirmation Component
+  const EventConfirmation = () => {
+    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
+    
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <Check className="h-8 w-8 text-green-600" />
           </div>
-        )}
-
-        {/* Event Details */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Titre de l'événement * <span className="text-red-500">*</span>
-            </label>
-            <Input
-              placeholder="Ex: Atelier cuisine, Soirée networking, Lancement produit"
-              value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Description * <span className="text-red-500">*</span>
-            </label>
-            <Textarea
-              placeholder="Description détaillée de votre événement"
-              value={form.description}
-              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              required
-              rows={4}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Image de l'événement (optionnel)
-            </label>
-            <Input
-              placeholder="URL de l'image"
-              value={form.picture}
-              onChange={e => setForm(f => ({ ...f, picture: e.target.value }))}
-            />
-            <div className="text-xs text-secondary mt-1">
-              Ajouter une image attire 2x plus l'attention des utilisateurs.
-            </div>
-            {form.picture && (
-              <img 
-                src={form.picture} 
-                alt="Aperçu" 
-                className="mt-2 rounded w-32 h-32 object-cover" 
-                onError={(e) => { 
-                  const target = e.target as HTMLImageElement; 
-                  target.style.display = 'none'; 
-                }} 
-              />
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Lieu de l'événement
-            </label>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="commerce_location"
-                  name="location_type"
-                  checked={form.uses_commerce_location}
-                  onChange={() => setForm(f => ({ ...f, uses_commerce_location: true }))}
-                  className="text-primary"
-                />
-                <label htmlFor="commerce_location" className="text-sm text-primary">
-                  Utiliser l'adresse du commerce
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="custom_location"
-                  name="location_type"
-                  checked={!form.uses_commerce_location}
-                  onChange={() => setForm(f => ({ ...f, uses_commerce_location: false }))}
-                  className="text-primary"
-                />
-                <label htmlFor="custom_location" className="text-sm text-primary">
-                  Adresse spécifique
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {!form.uses_commerce_location && (
-            <div>
-              <label className="block text-sm font-medium text-primary mb-2">
-                Adresse spécifique * <span className="text-red-500">*</span>
-              </label>
-              <Input
-                placeholder="Adresse complète de l'événement"
-                value={form.custom_location}
-                onChange={e => setForm(f => ({ ...f, custom_location: e.target.value }))}
-                required={!form.uses_commerce_location}
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Conditions (optionnel)
-            </label>
-            <Textarea
-              placeholder="Ex: Inscription requise, Limite 20 participants, Apporter votre matériel"
-              value={form.condition}
-              onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}
-              rows={3}
-            />
-          </div>
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Confirmer la publication
+          </h2>
+          <p className="text-muted-foreground">
+            Êtes-vous sûr de vouloir publier cet événement ?
+          </p>
         </div>
+
+        {/* Confirmation Card */}
+        <Card className="border-2 border-green-200 bg-green-50/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold text-primary">
+                  {form.title}
+                </CardTitle>
+                <CardDescription className="mt-1 text-sm text-muted-foreground">
+                  {form.short_description}
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                Prêt à publier
+              </Badge>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Store className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Commerce:</span>
+                <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Période:</span>
+                <span>
+                  Du {new Date(form.start_date).toLocaleDateString('fr-FR')} 
+                  au {new Date(form.end_date).toLocaleDateString('fr-FR')}
+                </span>
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <div className="space-y-2 text-sm text-blue-800">
+                  <div>
+                    <span className="font-medium">Votre événement sera maintenant en ligne !</span>
+                  </div>
+                  <p>
+                    Il sera visible sur votre fiche commerce, sur la carte, et dans les sections de l'application.
+                  </p>
+                  <p>
+                    Vous pourrez le modifier ou le désactiver à tout moment. (Lors d'un changement ou de la désactivation, les utilisateurs ayant ajouté votre événement en favori seront avertis.)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
-          {onCancel && (
-            <Button variant="outline" onClick={onCancel}>
-              Annuler
-            </Button>
-          )}
+          <Button variant="outline" onClick={handleBackToPreview}>
+            ← Retour à la prévisualisation
+          </Button>
           <Button 
-            className="bg-accent hover:bg-accent/80 text-white flex-1" 
+            className="bg-green-600 hover:bg-green-700 text-white" 
             onClick={handleSaveEvent}
-            disabled={isLoading || !form.title || !form.description || (!editingEvent && !form.selectedCommerceId) || (!form.uses_commerce_location && !form.custom_location.trim())}
+            disabled={isLoading}
           >
-            {isLoading ? "Sauvegarde..." : (editingEvent ? "Modifier l'événement" : "Créer l'événement")}
+            {isLoading ? "Publication..." : "Publier l'événement"}
           </Button>
         </div>
-      </CardContent>
+      </div>
+    )
+  }
+
+  // Preview Component
+  const EventPreview = () => {
+    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
+
+    const formatDate = (dateString: string) => {
+      if (!dateString) return "Non spécifié"
+      const date = new Date(dateString)
+      return date.toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      })
+    }
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Prévisualisation de votre événement
+          </h2>
+          <p className="text-muted-foreground">
+            Vérifiez que toutes les informations sont correctes avant de publier
+          </p>
+        </div>
+
+        {/* Preview Card */}
+        <Card className="border-2 border-blue-200 bg-blue-50/30">
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold text-primary">
+                  {form.title}
+                </CardTitle>
+                <CardDescription className="mt-1 text-sm text-muted-foreground">
+                  {form.short_description}
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="text-xs">
+                Prévisualisation
+              </Badge>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Event Details */}
+              <div className="space-y-3">
+                {form.conditions && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <span className="font-medium">Conditions:</span>
+                    <span className="text-muted-foreground">{form.conditions}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Localisation:</span>
+                  <span>
+                    {form.business_address 
+                      ? form.business_address 
+                      : selectedCommerce?.address || "Emplacement du commerce"
+                    }
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <Store className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Commerce:</span>
+                  <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+                </div>
+              </div>
+              
+              {/* Dates */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Début:</span>
+                  <span className="text-green-600 font-medium">{formatDate(form.start_date)}</span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Fin:</span>
+                  <span className="text-red-600 font-medium">{formatDate(form.end_date)}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex justify-between gap-4 pt-4 border-t">
+          <Button variant="outline" onClick={handleBackToEdit}>
+            ← Retour modifier
+          </Button>
+          <Button 
+            className="bg-accent hover:bg-accent/80 text-white" 
+            onClick={handleConfirmPublish}
+            disabled={isLoading}
+          >
+            Continuer vers la publication
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
+      {isConfirmationMode ? (
+        <EventConfirmation />
+      ) : isPreviewMode ? (
+        <EventPreview />
+      ) : (
+        <>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl text-primary">
+              {isEditMode ? "Modifier l'événement" : "Créer un nouvel événement"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Commerce Selection */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  Commerce * <span className="text-red-500">*</span>
+                </label>
+                {commerces.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="text-red-500 mb-2">
+                      <Store className="h-12 w-12 mx-auto mb-2" />
+                      <p className="font-medium">Aucun commerce disponible</p>
+                    </div>
+                    <p className="text-secondary mb-4">Vous devez d'abord créer un commerce avant de pouvoir créer un événement.</p>
+                    <Button variant="outline" onClick={onCancel}>
+                      Retour au tableau de bord
+                    </Button>
+                  </div>
+                ) : (
+                  <Select 
+                    value={form.selectedCommerceId} 
+                    onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
+                    disabled={isEditMode || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
+                  >
+                    <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
+                      <SelectValue placeholder={commerceId ? "Commerce pré-sélectionné" : "Sélectionner un commerce (obligatoire)"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {commerces.map((commerce) => (
+                        <SelectItem key={commerce.id} value={commerce.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{commerce.name}</span>
+                            <span className="text-xs text-secondary">{commerce.category} • {commerce.address}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
+              {/* Event Details */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Titre de l'événement * <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    placeholder="Ex: Atelier cuisine, Soirée networking, Lancement produit"
+                    value={form.title}
+                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Description * <span className="text-red-500">*</span>
+                  </label>
+                  <Textarea
+                    placeholder="Description courte (max 250 caractères)"
+                    maxLength={250}
+                    value={form.short_description}
+                    onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))}
+                    required
+                    rows={3}
+                  />
+                </div>
+
+                
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Adresse spécifique (optionnel)
+                  </label>
+                  <Input
+                    placeholder="Adresse spécifique pour cet événement"
+                    value={form.business_address}
+                    onChange={e => setForm(f => ({ ...f, business_address: e.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Conditions (optionnel)
+                  </label>
+                  <Textarea
+                    placeholder="Ex: Inscription requise, Limite 20 participants, Apporter votre matériel"
+                    value={form.conditions}
+                    onChange={e => setForm(f => ({ ...f, conditions: e.target.value }))}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      Date de début
+                    </label>
+                    <Input
+                      type="date"
+                      value={form.start_date}
+                      onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      Date de fin
+                    </label>
+                    <Input
+                      type="date"
+                      value={form.end_date}
+                      onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-4 pt-4 border-t">
+              {onCancel && (
+                <Button variant="outline" onClick={onCancel}>
+                  Annuler
+                </Button>
+              )}
+              <Button 
+                className="bg-accent hover:bg-accent/80 text-white flex-1" 
+                onClick={isEditMode ? handleSaveEvent : handlePreviewEvent}
+                disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
+              >
+                {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'événement" : "Voir l'événement")}
+              </Button>
+            </div>
+          </CardContent>
+        </>
+      )}
     </Card>
   )
 } 
