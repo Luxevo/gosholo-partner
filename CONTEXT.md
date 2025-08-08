@@ -537,6 +537,57 @@ subscription_plan_enum: "free" | "pro"
 - Optimistic updates for better UX
 - Caching strategies for improved performance
 
+## 🚨 Current Architecture Status
+
+### Legacy Pages Management
+The application currently maintains **dual content management systems**:
+
+#### **Primary System: Unified Dashboard** (`/dashboard`)
+- ✅ **Commerce-centric approach**: All content organized by business
+- ✅ **Integrated management**: Offers and events within commerce cards
+- ✅ **Full CRUD operations**: Create, edit, delete, boost functionality
+- ✅ **Consistent UX**: Modal-based workflows with 3-step creation flows
+- ✅ **Real-time updates**: Automatic data refresh and status management
+
+#### **Secondary System: Legacy Pages** (`/dashboard/offres`, `/dashboard/evenements`)
+- ⚠️ **Content-centric approach**: Standalone pages for offers and events
+- ⚠️ **Limited functionality**: Edit and delete only (no boost features)
+- ⚠️ **Inconsistent styling**: Different from main dashboard design
+- ⚠️ **Code duplication**: ~80% similar logic to main dashboard
+- ⚠️ **Maintenance burden**: Two implementations for same functionality
+
+### Current Navigation Structure
+```typescript
+const navigation = [
+  { name: "Tableau de bord", href: "/dashboard", icon: Home, badge: null },        // ✅ Primary
+  { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: offers },         // ⚠️ Legacy
+  { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: events }, // ⚠️ Legacy
+  { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: 15 },
+  { name: "Profil & compte", href: "/dashboard/profil", icon: User, badge: null },
+  { name: "Support", href: "/dashboard/support", icon: HelpCircle, badge: 1 },
+]
+```
+
+### Recent Updates to Legacy Pages
+Both legacy pages have been updated with:
+- ✅ **Delete functionality**: Matching profile page styling
+- ✅ **Consistent UI**: Red warning boxes and confirmation dialogs
+- ✅ **Better UX**: "Supprimer définitivement" buttons with Trash2 icons
+- ✅ **Error handling**: Proper state management and cleanup
+
+### Recommended Actions
+1. **Remove legacy navigation**: Update sidebar to remove `/offres` and `/evenements` links
+2. **Add route redirects**: Redirect legacy routes to main dashboard
+3. **Delete legacy files**: Remove `app/dashboard/offres/page.tsx` and `app/dashboard/evenements/page.tsx`
+4. **Update documentation**: Ensure CONTEXT.md reflects final architecture
+
+### Impact of Legacy Pages
+- ❌ **User confusion**: Two different ways to manage same content
+- ❌ **Code duplication**: ~80% similar functionality
+- ❌ **Maintenance overhead**: Bug fixes needed in multiple places
+- ❌ **Performance impact**: Redundant database queries
+- ❌ **Inconsistent UX**: Different interfaces for same operations
+
 ## 🚀 Deployment
 
 ### Environment Variables
@@ -581,10 +632,16 @@ npm run lint         # Code linting
 ## 🔧 Recent Major Changes
 
 ### Unified Dashboard Implementation
-- **Removed separate pages**: No more dedicated `/commerces`, `/offres`, `/evenements` pages
-- **Integrated management**: All operations now happen from main dashboard
+- **Primary system**: Commerce-centric unified dashboard at `/dashboard`
+- **Integrated management**: All operations happen from main dashboard
 - **Modal-based workflows**: All creation/editing done through modal dialogs
 - **Consistent UX**: Uniform experience across all content types
+
+### Legacy Pages Status
+- **Dual system**: Both unified dashboard and legacy pages exist
+- **Legacy pages**: `/dashboard/offres` and `/dashboard/evenements` still accessible
+- **Limited functionality**: Legacy pages have edit/delete only (no boost features)
+- **Updated styling**: Legacy pages now match profile page delete styling
 
 ### Commerce Management
 - **Creation flow**: 3-step process with preview and confirmation
@@ -616,6 +673,7 @@ npm run lint         # Code linting
 - **Profile page enhancement**: Side-by-side layout for better information density
 - **Commerce grid layout**: Responsive grid display for commerce management
 - **Integrated workflows**: Same modal components used across dashboard and profile
+- **Delete styling**: Consistent red warning boxes and "Supprimer définitivement" buttons
 
 ### Database Schema Updates
 - **Events table**: Added start_date and end_date fields
@@ -639,7 +697,9 @@ For questions about implementation details, contact the development team. Regula
 - Event date management and status updates
 
 **Last Updated**: January 27, 2025
-**Version**: 2.2
+**Version**: 2.3
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)
-**Major Changes**: Unified dashboard, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display
+**Major Changes**: Unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages
+
+**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Recommended to remove legacy pages for cleaner architecture.
