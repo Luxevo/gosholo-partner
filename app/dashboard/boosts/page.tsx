@@ -340,60 +340,7 @@ export default function BoostsPage() {
           <p className="text-primary/70">Améliorez la visibilité de vos offres et événements</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Crédits Boost</CardTitle>
-              <Zap className="h-4 w-4 text-orange-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.boostCredits || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {subscription?.plan_type === 'free' 
-                  ? 'Passez au plan Pro pour obtenir des crédits'
-                  : 'Crédits disponibles ce mois'
-                }
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Contenu Boosté</CardTitle>
-              <Sparkles className="h-4 w-4 text-yellow-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.boostedContent || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                sur {stats?.totalContent || 0} total
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Plan Actuel</CardTitle>
-              {subscription?.plan_type === 'pro' ? (
-                <Crown className="h-4 w-4 text-yellow-500" />
-              ) : (
-                <Star className="h-4 w-4 text-gray-400" />
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {subscription?.plan_type === 'pro' ? 'Pro' : 'Gratuit'}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {subscription?.plan_type === 'pro' 
-                  ? '1 crédit boost par mois'
-                  : 'Aucun crédit boost'
-                }
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
+       
         {/* Boost Types Explanation */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
@@ -419,34 +366,6 @@ export default function BoostsPage() {
                 <li className="flex items-center">
                   <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   Mise en avant sur la carte
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5 text-blue-500" />
-                <span>Visibilité Premium</span>
-              </CardTitle>
-              <CardDescription>
-                Augmentez la portée de votre contenu
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Position privilégiée sur la carte
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Notification aux utilisateurs proches
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Statistiques de visibilité avancées
                 </li>
               </ul>
             </CardContent>

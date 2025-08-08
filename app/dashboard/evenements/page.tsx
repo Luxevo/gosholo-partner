@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
 
@@ -27,6 +28,12 @@ interface Event {
   end_date: string | null
 }
 
+interface Commerce {
+  id: string
+  name: string
+  category: string | null
+}
+
 type FilterType = 'all' | 'active' | 'inactive'
 
 // Utility functions
@@ -43,9 +50,10 @@ const formatDate = (dateString: string) => {
 interface EventCardProps {
   event: Event
   onEdit: (event: Event) => void
+  onDelete: (event: Event) => void
 }
 
-const EventCard = ({ event, onEdit }: EventCardProps) => {
+const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -69,6 +77,15 @@ const EventCard = ({ event, onEdit }: EventCardProps) => {
               className="h-8 w-8 p-0"
             >
               <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(event)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Supprimer
             </Button>
           </div>
         </div>
@@ -174,6 +191,35 @@ const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsPr
   )
 }
 
+// Commerce Filter Component
+interface CommerceFilterProps {
+  commerces: Commerce[]
+  selectedCommerce: string
+  onCommerceChange: (commerceId: string) => void
+}
+
+const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: CommerceFilterProps) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Building2 className="h-4 w-4 text-muted-foreground" />
+      <span className="text-sm font-medium">Commerce:</span>
+      <Select value={selectedCommerce} onValueChange={onCommerceChange}>
+        <SelectTrigger className="w-48">
+          <SelectValue placeholder="Tous les commerces" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tous les commerces</SelectItem>
+          {commerces.map((commerce) => (
+            <SelectItem key={commerce.id} value={commerce.id}>
+              {commerce.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
 // Loading Component
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-12">
@@ -203,11 +249,15 @@ export default function EvenementsPage() {
   
   // State
   const [events, setEvents] = useState<Event[]>([])
+  const [commerces, setCommerces] = useState<Commerce[]>([])
   const [isLoadingEvents, setIsLoadingEvents] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<Event | null>(null)
   const [filterActive, setFilterActive] = useState<FilterType>('all')
+  const [selectedCommerce, setSelectedCommerce] = useState<string>('all')
 
   // Load events from database
   const loadEvents = async () => {
@@ -235,7 +285,7 @@ export default function EvenementsPage() {
       // First get user's commerces
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
-        .select('id')
+        .select('id, name, category')
         .eq('user_id', user.id)
 
       if (commercesError) {
@@ -246,10 +296,18 @@ export default function EvenementsPage() {
 
       if (!commercesData || commercesData.length === 0) {
         console.log('No commerces found for user')
+        setCommerces([])
         setEvents([])
         setIsLoadingEvents(false)
         return
       }
+
+      const commerces = commercesData.map(c => ({ 
+        id: c.id, 
+        name: c.name, 
+        category: c.category 
+      }))
+      setCommerces(commerces)
 
       const commerceIds = commercesData.map(c => c.id)
 
@@ -281,20 +339,55 @@ export default function EvenementsPage() {
 
   // Filtered events
   const filteredEvents = useMemo(() => {
+    let filtered = events
+
+    // Filter by commerce first
+    if (selectedCommerce !== 'all') {
+      filtered = filtered.filter(event => event.commerce_id === selectedCommerce)
+    }
+
+    // Then filter by status
     switch (filterActive) {
       case 'active':
-        return events.filter(event => true) // All events are considered active for now
+        return filtered.filter(event => true) // All events are considered active for now
       case 'inactive':
-        return events.filter(event => false) // No inactive events for now
+        return filtered.filter(event => false) // No inactive events for now
       default:
-        return events
+        return filtered
     }
-  }, [events, filterActive])
+  }, [events, filterActive, selectedCommerce])
 
   // Event handlers
   const handleEditEvent = (event: Event) => {
     setEditingEvent(event)
     setIsEditDialogOpen(true)
+  }
+
+  const handleDeleteEvent = (event: Event) => {
+    setItemToDelete(event)
+    setIsDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return
+
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', itemToDelete.id)
+
+      if (error) {
+        console.error('Error deleting event:', error)
+        return
+      }
+
+      setIsDeleteConfirmOpen(false)
+      setItemToDelete(null)
+      loadEvents()
+    } catch (error) {
+      console.error('Unexpected error deleting event:', error)
+    }
   }
 
   const handleEventCreated = () => {
@@ -310,6 +403,10 @@ export default function EvenementsPage() {
 
   const handleFilterChange = (filter: FilterType) => {
     setFilterActive(filter)
+  }
+
+  const handleCommerceChange = (commerceId: string) => {
+    setSelectedCommerce(commerceId)
   }
 
   return (
@@ -343,11 +440,18 @@ export default function EvenementsPage() {
       </div>
 
       {/* Filters */}
-      <FilterButtons 
-        filterActive={filterActive}
-        onFilterChange={handleFilterChange}
-        events={events}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <FilterButtons 
+          filterActive={filterActive}
+          onFilterChange={handleFilterChange}
+          events={events}
+        />
+        <CommerceFilter
+          commerces={commerces}
+          selectedCommerce={selectedCommerce}
+          onCommerceChange={handleCommerceChange}
+        />
+      </div>
 
       {/* Content */}
       <div className="space-y-4">
@@ -362,6 +466,7 @@ export default function EvenementsPage() {
                 key={event.id} 
                 event={event} 
                 onEdit={handleEditEvent}
+                onDelete={handleDeleteEvent}
               />
             ))}
           </div>
@@ -384,7 +489,49 @@ export default function EvenementsPage() {
             />
           )}
         </DialogContent>
-             </Dialog>
-     </div>
-   )
- }
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Supprimer l'événement</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer cet événement ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {itemToDelete && (
+              <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                <h4 className="font-medium text-red-800 mb-2">
+                  Événement à supprimer : {itemToDelete.title}
+                </h4>
+                <p className="text-sm text-red-700">
+                  Cette action supprimera définitivement cet événement de votre compte.
+                </p>
+              </div>
+            )}
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false)
+                  setItemToDelete(null)
+                }}
+              >
+                Annuler
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={confirmDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer définitivement
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

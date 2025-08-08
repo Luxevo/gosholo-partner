@@ -218,6 +218,9 @@ subscription_plan_enum: "free" | "pro"
 - **Editing**: Direct modification of commerce details through modal interface
 - **Validation**: Client-side validation for required fields
 - **Categories**: Support for 12 business categories with proper enum handling
+- **Profile Integration**: Complete commerce management available from profile page
+- **Side-by-Side Layout**: Responsive grid display for commerce cards
+- **Cascade Deletion**: Safe deletion with automatic cleanup of associated content
 
 #### Content Management
 - **Offers**: Full CRUD operations with date management (start_date, end_date)
@@ -303,6 +306,19 @@ subscription_plan_enum: "free" | "pro"
 - **Consistent Design**: Uniform card layouts for offers and events
 - **Full CRUD Operations**: Create, read, update, delete for both offers and events
 - **Edit Functionality**: Edit buttons for both offers and events in commerce cards
+
+### Profile Page (`app/dashboard/profil/page.tsx`)
+- **Comprehensive User Management**: Complete profile and commerce management in one place
+- **Side-by-Side Layout**: Current plan and account info displayed side by side
+- **Commerce Management**: Full CRUD operations for user's commerces directly from profile
+- **Commerce Creation**: Integrated commerce creation using same modal as dashboard
+- **Commerce Editing**: Direct editing of commerce details through modal interface
+- **Commerce Deletion**: Safe deletion with confirmation dialog and cascade cleanup
+- **Grid Layout**: Responsive grid display (1-3 columns) for commerce cards
+- **Subscription Information**: Plan details, usage stats, boost credits display
+- **Account Actions**: Profile editing, password change, subscription management
+- **Data Synchronization**: Automatic refresh after all commerce operations
+- **Consistent UX**: Same modal components and workflows as main dashboard
 
 ### Dashboard Layout (`components/dashboard-layout.tsx`)
 - Responsive sidebar that becomes drawer on mobile
@@ -427,6 +443,9 @@ subscription_plan_enum: "free" | "pro"
 3. Commerce created in database
 4. Dashboard refreshed to show new commerce
 5. User can manage commerce via "Gérer ce commerce" button
+6. **Profile Management**: Complete commerce CRUD operations available from profile page
+7. **Grid Display**: Commerces displayed in responsive grid layout (1-3 columns)
+8. **Cascade Operations**: Deletion automatically removes associated offers and events
 
 ### Content Creation Flow
 1. User attempts to create offer/event from commerce card
@@ -505,6 +524,9 @@ subscription_plan_enum: "free" | "pro"
 - A/B testing for boost effectiveness
 - Enterprise plan with unlimited content
 - Advanced date picker for better UX
+- Enhanced profile analytics
+- Commerce performance metrics
+- Bulk commerce operations
 
 ### Technical Improvements
 - Real-time notifications
@@ -591,6 +613,9 @@ npm run lint         # Code linting
 - **Confirmation dialogs**: Safe deletion with confirmation steps
 - **Loading states**: Proper loading indicators during operations
 - **Edit buttons**: Functional edit buttons for both offers and events
+- **Profile page enhancement**: Side-by-side layout for better information density
+- **Commerce grid layout**: Responsive grid display for commerce management
+- **Integrated workflows**: Same modal components used across dashboard and profile
 
 ### Database Schema Updates
 - **Events table**: Added start_date and end_date fields
@@ -614,7 +639,7 @@ For questions about implementation details, contact the development team. Regula
 - Event date management and status updates
 
 **Last Updated**: January 27, 2025
-**Version**: 2.1
+**Version**: 2.2
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)
-**Major Changes**: Unified dashboard, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow
+**Major Changes**: Unified dashboard, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display

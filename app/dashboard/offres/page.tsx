@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
 import { checkAndDeactivateOffers, getDaysRemaining, getOfferStatus } from "@/lib/offer-utils"
@@ -27,6 +28,12 @@ interface Offer {
   updated_at: string | null
   start_date: string | null
   end_date: string | null
+}
+
+interface Commerce {
+  id: string
+  name: string
+  category: string | null
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
@@ -58,9 +65,10 @@ const getTypeLabel = (type: string) => {
 interface OfferCardProps {
   offer: Offer
   onEdit: (offer: Offer) => void
+  onDelete: (offer: Offer) => void
 }
 
-const OfferCard = ({ offer, onEdit }: OfferCardProps) => {
+const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
   const status = getOfferStatus(offer.is_active, offer.created_at || '')
   const daysRemaining = getDaysRemaining(offer.created_at || '')
   
@@ -87,6 +95,15 @@ const OfferCard = ({ offer, onEdit }: OfferCardProps) => {
               className="h-8 w-8 p-0"
             >
               <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(offer)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Supprimer
             </Button>
           </div>
         </div>
@@ -208,6 +225,35 @@ const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsPr
   )
 }
 
+// Commerce Filter Component
+interface CommerceFilterProps {
+  commerces: Commerce[]
+  selectedCommerce: string
+  onCommerceChange: (commerceId: string) => void
+}
+
+const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: CommerceFilterProps) => {
+  return (
+    <div className="flex items-center gap-2">
+      <Building2 className="h-4 w-4 text-muted-foreground" />
+      <span className="text-sm font-medium">Commerce:</span>
+      <Select value={selectedCommerce} onValueChange={onCommerceChange}>
+        <SelectTrigger className="w-48">
+          <SelectValue placeholder="Tous les commerces" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tous les commerces</SelectItem>
+          {commerces.map((commerce) => (
+            <SelectItem key={commerce.id} value={commerce.id}>
+              {commerce.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
+}
+
 // Loading Component
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center py-12">
@@ -237,11 +283,15 @@ export default function OffresPage() {
   
   // State
   const [offers, setOffers] = useState<Offer[]>([])
+  const [commerces, setCommerces] = useState<Commerce[]>([])
   const [isLoadingOffers, setIsLoadingOffers] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<Offer | null>(null)
   const [filterActive, setFilterActive] = useState<FilterType>('all')
+  const [selectedCommerce, setSelectedCommerce] = useState<string>('all')
 
   // Load offers from database
   const loadOffers = async () => {
@@ -272,7 +322,7 @@ export default function OffresPage() {
       // First get user's commerces
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
-        .select('id')
+        .select('id, name, category')
         .eq('user_id', user.id)
 
       if (commercesError) {
@@ -284,17 +334,23 @@ export default function OffresPage() {
       if (!commercesData || commercesData.length === 0) {
         console.log('No commerces found for user')
         setOffers([])
+        setCommerces([]) // Ensure commerces state is also empty
         setIsLoadingOffers(false)
         return
       }
 
-      const commerceIds = commercesData.map(c => c.id)
+              const commerces = commercesData.map(c => ({ 
+          id: c.id, 
+          name: c.name, 
+          category: c.category 
+        }))
+        setCommerces(commerces) // Set commerces state
 
       // Query offers for user's commerces
       const { data: offersData, error } = await supabase
         .from('offers')
         .select('*')
-        .in('commerce_id', commerceIds)
+        .in('commerce_id', commerces.map(c => c.id))
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -323,20 +379,55 @@ export default function OffresPage() {
 
   // Filtered offers
   const filteredOffers = useMemo(() => {
+    let filtered = offers
+
+    // Filter by commerce first
+    if (selectedCommerce !== 'all') {
+      filtered = filtered.filter(offer => offer.commerce_id === selectedCommerce)
+    }
+
+    // Then filter by status
     switch (filterActive) {
       case 'active':
-        return offers.filter(offer => offer.is_active)
+        return filtered.filter(offer => offer.is_active)
       case 'inactive':
-        return offers.filter(offer => !offer.is_active)
+        return filtered.filter(offer => !offer.is_active)
       default:
-        return offers
+        return filtered
     }
-  }, [offers, filterActive])
+  }, [offers, filterActive, selectedCommerce])
 
   // Event handlers
   const handleEditOffer = (offer: Offer) => {
     setEditingOffer(offer)
     setIsEditDialogOpen(true)
+  }
+
+  const handleDeleteOffer = (offer: Offer) => {
+    setItemToDelete(offer)
+    setIsDeleteConfirmOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return
+
+    try {
+      const { error } = await supabase
+        .from('offers')
+        .delete()
+        .eq('id', itemToDelete.id)
+
+      if (error) {
+        console.error('Error deleting offer:', error)
+        return
+      }
+
+      setIsDeleteConfirmOpen(false)
+      setItemToDelete(null)
+      loadOffers()
+    } catch (error) {
+      console.error('Unexpected error deleting offer:', error)
+    }
   }
 
   const handleOfferCreated = () => {
@@ -352,6 +443,10 @@ export default function OffresPage() {
 
   const handleFilterChange = (filter: FilterType) => {
     setFilterActive(filter)
+  }
+
+  const handleCommerceChange = (commerceId: string) => {
+    setSelectedCommerce(commerceId)
   }
 
   return (
@@ -385,11 +480,18 @@ export default function OffresPage() {
       </div>
 
       {/* Filters */}
-      <FilterButtons 
-        filterActive={filterActive}
-        onFilterChange={handleFilterChange}
-        offers={offers}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <FilterButtons 
+          filterActive={filterActive}
+          onFilterChange={handleFilterChange}
+          offers={offers}
+        />
+        <CommerceFilter
+          commerces={commerces}
+          selectedCommerce={selectedCommerce}
+          onCommerceChange={handleCommerceChange}
+        />
+      </div>
 
       {/* Content */}
       <div className="space-y-4">
@@ -404,6 +506,7 @@ export default function OffresPage() {
                 key={offer.id} 
                 offer={offer} 
                 onEdit={handleEditOffer}
+                onDelete={handleDeleteOffer}
               />
             ))}
           </div>
@@ -425,6 +528,48 @@ export default function OffresPage() {
               onCancel={handleOfferUpdated}
             />
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Supprimer l'offre</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette offre ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {itemToDelete && (
+              <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                <h4 className="font-medium text-red-800 mb-2">
+                  Offre à supprimer : {itemToDelete.title}
+                </h4>
+                <p className="text-sm text-red-700">
+                  Cette action supprimera définitivement cette offre de votre compte.
+                </p>
+              </div>
+            )}
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false)
+                  setItemToDelete(null)
+                }}
+              >
+                Annuler
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={confirmDelete}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer définitivement
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

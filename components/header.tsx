@@ -98,7 +98,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               <Menu className="h-5 w-5" />
             </Button>
           )}
-          <h2 className="text-lg font-semibold text-brand-primary">Dashboard</h2>
+          <h1 className="text-lg font-semibold text-brand-primary">Tableau de bord entreprise</h1>
         </div>
 
         <div className="flex items-center space-x-4">

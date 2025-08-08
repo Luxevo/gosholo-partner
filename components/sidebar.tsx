@@ -29,10 +29,12 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-white border-r border-brand-primary/20">
-<Image src="/images/logo.png" alt="Gosholo Partner" width={220} height={100} />
+      <div className="p-2">
+        <Image src="/logo.png" alt="Gosholo Partner" width={300} height={140} />
+      </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-4 space-y-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href
           return (
