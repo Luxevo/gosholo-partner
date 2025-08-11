@@ -16,13 +16,13 @@ interface SidebarProps {
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
-  const { counts: { commerces, offers, events, isLoading } } = useDashboard()
+  const { counts: { commerces, offers, events, totalBoosts, isLoading } } = useDashboard()
 
   const navigation = [
     { name: "Tableau de bord", href: "/dashboard", icon: Home, badge: null },
     { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
-    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: 15 },
+    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: isLoading ? null : totalBoosts },
     { name: "Profil & compte", href: "/dashboard/profil", icon: User, badge: null },
     { name: "Support", href: "/dashboard/support", icon: HelpCircle, badge: 1 },
   ]

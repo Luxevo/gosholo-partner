@@ -7,6 +7,7 @@ interface DashboardCounts {
   commerces: number
   offers: number
   events: number
+  totalBoosts: number
   isLoading: boolean
 }
 
@@ -73,6 +74,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     commerces: 0,
     offers: 0,
     events: 0,
+    totalBoosts: 0,
     isLoading: true
   })
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -160,17 +162,30 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
       setCommerces(commercesWithContent)
 
+      // Get boost credits
+      let totalBoosts = 0
+      const { data: boostCredits } = await supabase
+        .from('user_boost_credits')
+        .select('available_en_vedette, available_visibilite')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (boostCredits) {
+        totalBoosts = (boostCredits.available_en_vedette || 0) + (boostCredits.available_visibilite || 0)
+      }
+
       setCounts({
         commerces: commercesCount,
         offers: offersCount,
         events: eventsCount,
+        totalBoosts,
         isLoading: false
       })
       setIsLoading(false)
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
-      setCounts(prev => ({ ...prev, isLoading: false }))
+      setCounts(prev => ({ ...prev, totalBoosts: 0, isLoading: false }))
       setIsLoading(false)
     }
   }
