@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
         const { userId, boostType, type } = paymentIntent.metadata
 
         if (type === 'boost_purchase' && userId && boostType) {
+          console.log(`Processing boost purchase: ${boostType} for user ${userId}`)
+          
           // Get payment method details for card info
           let cardLast4 = ''
           let cardBrand = ''
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
           }
 
           // Record transaction
-          await supabase.from('boost_transactions').insert({
+          const { error: transactionError } = await supabase.from('boost_transactions').insert({
             user_id: userId,
             boost_type: boostType as 'en_vedette' | 'visibilite',
             amount_cents: paymentIntent.amount,
@@ -54,43 +56,54 @@ export async function POST(request: NextRequest) {
             card_brand: cardBrand,
             status: 'completed',
           })
+          
+          if (transactionError) {
+            console.error('Error recording transaction:', transactionError)
+          } else {
+            console.log('Transaction recorded successfully')
+          }
 
-          // Add boost credit to user
+          // Add boost credit to user - simplified approach
           const creditField = boostType === 'en_vedette' 
             ? 'available_en_vedette' 
             : 'available_visibilite'
 
-          await supabase
+          // First, try to get existing record
+          const { data: existingCredits } = await supabase
             .from('user_boost_credits')
-            .upsert({
-              user_id: userId,
-              [creditField]: 1,
-            }, {
-              onConflict: 'user_id',
-              ignoreDuplicates: false,
-            })
-            .select()
-            .then(({ data }) => {
-              if (!data || data.length === 0) {
-                // If no existing record, create new one
-                return supabase
-                  .from('user_boost_credits')
-                  .insert({
-                    user_id: userId,
-                    available_en_vedette: boostType === 'en_vedette' ? 1 : 0,
-                    available_visibilite: boostType === 'visibilite' ? 1 : 0,
-                  })
-              } else {
-                // Update existing record
-                const current = data[0]
-                return supabase
-                  .from('user_boost_credits')
-                  .update({
-                    [creditField]: (current[creditField as keyof typeof current] as number || 0) + 1,
-                  })
-                  .eq('user_id', userId)
-              }
-            })
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+
+          if (existingCredits) {
+            // Update existing record by incrementing the credit
+            const newValue = (existingCredits[creditField] || 0) + 1
+            const { error: updateError } = await supabase
+              .from('user_boost_credits')
+              .update({ [creditField]: newValue })
+              .eq('user_id', userId)
+              
+            if (updateError) {
+              console.error('Error updating boost credits:', updateError)
+            } else {
+              console.log(`Updated boost credits: ${creditField} = ${newValue}`)
+            }
+          } else {
+            // Create new record
+            const { error: insertError } = await supabase
+              .from('user_boost_credits')
+              .insert({
+                user_id: userId,
+                available_en_vedette: boostType === 'en_vedette' ? 1 : 0,
+                available_visibilite: boostType === 'visibilite' ? 1 : 0,
+              })
+              
+            if (insertError) {
+              console.error('Error creating boost credits:', insertError)
+            } else {
+              console.log(`Created new boost credits for user ${userId}`)
+            }
+          }
 
           console.log(`Boost purchase completed for user ${userId}: ${boostType}`)
         }
@@ -102,14 +115,22 @@ export async function POST(request: NextRequest) {
         const { userId, type } = session.metadata || {}
 
         if (type === 'subscription' && userId) {
+          console.log(`Processing subscription for user ${userId}`)
+          
           // Update user profile to mark as subscribed
-          await supabase
+          const { error: profileError } = await supabase
             .from('profiles')
             .update({ is_subscribed: true })
             .eq('id', userId)
+            
+          if (profileError) {
+            console.error('Error updating profile subscription:', profileError)
+          } else {
+            console.log('Updated profile subscription status')
+          }
 
           // Initialize boost credits for new subscriber
-          await supabase
+          const { error: creditsError } = await supabase
             .from('user_boost_credits')
             .upsert({
               user_id: userId,
@@ -118,6 +139,12 @@ export async function POST(request: NextRequest) {
             }, {
               onConflict: 'user_id',
             })
+            
+          if (creditsError) {
+            console.error('Error creating subscription boost credits:', creditsError)
+          } else {
+            console.log('Created subscription boost credits')
+          }
 
           console.log(`Subscription activated for user ${userId}`)
         }
