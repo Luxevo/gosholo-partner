@@ -130,6 +130,14 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const { userId, type } = session.metadata || {}
+        
+        console.log('Checkout session completed:', {
+          sessionId: session.id,
+          userId,
+          type,
+          mode: session.mode,
+          status: session.status
+        })
 
         if (type === 'subscription' && userId) {
           console.log(`Processing subscription for user ${userId}`)

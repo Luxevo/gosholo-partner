@@ -93,7 +93,7 @@ export default function BoostsPage() {
           .single()
 
         // Also check subscriptions table for more detailed info
-        const { data: subscriptionData } = await supabase
+        const { data: subscriptionData, error: subError } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
@@ -101,6 +101,10 @@ export default function BoostsPage() {
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
+        
+        if (subError) {
+          console.error('Error fetching subscriptions:', subError)
+        }
         
         // Use both sources to determine subscription status
         const isSubscribed = profileData?.is_subscribed || subscriptionData?.status === 'active'
