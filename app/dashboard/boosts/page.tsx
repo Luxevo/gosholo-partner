@@ -24,29 +24,47 @@ import {
   Check
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { applyBoost, removeBoost, formatBoostRemainingTime, isBoostExpired } from "@/lib/boost-utils"
+import { useBoostExpiry } from "@/hooks/use-boost-expiry"
+import BoostPurchaseForm from "@/components/boost-purchase-form"
+import { getStripe } from "@/lib/stripe"
 
 interface UserContent {
   id: string
   title: string
   type: 'offer' | 'event'
   commerce_name: string
-  has_boost: boolean
+  boosted: boolean
   boost_type?: 'en_vedette' | 'visibilite'
+  boosted_at?: string | null
+  remaining_time?: string
 }
 
 interface UserStats {
-  boostCredits: number
+  availableEnVedette: number
+  availableVisibilite: number
   totalContent: number
   boostedContent: number
+}
+
+interface BoostCredits {
+  available_en_vedette: number
+  available_visibilite: number
 }
 
 export default function BoostsPage() {
   const supabase = createClient()
   const [userContent, setUserContent] = useState<UserContent[]>([])
   const [stats, setStats] = useState<UserStats | null>(null)
+  const [boostCredits, setBoostCredits] = useState<BoostCredits | null>(null)
   const [subscription, setSubscription] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isApplyingBoost, setIsApplyingBoost] = useState<string | null>(null)
+  const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
+  const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
+  
+  // Auto-expire old boosts every 30 minutes
+  useBoostExpiry(30)
   
   // Code promo states
   const [promoCode, setPromoCode] = useState("")
@@ -67,24 +85,23 @@ export default function BoostsPage() {
           return
         }
 
-        // Get user subscription
-        const { data: subscriptionData } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(1)
+        // Get user profile to check subscription status
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('is_subscribed')
+          .eq('id', user.id)
           .single()
         
-        setSubscription(subscriptionData || { plan_type: 'free' })
+        setSubscription(profileData || { is_subscribed: false })
 
         // Get boost credits
         const { data: boostCreditsData } = await supabase
-          .from('boost_credits')
-          .select('credits_available')
+          .from('user_boost_credits')
+          .select('available_en_vedette, available_visibilite')
           .eq('user_id', user.id)
           .single()
+        
+        setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
 
         // Get user's commerces
         const { data: commercesData } = await supabase
@@ -99,30 +116,32 @@ export default function BoostsPage() {
         let boostedCount = 0
 
         if (commerceIds.length > 0) {
-          // Get offers
+          // Get offers with new boost fields
           const { data: offersData } = await supabase
             .from('offers')
-            .select('id, title, commerce_id, boost_type')
+            .select('id, title, commerce_id, boost_type, boosted, boosted_at')
             .in('commerce_id', commerceIds)
 
-          // Get events
+          // Get events with new boost fields
           const { data: eventsData } = await supabase
             .from('events')
-            .select('id, title, commerce_id, boost_type')
+            .select('id, title, commerce_id, boost_type, boosted, boosted_at')
             .in('commerce_id', commerceIds)
 
           // Process offers
           if (offersData) {
             offersData.forEach(offer => {
-              const hasBoost = !!offer.boost_type
-              if (hasBoost) boostedCount++
+              const isBoosted = offer.boosted && !isBoostExpired(offer.boosted_at)
+              if (isBoosted) boostedCount++
               allContent.push({
                 id: offer.id,
                 title: offer.title,
                 type: 'offer',
                 commerce_name: commerceMap[offer.commerce_id] || 'Commerce inconnu',
-                has_boost: hasBoost,
-                boost_type: offer.boost_type
+                boosted: isBoosted,
+                boost_type: isBoosted ? offer.boost_type : undefined,
+                boosted_at: offer.boosted_at,
+                remaining_time: isBoosted ? formatBoostRemainingTime(offer.boosted_at) : undefined
               })
             })
           }
@@ -130,15 +149,17 @@ export default function BoostsPage() {
           // Process events
           if (eventsData) {
             eventsData.forEach(event => {
-              const hasBoost = !!event.boost_type
-              if (hasBoost) boostedCount++
+              const isBoosted = event.boosted && !isBoostExpired(event.boosted_at)
+              if (isBoosted) boostedCount++
               allContent.push({
                 id: event.id,
                 title: event.title,
                 type: 'event',
                 commerce_name: commerceMap[event.commerce_id] || 'Commerce inconnu',
-                has_boost: hasBoost,
-                boost_type: event.boost_type
+                boosted: isBoosted,
+                boost_type: isBoosted ? event.boost_type : undefined,
+                boosted_at: event.boosted_at,
+                remaining_time: isBoosted ? formatBoostRemainingTime(event.boosted_at) : undefined
               })
             })
           }
@@ -146,7 +167,8 @@ export default function BoostsPage() {
 
         setUserContent(allContent)
         setStats({
-          boostCredits: boostCreditsData?.credits_available || 0,
+          availableEnVedette: boostCreditsData?.available_en_vedette || 0,
+          availableVisibilite: boostCreditsData?.available_visibilite || 0,
           totalContent: allContent.length,
           boostedContent: boostedCount
         })
@@ -161,8 +183,12 @@ export default function BoostsPage() {
     loadData()
   }, [])
 
-  const applyBoost = async (contentId: string, contentType: 'offer' | 'event', boostType: 'en_vedette' | 'visibilite') => {
-    if (!stats || stats.boostCredits <= 0) return
+  const handleApplyBoost = async (contentId: string, contentType: 'offer' | 'event', boostType: 'en_vedette' | 'visibilite') => {
+    const availableCredits = boostType === 'en_vedette' 
+      ? boostCredits?.available_en_vedette || 0
+      : boostCredits?.available_visibilite || 0
+    
+    if (availableCredits <= 0) return
 
     setIsApplyingBoost(contentId)
 
@@ -170,39 +196,35 @@ export default function BoostsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Update content with boost
-      const { error: updateError } = await supabase
-        .from(contentType === 'offer' ? 'offers' : 'events')
-        .update({ boost_type: boostType })
-        .eq('id', contentId)
-
-      if (updateError) {
-        console.error('Error applying boost:', updateError)
-        return
+      const result = await applyBoost(contentId, contentType, boostType, user.id)
+      
+      if (result.success) {
+        // Update local state
+        setUserContent(prev => prev.map(content => 
+          content.id === contentId 
+            ? { 
+                ...content, 
+                boosted: true, 
+                boost_type: boostType, 
+                boosted_at: new Date().toISOString(),
+                remaining_time: '72h restantes'
+              }
+            : content
+        ))
+        
+        setBoostCredits(prev => prev ? {
+          ...prev,
+          [boostType === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']: 
+            (boostType === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) - 1
+        } : null)
+        
+        setStats(prev => prev ? {
+          ...prev,
+          boostedContent: prev.boostedContent + 1
+        } : null)
+      } else {
+        alert(result.error || 'Erreur lors de l\'application du boost')
       }
-
-      // Decrement boost credits
-      const { error: creditError } = await supabase
-        .from('boost_credits')
-        .update({ credits_available: stats.boostCredits - 1 })
-        .eq('user_id', user.id)
-
-      if (creditError) {
-        console.error('Error updating credits:', creditError)
-        return
-      }
-
-      // Update local state
-      setUserContent(prev => prev.map(content => 
-        content.id === contentId 
-          ? { ...content, has_boost: true, boost_type: boostType }
-          : content
-      ))
-      setStats(prev => prev ? {
-        ...prev,
-        boostCredits: prev.boostCredits - 1,
-        boostedContent: prev.boostedContent + 1
-      } : null)
 
     } catch (error) {
       console.error('Error applying boost:', error)
@@ -211,39 +233,70 @@ export default function BoostsPage() {
     }
   }
 
-  const removeBoost = async (contentId: string, contentType: 'offer' | 'event') => {
+  const handleRemoveBoost = async (contentId: string, contentType: 'offer' | 'event') => {
     setIsApplyingBoost(contentId)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Remove boost from content
-      const { error: updateError } = await supabase
-        .from(contentType === 'offer' ? 'offers' : 'events')
-        .update({ boost_type: null })
-        .eq('id', contentId)
-
-      if (updateError) {
-        console.error('Error removing boost:', updateError)
-        return
+      const result = await removeBoost(contentId, contentType)
+      
+      if (result.success) {
+        // Update local state
+        setUserContent(prev => prev.map(content => 
+          content.id === contentId 
+            ? { 
+                ...content, 
+                boosted: false, 
+                boost_type: undefined, 
+                boosted_at: null,
+                remaining_time: undefined 
+              }
+            : content
+        ))
+        setStats(prev => prev ? {
+          ...prev,
+          boostedContent: prev.boostedContent - 1
+        } : null)
+      } else {
+        alert(result.error || 'Erreur lors de la suppression du boost')
       }
-
-      // Update local state
-      setUserContent(prev => prev.map(content => 
-        content.id === contentId 
-          ? { ...content, has_boost: false, boost_type: undefined }
-          : content
-      ))
-      setStats(prev => prev ? {
-        ...prev,
-        boostedContent: prev.boostedContent - 1
-      } : null)
 
     } catch (error) {
       console.error('Error removing boost:', error)
     } finally {
       setIsApplyingBoost(null)
+    }
+  }
+
+  // Purchase boost à la carte - open Stripe form
+  const purchaseBoost = (boostType: 'en_vedette' | 'visibilite') => {
+    setShowPurchaseForm(boostType)
+  }
+  
+  // Handle successful purchase
+  const handlePurchaseSuccess = () => {
+    // Refresh the page data to get updated boost credits
+    window.location.reload()
+  }
+  
+  // Handle subscription purchase
+  const purchaseSubscription = async () => {
+    try {
+      const response = await fetch('/api/stripe/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          promoCode: codeValidationResult?.isValid ? promoCode : undefined 
+        }),
+      })
+      
+      const { url } = await response.json()
+      
+      if (url) {
+        window.location.href = url
+      }
+    } catch (error) {
+      console.error('Error creating subscription:', error)
+      alert('Erreur lors de la création de l\'abonnement')
     }
   }
 
@@ -285,26 +338,9 @@ export default function BoostsPage() {
     }
   }
 
-  // Handle Stripe payment
+  // Handle Stripe payment for subscription
   const handleStripePayment = async () => {
-    try {
-      // In real implementation, this would redirect to Stripe Checkout
-      // or open Stripe Elements for card input
-      console.log("Redirecting to Stripe payment...")
-      
-             // Mock successful payment
-       alert("Paiement réussi ! Votre abonnement Pro est maintenant actif avec 1 mois gratuit.")
-      setShowStripeForm(false)
-      setPromoCode("")
-      setCodeValidationResult(null)
-      
-      // Refresh subscription data
-      // You would typically reload the subscription data here
-      
-    } catch (error) {
-      console.error("Payment error:", error)
-      alert("Erreur lors du paiement. Veuillez réessayer.")
-    }
+    await purchaseSubscription()
   }
 
   // Clear promo code validation
@@ -340,7 +376,101 @@ export default function BoostsPage() {
           <p className="text-primary/70">Améliorez la visibilité de vos offres et événements</p>
         </div>
 
-       
+        {/* Boost Credits Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <Sparkles className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Crédits En Vedette</p>
+                  <p className="text-2xl font-bold">{boostCredits?.available_en_vedette || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <TrendingUp className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Crédits Visibilité</p>
+                  <p className="text-2xl font-bold">{boostCredits?.available_visibilite || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <Zap className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Contenu Boosté</p>
+                  <p className="text-2xl font-bold">{stats?.boostedContent || 0}/{stats?.totalContent || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* À la Carte Boost Purchase */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CreditCard className="h-5 w-5" />
+              <span>Acheter des Boosts à la Carte</span>
+            </CardTitle>
+            <CardDescription>
+              Boostez votre contenu pour 72 heures - 5€ par boost
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="h-5 w-5 text-yellow-500" />
+                    <span className="font-medium">Boost En Vedette</span>
+                  </div>
+                  <Badge variant="secondary">72h</Badge>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">Apparition prioritaire dans les recherches avec badge spécial</p>
+                <Button 
+                  onClick={() => purchaseBoost('en_vedette')}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600"
+                >
+                  Acheter 5€
+                </Button>
+              </div>
+              
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-blue-500" />
+                    <span className="font-medium">Boost Visibilité</span>
+                  </div>
+                  <Badge variant="secondary">72h</Badge>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">Commerce plus visible sur la carte Mapbox</p>
+                <Button 
+                  onClick={() => purchaseBoost('visibilite')}
+                  className="w-full bg-blue-500 hover:bg-blue-600"
+                >
+                  Acheter 5€
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Boost Types Explanation */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
@@ -404,52 +534,53 @@ export default function BoostsPage() {
                       <div>
                         <h4 className="font-medium">{content.title}</h4>
                         <p className="text-sm text-gray-600">{content.commerce_name}</p>
-                        {content.has_boost && (
-                          <Badge variant="secondary" className="mt-1">
-                            {content.boost_type === 'en_vedette' ? (
-                              <><Sparkles className="h-3 w-3 mr-1" />En Vedette</>
-                            ) : (
-                              <><TrendingUp className="h-3 w-3 mr-1" />Visibilité</>
+                        {content.boosted && (
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant="secondary">
+                              {content.boost_type === 'en_vedette' ? (
+                                <><Sparkles className="h-3 w-3 mr-1" />En Vedette</>
+                              ) : (
+                                <><TrendingUp className="h-3 w-3 mr-1" />Visibilité</>
+                              )}
+                            </Badge>
+                            {content.remaining_time && (
+                              <span className="text-xs text-gray-500">{content.remaining_time}</span>
                             )}
-                          </Badge>
+                          </div>
                         )}
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      {content.has_boost ? (
+                      {content.boosted ? (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => removeBoost(content.id, content.type)}
+                          onClick={() => handleRemoveBoost(content.id, content.type)}
                           disabled={isApplyingBoost === content.id}
                         >
                           Retirer le boost
                         </Button>
-                      ) : stats && stats.boostCredits > 0 ? (
+                      ) : (
                         <>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => applyBoost(content.id, content.type, 'en_vedette')}
-                            disabled={isApplyingBoost === content.id}
+                            onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
+                            disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
                           >
                             <Sparkles className="h-4 w-4 mr-1" />
-                            En Vedette
+                            En Vedette ({boostCredits?.available_en_vedette || 0})
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => applyBoost(content.id, content.type, 'visibilite')}
-                            disabled={isApplyingBoost === content.id}
+                            onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
+                            disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
                           >
                             <TrendingUp className="h-4 w-4 mr-1" />
-                            Visibilité
+                            Visibilité ({boostCredits?.available_visibilite || 0})
                           </Button>
                         </>
-                      ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          Aucun crédit
-                        </Button>
                       )}
                     </div>
                   </div>
@@ -459,19 +590,45 @@ export default function BoostsPage() {
           </CardContent>
         </Card>
 
-        {/* Upgrade Alert for Free Users */}
-        {subscription?.plan_type === 'free' && (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription className="flex items-center justify-between">
-              <span>Vous êtes sur le plan gratuit. Passez au plan Pro pour obtenir 1 crédit boost par mois.</span>
-              <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600">
-                <Crown className="h-4 w-4 mr-2" />
-                Passer au Pro
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* Subscription Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Crown className="h-5 w-5" />
+              <span>Abonnement Pro - 8€/mois</span>
+            </CardTitle>
+            <CardDescription>
+              Recevez 1 boost En Vedette et 1 boost Visibilité chaque mois
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {subscription?.is_subscribed ? (
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  Vous êtes abonné au plan Pro ! Vos boosts mensuels sont automatiquement ajoutés le 1er de chaque mois.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-4">
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="flex items-center justify-between">
+                    <span>Abonnez-vous pour recevoir des boosts chaque mois + accès aux fonctionnalités Pro</span>
+                    <Button 
+                      size="sm" 
+                      className="bg-yellow-500 hover:bg-yellow-600"
+                      onClick={purchaseSubscription}
+                    >
+                      <Crown className="h-4 w-4 mr-2" />
+                      S'abonner 8€/mois
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Code Promo Section */}
         <Card>
@@ -606,6 +763,19 @@ export default function BoostsPage() {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Stripe Purchase Modal */}
+        {showPurchaseForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="max-w-md w-full">
+              <BoostPurchaseForm
+                boostType={showPurchaseForm}
+                onSuccess={handlePurchaseSuccess}
+                onCancel={() => setShowPurchaseForm(null)}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
