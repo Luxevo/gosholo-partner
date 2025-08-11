@@ -54,13 +54,15 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
 
         // Get boost credits
         const { data: boostCreditsData } = await supabase
-          .from('boost_credits')
-          .select('credits_available')
+          .from('user_boost_credits')
+          .select('available_en_vedette, available_visibilite')
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()
+
+        const totalCredits = (boostCreditsData?.available_en_vedette || 0) + (boostCreditsData?.available_visibilite || 0)
 
         setUserData({
-          boostCredits: boostCreditsData?.credits_available || 0,
+          boostCredits: totalCredits,
           subscriptionPlan: subscriptionData?.plan_type || 'free'
         })
       } catch (error) {
