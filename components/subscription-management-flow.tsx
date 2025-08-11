@@ -49,7 +49,7 @@ const plans = {
     color: "text-yellow-600",
     bgColor: "bg-yellow-50",
     borderColor: "border-yellow-200",
-    price: "9,99€/mois",
+    price: "$8/mois",
     features: [
       "5 contenus totaux (offres ET événements)",
       "1 crédit boost par mois (auto-renouvelé)",

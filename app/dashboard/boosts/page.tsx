@@ -85,14 +85,26 @@ export default function BoostsPage() {
           return
         }
 
-        // Get user profile to check subscription status
+        // Get user profile and subscription status
         const { data: profileData } = await supabase
           .from('profiles')
           .select('is_subscribed')
           .eq('id', user.id)
           .single()
+
+        // Also check subscriptions table for more detailed info
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
         
-        setSubscription(profileData || { is_subscribed: false })
+        // Use both sources to determine subscription status
+        const isSubscribed = profileData?.is_subscribed || subscriptionData?.status === 'active'
+        setSubscription({ is_subscribed: isSubscribed, subscription_data: subscriptionData })
 
         // Get boost credits
         const { data: boostCreditsData } = await supabase
@@ -429,7 +441,7 @@ export default function BoostsPage() {
               <span>Acheter des Boosts à la Carte</span>
             </CardTitle>
             <CardDescription>
-              Boostez votre contenu pour 72 heures - 5€ par boost
+              Boostez votre contenu pour 72 heures - $5 par boost
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -447,7 +459,7 @@ export default function BoostsPage() {
                   onClick={() => purchaseBoost('en_vedette')}
                   className="w-full bg-yellow-500 hover:bg-yellow-600"
                 >
-                  Acheter 5€
+                  Acheter $5
                 </Button>
               </div>
               
@@ -464,7 +476,7 @@ export default function BoostsPage() {
                   onClick={() => purchaseBoost('visibilite')}
                   className="w-full bg-blue-500 hover:bg-blue-600"
                 >
-                  Acheter 5€
+                  Acheter $5
                 </Button>
               </div>
             </div>
@@ -595,7 +607,7 @@ export default function BoostsPage() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Crown className="h-5 w-5" />
-              <span>Abonnement Pro - 8€/mois</span>
+              <span>Abonnement Pro - $8/mois</span>
             </CardTitle>
             <CardDescription>
               Recevez 1 boost En Vedette et 1 boost Visibilité chaque mois
@@ -621,7 +633,7 @@ export default function BoostsPage() {
                       onClick={purchaseSubscription}
                     >
                       <Crown className="h-4 w-4 mr-2" />
-                      S'abonner 8€/mois
+                      S'abonner $8/mois
                     </Button>
                   </AlertDescription>
                 </Alert>

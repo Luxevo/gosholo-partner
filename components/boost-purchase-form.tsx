@@ -107,7 +107,7 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <CreditCard className="h-5 w-5" />
-          <span>Achat Boost {boostLabel} - 5€</span>
+          <span>Achat Boost {boostLabel} - $5</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -149,7 +149,7 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
                   Traitement...
                 </>
               ) : (
-                'Payer 5€'
+                'Payer $5'
               )}
             </Button>
             <Button

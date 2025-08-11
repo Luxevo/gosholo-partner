@@ -146,21 +146,58 @@ export async function POST(request: NextRequest) {
             console.log('Updated profile subscription status')
           }
 
-          // Initialize boost credits for new subscriber
-          const { error: creditsError } = await supabase
+          // Add subscription boost credits (don't overwrite existing ones)
+          const { data: existingCredits } = await supabase
             .from('user_boost_credits')
-            .upsert({
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+
+          if (existingCredits) {
+            // Add to existing credits
+            const { error: updateError } = await supabase
+              .from('user_boost_credits')
+              .update({
+                available_en_vedette: (existingCredits.available_en_vedette || 0) + 1,
+                available_visibilite: (existingCredits.available_visibilite || 0) + 1,
+              })
+              .eq('user_id', userId)
+              
+            if (updateError) {
+              console.error('Error updating subscription boost credits:', updateError)
+            } else {
+              console.log('Added subscription boost credits to existing account')
+            }
+          } else {
+            // Create new credits record
+            const { error: insertError } = await supabase
+              .from('user_boost_credits')
+              .insert({
+                user_id: userId,
+                available_en_vedette: 1,
+                available_visibilite: 1,
+              })
+              
+            if (insertError) {
+              console.error('Error creating subscription boost credits:', insertError)
+            } else {
+              console.log('Created new subscription boost credits')
+            }
+          }
+          
+          // Record subscription in database
+          const { error: subscriptionError } = await supabase
+            .from('subscriptions')
+            .insert({
               user_id: userId,
-              available_en_vedette: 1,
-              available_visibilite: 1,
-            }, {
-              onConflict: 'user_id',
+              plan_type: 'pro',
+              status: 'active',
             })
             
-          if (creditsError) {
-            console.error('Error creating subscription boost credits:', creditsError)
+          if (subscriptionError) {
+            console.error('Error recording subscription:', subscriptionError)
           } else {
-            console.log('Created subscription boost credits')
+            console.log('Recorded subscription in database')
           }
 
           console.log(`Subscription activated for user ${userId}`)
