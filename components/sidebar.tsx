@@ -29,7 +29,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-white border-r border-brand-primary/20">
-      <div className="p-2">
+      <div>
         <Image src="/logo.png" alt="Gosholo Partner" width={300} height={140} />
       </div>
 

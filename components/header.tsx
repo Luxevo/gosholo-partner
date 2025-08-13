@@ -84,7 +84,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
       }
       
       // Redirect to login page after successful logout
-      router.push("/auth/login");
+      router.push("/login");
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -128,14 +128,6 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               </span>
             </div>
           </Link>
-
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-red-500 text-white border-2 border-white">
-              3
-            </Badge>
-          </Button>
 
           {/* User Menu */}
           <DropdownMenu>

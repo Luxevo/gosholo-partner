@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +13,7 @@ import { Mail, ArrowLeft, CheckCircle, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export default function ForgotPasswordPage() {
+  const supabase = createClient()
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -22,11 +24,23 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
     setError("")
 
-    // Simulation d'envoi d'email
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+
+      if (error) {
+        setError("Erreur lors de l'envoi de l'email. Veuillez réessayer.")
+        console.error('Password reset error:', error)
+      } else {
+        setIsSuccess(true)
+      }
+    } catch (err) {
+      setError("Erreur lors de l'envoi de l'email. Veuillez réessayer.")
+      console.error('Password reset error:', err)
+    } finally {
       setIsLoading(false)
-      setIsSuccess(true)
-    }, 2000)
+    }
   }
 
   if (isSuccess) {
@@ -43,7 +57,7 @@ export default function ForgotPasswordPage() {
             </p>
             <div className="space-y-2">
               <Button asChild className="w-full bg-brand-primary hover:bg-brand-primary/90">
-                <Link href="/auth/login">
+                <Link href="/login">
                   Retour à la connexion
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -125,7 +139,7 @@ export default function ForgotPasswordPage() {
         {/* Lien retour */}
         <div className="text-center">
           <Link
-            href="/auth/login"
+            href="/login"
             className="inline-flex items-center text-sm text-brand-primary hover:text-brand-primary/80 underline"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
