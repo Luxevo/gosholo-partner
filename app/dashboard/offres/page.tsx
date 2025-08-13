@@ -18,7 +18,7 @@ interface Offer {
   user_id: string
   title: string
   description: string
-  picture: string | null
+  image_url: string | null
   offer_type: "in_store" | "online" | "both"
   uses_commerce_location: boolean
   custom_location: string | null
@@ -76,13 +76,24 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-primary">
-              {offer.title}
-            </CardTitle>
-            <CardDescription className="mt-1 text-sm text-muted-foreground">
-              {offer.description}
-            </CardDescription>
+          <div className="flex items-start space-x-3 flex-1">
+            {offer.image_url && (
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <img
+                  src={offer.image_url}
+                  alt={offer.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <CardTitle className="text-lg font-semibold text-primary">
+                {offer.title}
+              </CardTitle>
+              <CardDescription className="mt-1 text-sm text-muted-foreground">
+                {offer.description}
+              </CardDescription>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant={status.variant} className="text-xs">

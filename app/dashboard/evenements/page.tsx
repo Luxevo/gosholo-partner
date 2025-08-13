@@ -17,7 +17,7 @@ interface Event {
   user_id: string
   title: string
   description: string
-  picture: string | null
+  image_url: string | null
   uses_commerce_location: boolean
   custom_location: string | null
   condition: string | null
@@ -58,13 +58,24 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-primary">
-              {event.title}
-            </CardTitle>
-            <CardDescription className="mt-1 text-sm text-muted-foreground">
-              {event.description}
-            </CardDescription>
+          <div className="flex items-start space-x-3 flex-1">
+            {event.image_url && (
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <img
+                  src={event.image_url}
+                  alt={event.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <CardTitle className="text-lg font-semibold text-primary">
+                {event.title}
+              </CardTitle>
+              <CardDescription className="mt-1 text-sm text-muted-foreground">
+                {event.description}
+              </CardDescription>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
@@ -484,7 +495,7 @@ export default function EvenementsPage() {
           </DialogHeader>
           {editingEvent && (
             <EventCreationFlow 
-              commerceId={editingEvent.commerce_id}
+              event={editingEvent}
               onCancel={handleEventUpdated}
             />
           )}
