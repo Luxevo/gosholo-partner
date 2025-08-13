@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Lock, Eye, EyeOff, CheckCircle, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const supabase = createClient()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -233,5 +233,26 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+// Loading component for Suspense fallback
+function Loading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-brand-primary/20">
+        <CardContent className="text-center p-8">
+          <p className="text-brand-primary/70">Chargement...</p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }
