@@ -224,9 +224,9 @@ export default function PasswordChangeFlow({ onCancel, onPasswordChanged }: Pass
         </div>
 
         {/* Security Tips */}
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <h4 className="font-medium text-blue-800 mb-2">Conseils de sécurité</h4>
-          <ul className="text-sm text-blue-700 space-y-1">
+        <div className="bg-brand-secondary/10 p-4 rounded-lg border border-brand-secondary/30">
+          <h4 className="font-medium text-brand-primary mb-2">Conseils de sécurité</h4>
+          <ul className="text-sm text-brand-primary/80 space-y-1">
             <li>• Utilisez au moins 6 caractères</li>
             <li>• Combinez lettres, chiffres et symboles</li>
             <li>• Évitez les informations personnelles</li>

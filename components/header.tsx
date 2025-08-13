@@ -106,12 +106,12 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
         <div className="flex items-center space-x-4">
           {/* Boost Credits */}
           <Link href="/dashboard/boosts">
-            <div className="flex items-center space-x-2 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200 hover:bg-orange-100 hover:border-orange-300 transition-colors cursor-pointer">
-              <Zap className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">
+            <div className="flex items-center space-x-2 bg-brand-accent/10 px-3 py-1.5 rounded-lg border border-brand-accent/30 hover:bg-brand-accent/20 hover:border-brand-accent/50 transition-colors cursor-pointer">
+              <Zap className="h-4 w-4 text-brand-accent" />
+              <span className="text-sm font-medium text-brand-accent">
                 {isLoading ? '...' : userData.boostCredits}
               </span>
-              <span className="text-xs text-orange-600">boost{userData.boostCredits !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-brand-accent/80">boost{userData.boostCredits !== 1 ? 's' : ''}</span>
             </div>
           </Link>
 

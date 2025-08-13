@@ -88,13 +88,13 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
 
   if (success) {
     return (
-      <Card className="border-green-200 bg-green-50">
+      <Card className="border-brand-light bg-brand-light/10">
         <CardContent className="p-6 text-center">
-          <Check className="h-12 w-12 text-green-600 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-green-800 mb-2">
+          <Check className="h-12 w-12 text-brand-primary mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-brand-primary mb-2">
             Paiement réussi !
           </h3>
-          <p className="text-green-700">
+          <p className="text-brand-primary/80">
             Votre boost {boostLabel} a été ajouté à votre compte.
           </p>
         </CardContent>

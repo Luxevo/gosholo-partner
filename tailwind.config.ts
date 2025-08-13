@@ -61,6 +61,7 @@ const config: Config = {
   				primary: '#016167',
   				accent: '#FF6233',
   				secondary: '#5BC4DB',
+  				light: '#B2FD9D',
   				white: '#FFFFFF'
   			}
   		},

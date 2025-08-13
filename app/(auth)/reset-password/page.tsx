@@ -106,8 +106,8 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-brand-primary/20">
           <CardContent className="text-center p-8 space-y-4">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="mx-auto w-16 h-16 bg-brand-light/20 rounded-full flex items-center justify-center">
+              <CheckCircle className="h-8 w-8 text-brand-primary" />
             </div>
             <h2 className="text-xl font-bold text-brand-primary">Mot de passe mis à jour !</h2>
             <p className="text-brand-primary/70">

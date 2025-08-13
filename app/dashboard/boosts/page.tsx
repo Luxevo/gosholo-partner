@@ -392,16 +392,86 @@ export default function BoostsPage() {
           <p className="text-primary/70">Améliorez la visibilité de vos offres et événements</p>
         </div>
 
+        {/* Section 1: Ton Abonnement */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Crown className="h-5 w-5" />
+              <span>Ton Abonnement</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Gosholo Base */}
+              <div className={`p-6 border-2 rounded-lg ${!subscription?.is_subscribed ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'}`}>
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <h3 className="text-xl font-bold">Gosholo Base</h3>
+                    {!subscription?.is_subscribed && <Badge className="bg-brand-primary">Actuel</Badge>}
+                  </div>
+                  <div className="text-3xl font-bold text-brand-primary">0$</div>
+                  <p className="text-sm text-gray-600">Plan gratuit</p>
+                  <ul className="text-sm space-y-2 text-left">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      Création d'offres et événements
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      Boosts à la carte disponibles
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Gosholo PLUS */}
+              <div className={`p-6 border-2 rounded-lg ${subscription?.is_subscribed ? 'border-brand-accent bg-brand-accent/5' : 'border-gray-200'}`}>
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Crown className="h-5 w-5 text-brand-accent" />
+                    <h3 className="text-xl font-bold">Gosholo PLUS</h3>
+                    {subscription?.is_subscribed && <Badge className="bg-brand-accent">Actuel</Badge>}
+                  </div>
+                  <div className="text-3xl font-bold text-brand-accent">8$/mois</div>
+                  <p className="text-sm text-gray-600">Plan premium</p>
+                  <ul className="text-sm space-y-2 text-left">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      1 boost Vedette mensuel
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      1 boost Visibilité mensuel
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      Fonctionnalités Pro
+                    </li>
+                  </ul>
+                  {!subscription?.is_subscribed && (
+                    <Button 
+                      onClick={purchaseSubscription}
+                      className="w-full bg-brand-accent hover:bg-brand-accent/90"
+                    >
+                      Passer au PLUS
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Boost Credits Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-yellow-100 rounded-full">
-                  <Sparkles className="h-6 w-6 text-yellow-600" />
+                <div className="p-3 bg-brand-light/20 rounded-full">
+                  <Sparkles className="h-6 w-6 text-brand-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Crédits En Vedette</p>
+                  <p className="text-sm text-gray-600">Crédits Vedette</p>
                   <p className="text-2xl font-bold">{boostCredits?.available_en_vedette || 0}</p>
                 </div>
               </div>
@@ -411,8 +481,8 @@ export default function BoostsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-brand-secondary/20 rounded-full">
+                  <TrendingUp className="h-6 w-6 text-brand-secondary" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Crédits Visibilité</p>
@@ -425,8 +495,8 @@ export default function BoostsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Zap className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-brand-light/20 rounded-full">
+                  <Zap className="h-6 w-6 text-brand-primary" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Contenu Boosté</p>
@@ -437,86 +507,103 @@ export default function BoostsPage() {
           </Card>
         </div>
 
-        {/* À la Carte Boost Purchase */}
+        {/* Section 2: Boosts à la Carte */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <CreditCard className="h-5 w-5" />
-              <span>Acheter des Boosts à la Carte</span>
+              <span>Boosts à la Carte</span>
             </CardTitle>
             <CardDescription>
-              Boostez votre contenu pour 72 heures - $5 par boost
+              Boostez votre contenu pour 72 heures - 5$ par boost
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="h-5 w-5 text-yellow-500" />
-                    <span className="font-medium">Boost En Vedette</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Vedette */}
+              <div className="p-6 border rounded-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-brand-light/20 rounded-full">
+                      <Sparkles className="h-6 w-6 text-brand-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Vedette</h3>
+                      <Badge variant="secondary">72h</Badge>
+                    </div>
                   </div>
-                  <Badge variant="secondary">72h</Badge>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-brand-primary">5$</div>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">Apparition prioritaire dans les recherches avec badge spécial</p>
-                <Button 
-                  onClick={() => purchaseBoost('en_vedette')}
-                  className="w-full bg-yellow-500 hover:bg-yellow-600"
-                >
-                  Acheter $5
-                </Button>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">Mettez votre contenu en avant avec un badge spécial</p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      Badge "En Vedette" visible
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      Apparition prioritaire dans les recherches
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      Mise en avant sur la carte
+                    </li>
+                  </ul>
+                  <Button 
+                    onClick={() => purchaseBoost('en_vedette')}
+                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80"
+                  >
+                    Acheter 5$
+                  </Button>
+                </div>
               </div>
               
-              <div className="p-4 border rounded-lg">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-blue-500" />
-                    <span className="font-medium">Boost Visibilité</span>
+              {/* Visibilité */}
+              <div className="p-6 border rounded-lg space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-brand-secondary/20 rounded-full">
+                      <TrendingUp className="h-6 w-6 text-brand-secondary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Visibilité</h3>
+                      <Badge variant="secondary">72h</Badge>
+                    </div>
                   </div>
-                  <Badge variant="secondary">72h</Badge>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-brand-secondary">5$</div>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">Commerce plus visible sur la carte Mapbox</p>
-                <Button 
-                  onClick={() => purchaseBoost('visibilite')}
-                  className="w-full bg-blue-500 hover:bg-blue-600"
-                >
-                  Acheter $5
-                </Button>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">Commerce plus visible sur la carte Mapbox</p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                      Plus visible sur la carte
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                      Augmente le trafic
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                      Portée géographique élargie
+                    </li>
+                  </ul>
+                  <Button 
+                    onClick={() => purchaseBoost('visibilite')}
+                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80"
+                  >
+                    Acheter 5$
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Boost Types Explanation */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Sparkles className="h-5 w-5 text-yellow-500" />
-                <span>En Vedette</span>
-              </CardTitle>
-              <CardDescription>
-                Mettez votre contenu en avant avec un badge spécial
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Badge "En Vedette" visible
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Apparition prioritaire dans les recherches
-                </li>
-                <li className="flex items-center">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                  Mise en avant sur la carte
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Content List */}
         <Card>
@@ -554,7 +641,7 @@ export default function BoostsPage() {
                           <div className="flex items-center space-x-2 mt-1">
                             <Badge variant="secondary">
                               {content.boost_type === 'en_vedette' ? (
-                                <><Sparkles className="h-3 w-3 mr-1" />En Vedette</>
+                                <><Sparkles className="h-3 w-3 mr-1" />Vedette</>
                               ) : (
                                 <><TrendingUp className="h-3 w-3 mr-1" />Visibilité</>
                               )}
@@ -585,7 +672,7 @@ export default function BoostsPage() {
                             disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
                           >
                             <Sparkles className="h-4 w-4 mr-1" />
-                            En Vedette ({boostCredits?.available_en_vedette || 0})
+                            Vedette ({boostCredits?.available_en_vedette || 0})
                           </Button>
                           <Button
                             variant="outline"
@@ -606,45 +693,6 @@ export default function BoostsPage() {
           </CardContent>
         </Card>
 
-        {/* Subscription Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Crown className="h-5 w-5" />
-              <span>Abonnement Pro - $8/mois</span>
-            </CardTitle>
-            <CardDescription>
-              Recevez 1 boost En Vedette et 1 boost Visibilité chaque mois
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {subscription?.is_subscribed ? (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
-                  Vous êtes abonné au plan Pro ! Vos boosts mensuels sont automatiquement ajoutés le 1er de chaque mois.
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-4">
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="flex items-center justify-between">
-                    <span>Abonnez-vous pour recevoir des boosts chaque mois + accès aux fonctionnalités Pro</span>
-                    <Button 
-                      size="sm" 
-                      className="bg-yellow-500 hover:bg-yellow-600"
-                      onClick={purchaseSubscription}
-                    >
-                      <Crown className="h-4 w-4 mr-2" />
-                      S'abonner $8/mois
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Code Promo Section */}
         <Card>
