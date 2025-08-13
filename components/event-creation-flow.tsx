@@ -11,6 +11,7 @@ import { Store, Calendar, MapPin, Check, Users } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+import ImageUpload from "@/components/image-upload"
 
 interface Event {
   id: string
@@ -18,7 +19,7 @@ interface Event {
   user_id: string
   title: string
   description: string
-  picture: string | null
+  image_url: string | null
   uses_commerce_location: boolean
   custom_location: string | null
   condition: string | null
@@ -57,6 +58,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
      start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
      end_date: event?.end_date || format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 days later by default
      selectedCommerceId: event?.commerce_id || commerceId || "",
+     image_url: event?.image_url || "",
    })
 
   // Load user's commerces
@@ -157,6 +159,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
          user_id: user.id,
          title: form.title,
          description: form.short_description,
+         image_url: form.image_url || null,
          uses_commerce_location: !form.business_address,
          custom_location: form.business_address || null,
          condition: form.conditions || null,
@@ -223,6 +226,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
            start_date: format(new Date(), "yyyy-MM-dd"),
            end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
            selectedCommerceId: "",
+           image_url: "",
          })
        }
       
@@ -513,7 +517,22 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                   />
                 </div>
 
-                
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Image de l'événement
+                  </label>
+                  <ImageUpload
+                    bucket="gosholo-partner"
+                    folder="events"
+                    currentImage={form.image_url}
+                    onUploadComplete={(url) => setForm(f => ({ ...f, image_url: url }))}
+                    onRemoveImage={() => setForm(f => ({ ...f, image_url: "" }))}
+                    onUploadError={(error) => {
+                      console.error('Image upload error:', error)
+                      alert(`Erreur: ${error}`)
+                    }}
+                  />
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">

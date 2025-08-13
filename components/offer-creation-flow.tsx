@@ -11,6 +11,7 @@ import { Store, Tag, Calendar, DollarSign, MapPin, Check } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+import ImageUpload from "@/components/image-upload"
 
 interface Offer {
   id: string
@@ -18,7 +19,7 @@ interface Offer {
   user_id: string
   title: string
   description: string
-  picture: string | null
+  image_url: string | null
   offer_type: "in_store" | "online" | "both"
   uses_commerce_location: boolean
   custom_location: string | null
@@ -61,6 +62,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     start_date: offer?.start_date || format(new Date(), "yyyy-MM-dd"),
     end_date: offer?.end_date || format(new Date() , "yyyy-MM-dd"),
     selectedCommerceId: offer?.commerce_id || commerceId || "",
+    image_url: offer?.image_url || "",
   })
 
   // Load user's commerces
@@ -161,6 +163,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         user_id: user.id,
         title: form.title,
         description: form.short_description,
+        image_url: form.image_url || null,
         offer_type: form.type === "en_magasin" ? "in_store" : 
                    form.type === "en_ligne" ? "online" : "both",
         uses_commerce_location: !form.business_address,
@@ -230,6 +233,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           start_date: format(new Date(), "yyyy-MM-dd"),
           end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 jours plus tard par défaut
           selectedCommerceId: "",
+          image_url: "",
         })
       }
       
@@ -531,6 +535,23 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))}
                 required
                 rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Image de l'offre
+              </label>
+              <ImageUpload
+                bucket="gosholo-partner"
+                folder="offers"
+                currentImage={form.image_url}
+                onUploadComplete={(url) => setForm(f => ({ ...f, image_url: url }))}
+                onRemoveImage={() => setForm(f => ({ ...f, image_url: "" }))}
+                onUploadError={(error) => {
+                  console.error('Image upload error:', error)
+                  alert(`Erreur: ${error}`)
+                }}
               />
             </div>
 

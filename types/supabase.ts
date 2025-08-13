@@ -104,6 +104,7 @@ export type Database = {
       }
       events: {
         Row: {
+          boost_type: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted: boolean | null
           boosted_at: string | null
           commerce_id: string
@@ -113,6 +114,7 @@ export type Database = {
           description: string
           end_date: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           start_date: string | null
           title: string
@@ -121,6 +123,7 @@ export type Database = {
           uses_commerce_location: boolean
         }
         Insert: {
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted?: boolean | null
           boosted_at?: string | null
           commerce_id: string
@@ -130,6 +133,7 @@ export type Database = {
           description: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           start_date?: string | null
           title: string
@@ -138,6 +142,7 @@ export type Database = {
           uses_commerce_location?: boolean
         }
         Update: {
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted?: boolean | null
           boosted_at?: string | null
           commerce_id?: string
@@ -147,6 +152,7 @@ export type Database = {
           description?: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           start_date?: string | null
           title?: string
@@ -158,6 +164,7 @@ export type Database = {
       }
       offers: {
         Row: {
+          boost_type: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted: boolean | null
           boosted_at: string | null
           commerce_id: string
@@ -167,6 +174,7 @@ export type Database = {
           description: string
           end_date: string | null
           id: string
+          image_url: string | null
           is_active: boolean | null
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
           start_date: string | null
@@ -176,6 +184,7 @@ export type Database = {
           uses_commerce_location: boolean
         }
         Insert: {
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted?: boolean | null
           boosted_at?: string | null
           commerce_id: string
@@ -185,6 +194,7 @@ export type Database = {
           description: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
           start_date?: string | null
@@ -194,6 +204,7 @@ export type Database = {
           uses_commerce_location?: boolean
         }
         Update: {
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
           boosted?: boolean | null
           boosted_at?: string | null
           commerce_id?: string
@@ -203,6 +214,7 @@ export type Database = {
           description?: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean | null
           offer_type?: Database["public"]["Enums"]["offer_type_enum"]
           start_date?: string | null
@@ -246,6 +258,39 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          plan_type:
+            | Database["public"]["Enums"]["subscription_plan_enum"]
+            | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plan_type?:
+            | Database["public"]["Enums"]["subscription_plan_enum"]
+            | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plan_type?:
+            | Database["public"]["Enums"]["subscription_plan_enum"]
+            | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

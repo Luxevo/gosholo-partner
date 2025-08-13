@@ -172,7 +172,16 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
       <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
+            {commerce.image_url && (
+              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <img
+                  src={commerce.image_url}
+                  alt={commerce.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
             <span>{commerce.name}</span>
           </div>
                      <Button variant="outline" size="sm" onClick={handleManageCommerce}>
@@ -194,15 +203,26 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
             activeOffers.map((offer: any) => (
               <div key={offer.id} className="border rounded-lg p-3 mb-2" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h5 className="font-medium text-gray-900">{offer.title}</h5>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant={getOfferStatus(offer).variant} className="text-xs">
-                        {getOfferStatus(offer).label}
-                      </Badge>
-                                             <span className="text-xs text-gray-500">
-                         Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
-                       </span>
+                  <div className="flex items-start space-x-3 flex-1">
+                    {offer.image_url && (
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img
+                          src={offer.image_url}
+                          alt={offer.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h5 className="font-medium text-gray-900">{offer.title}</h5>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant={getOfferStatus(offer).variant} className="text-xs">
+                          {getOfferStatus(offer).label}
+                        </Badge>
+                                               <span className="text-xs text-gray-500">
+                           Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
+                         </span>
+                       </div>
                      </div>
                    </div>
                    <div className="flex items-center space-x-1">
@@ -253,15 +273,26 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
             upcomingEvents.map((event: any) => (
               <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h5 className="font-medium text-gray-900">{event.title}</h5>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant={getEventStatus(event).variant} className="text-xs">
-                        {getEventStatus(event).label}
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {new Date(event.created_at).toLocaleDateString('fr-FR')}
-                      </span>
+                  <div className="flex items-start space-x-3 flex-1">
+                    {event.image_url && (
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img
+                          src={event.image_url}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h5 className="font-medium text-gray-900">{event.title}</h5>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant={getEventStatus(event).variant} className="text-xs">
+                          {getEventStatus(event).label}
+                        </Badge>
+                        <span className="text-xs text-gray-500">
+                          {new Date(event.created_at).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">

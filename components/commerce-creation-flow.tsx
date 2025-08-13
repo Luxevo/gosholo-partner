@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Store, MapPin, Phone, Mail, Globe, Check, Building2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+import ImageUpload from "@/components/image-upload"
 
 interface Commerce {
   id: string
@@ -247,6 +248,19 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
           </CardHeader>
           
           <CardContent className="pt-0">
+            {/* Commerce Image */}
+            {form.image_url && (
+              <div className="mb-4">
+                <div className="aspect-video w-full relative bg-gray-50 rounded-lg overflow-hidden">
+                  <img
+                    src={form.image_url}
+                    alt={form.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -326,6 +340,19 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
           </CardHeader>
           
           <CardContent className="pt-0">
+            {/* Commerce Image */}
+            {form.image_url && (
+              <div className="mb-4">
+                <div className="aspect-video w-full relative bg-gray-50 rounded-lg overflow-hidden">
+                  <img
+                    src={form.image_url}
+                    alt={form.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Commerce Details */}
               <div className="space-y-3">
@@ -426,6 +453,23 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
                   value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  Image du commerce
+                </label>
+                <ImageUpload
+                  bucket="gosholo-partner"
+                  folder="commerces"
+                  currentImage={form.image_url}
+                  onUploadComplete={(url) => setForm(f => ({ ...f, image_url: url }))}
+                  onRemoveImage={() => setForm(f => ({ ...f, image_url: "" }))}
+                  onUploadError={(error) => {
+                    console.error('Image upload error:', error)
+                    alert(`Erreur: ${error}`)
+                  }}
                 />
               </div>
 
