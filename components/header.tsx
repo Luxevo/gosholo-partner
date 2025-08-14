@@ -23,14 +23,15 @@ interface HeaderProps {
 }
 
 interface UserData {
-  boostCredits: number
+  boostCreditsVedette: number
+  boostCreditsVisibilite: number
   subscriptionPlan: 'free' | 'pro'
 }
 
 export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [userData, setUserData] = useState<UserData>({ boostCredits: 0, subscriptionPlan: 'free' });
+  const [userData, setUserData] = useState<UserData>({ boostCreditsVedette: 0, boostCreditsVisibilite: 0, subscriptionPlan: 'free' });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -59,10 +60,9 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
           .eq('user_id', user.id)
           .maybeSingle()
 
-        const totalCredits = (boostCreditsData?.available_en_vedette || 0) + (boostCreditsData?.available_visibilite || 0)
-
         setUserData({
-          boostCredits: totalCredits,
+          boostCreditsVedette: boostCreditsData?.available_en_vedette || 0,
+          boostCreditsVisibilite: boostCreditsData?.available_visibilite || 0,
           subscriptionPlan: subscriptionData?.plan_type || 'free'
         })
       } catch (error) {
@@ -104,14 +104,29 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* Boost Credits */}
+          {/* Boost Credits - Vedette */}
           <Link href="/dashboard/boosts">
             <div className="flex items-center space-x-2 bg-brand-accent/10 px-3 py-1.5 rounded-lg border border-brand-accent/30 hover:bg-brand-accent/20 hover:border-brand-accent/50 transition-colors cursor-pointer">
-              <Zap className="h-4 w-4 text-brand-accent" />
-              <span className="text-sm font-medium text-brand-accent">
-                {isLoading ? '...' : userData.boostCredits}
-              </span>
-              <span className="text-xs text-brand-accent/80">boost{userData.boostCredits !== 1 ? 's' : ''}</span>
+              <Crown className="h-4 w-4 text-brand-accent" />
+              <div className="flex items-center space-x-1 text-sm">
+                <span className="text-brand-accent/80">Vedette:</span>
+                <span className="font-medium text-brand-accent">
+                  {isLoading ? '...' : (userData.boostCreditsVedette || 0)}
+                </span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Boost Credits - Visibilité */}
+          <Link href="/dashboard/boosts">
+            <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
+              <Zap className="h-4 w-4 text-blue-600" />
+              <div className="flex items-center space-x-1 text-sm">
+                <span className="text-blue-600/80">Visibilité:</span>
+                <span className="font-medium text-blue-600">
+                  {isLoading ? '...' : (userData.boostCreditsVisibilite || 0)}
+                </span>
+              </div>
             </div>
           </Link>
 
