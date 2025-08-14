@@ -12,6 +12,7 @@ import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
+import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
 
 interface Event {
   id: string
@@ -22,6 +23,9 @@ interface Event {
   image_url: string | null
   uses_commerce_location: boolean
   custom_location: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
   condition: string | null
   is_active: boolean
   created_at: string | null
@@ -54,12 +58,39 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
      title: event?.title || "",
      short_description: event?.description || "",
      business_address: event?.custom_location || "",
+     postal_code: event?.postal_code || "",
      conditions: event?.condition || "",
      start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
      end_date: event?.end_date || format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 days later by default
      selectedCommerceId: event?.commerce_id || commerceId || "",
      image_url: event?.image_url || "",
    })
+
+   const [isGeocoding, setIsGeocoding] = useState(false)
+   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
+
+   const handlePostalCodeChange = async (value: string) => {
+     setForm(f => ({ ...f, postal_code: value }))
+     
+     if (validateCanadianPostalCode(value)) {
+       setIsGeocoding(true)
+       try {
+         const result = await geocodePostalCode(value)
+         setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
+         setForm(f => ({ 
+           ...f, 
+           postal_code: result.postal_code 
+         }))
+       } catch (error) {
+         console.error('Geocoding failed:', error)
+         setGeoData(null)
+       } finally {
+         setIsGeocoding(false)
+       }
+     } else {
+       setGeoData(null)
+     }
+   }
 
   // Load user's commerces
   useEffect(() => {
@@ -162,6 +193,9 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
          image_url: form.image_url || null,
          uses_commerce_location: !form.business_address,
          custom_location: form.business_address || null,
+         postal_code: form.postal_code || null,
+         latitude: geoData?.latitude || null,
+         longitude: geoData?.longitude || null,
          condition: form.conditions || null,
          start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
          end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
@@ -222,6 +256,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
            title: "",
            short_description: "",
            business_address: "",
+           postal_code: "",
            conditions: "",
            start_date: format(new Date(), "yyyy-MM-dd"),
            end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
@@ -536,13 +571,36 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
+                    Code postal (optionnel)
+                  </label>
+                  <Input
+                    placeholder="Ex: H2X 1Y4"
+                    value={form.postal_code}
+                    onChange={e => handlePostalCodeChange(e.target.value)}
+                    disabled={isGeocoding}
+                  />
+                  {isGeocoding && (
+                    <p className="text-sm text-gray-500 mt-1">📍 Recherche du secteur...</p>
+                  )}
+                  {geoData && (
+                    <p className="text-sm text-green-600 mt-1">
+                      ✅ Secteur trouvé: {geoData.address}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
                     Adresse spécifique (optionnel)
                   </label>
                   <Input
-                    placeholder="Adresse spécifique pour cet événement"
+                    placeholder="Ex: 123 Rue Saint-Paul Est"
                     value={form.business_address}
                     onChange={e => setForm(f => ({ ...f, business_address: e.target.value }))}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Si différente du commerce principal
+                  </p>
                 </div>
 
                 <div>

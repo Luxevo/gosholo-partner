@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -59,8 +59,11 @@ export type Database = {
           email: string | null
           id: string
           image_url: string | null
+          latitude: number | null
+          longitude: number | null
           name: string
           phone: string | null
+          postal_code: string | null
           status: string | null
           updated_at: string | null
           user_id: string
@@ -76,8 +79,11 @@ export type Database = {
           email?: string | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name: string
           phone?: string | null
+          postal_code?: string | null
           status?: string | null
           updated_at?: string | null
           user_id: string
@@ -93,8 +99,11 @@ export type Database = {
           email?: string | null
           id?: string
           image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           phone?: string | null
+          postal_code?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string
@@ -116,6 +125,9 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
+          postal_code: string | null
           start_date: string | null
           title: string
           updated_at: string | null
@@ -135,6 +147,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
           start_date?: string | null
           title: string
           updated_at?: string | null
@@ -154,6 +169,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string | null
           start_date?: string | null
           title?: string
           updated_at?: string | null
@@ -176,7 +194,10 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
+          postal_code: string | null
           start_date: string | null
           title: string
           updated_at: string | null
@@ -196,7 +217,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           offer_type: Database["public"]["Enums"]["offer_type_enum"]
+          postal_code?: string | null
           start_date?: string | null
           title: string
           updated_at?: string | null
@@ -216,7 +240,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
           offer_type?: Database["public"]["Enums"]["offer_type_enum"]
+          postal_code?: string | null
           start_date?: string | null
           title?: string
           updated_at?: string | null
@@ -327,7 +354,7 @@ export type Database = {
     }
     Functions: {
       check_content_limit: {
-        Args: { user_uuid: string; content_type: string }
+        Args: { content_type: string; user_uuid: string }
         Returns: boolean
       }
       expire_old_boosts: {
@@ -335,11 +362,11 @@ export type Database = {
         Returns: undefined
       }
       use_boost_credits: {
-        Args: { user_uuid: string; credits_to_use: number }
+        Args: { credits_to_use: number; user_uuid: string }
         Returns: boolean
       }
       user_has_credits: {
-        Args: { user_uuid: string; required_credits: number }
+        Args: { required_credits: number; user_uuid: string }
         Returns: boolean
       }
     }

@@ -11,6 +11,7 @@ import { Store, MapPin, Phone, Mail, Globe, Check, Building2 } from "lucide-reac
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
+import { geocodePostalCode, validateCanadianPostalCode, formatPostalCode } from "@/lib/mapbox-geocoding"
 
 interface Commerce {
   id: string
@@ -23,6 +24,9 @@ interface Commerce {
   phone: string | null
   website: string | null
   image_url: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
   status: string
   created_at: string | null
   updated_at: string | null
@@ -66,22 +70,53 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
     name: commerce?.name || "",
     description: commerce?.description || "",
     address: commerce?.address || "",
+    postal_code: commerce?.postal_code || "",
     category: commerce?.category || "",
     email: commerce?.email || "",
     phone: commerce?.phone || "",
     website: commerce?.website || "",
     image_url: commerce?.image_url || ""
   })
+  
+  const [isGeocoding, setIsGeocoding] = useState(false)
+  const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
 
   const validateForm = () => {
     const errors = []
     if (!form.name.trim()) errors.push('Nom du commerce requis')
-    if (!form.address.trim()) errors.push('Adresse requise')
+    if (!form.postal_code.trim()) errors.push('Code postal requis')
+    if (form.postal_code.trim() && !validateCanadianPostalCode(form.postal_code)) {
+      errors.push('Code postal invalide (format: H2X 1Y4)')
+    }
+    if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category) errors.push('Catégorie requise')
     
     return {
       isValid: errors.length === 0,
       errors
+    }
+  }
+
+  const handlePostalCodeChange = async (value: string) => {
+    setForm(f => ({ ...f, postal_code: value }))
+    
+    if (validateCanadianPostalCode(value)) {
+      setIsGeocoding(true)
+      try {
+        const result = await geocodePostalCode(value)
+        setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
+        setForm(f => ({ 
+          ...f, 
+          postal_code: result.postal_code 
+        }))
+      } catch (error) {
+        console.error('Geocoding failed:', error)
+        setGeoData(null)
+      } finally {
+        setIsGeocoding(false)
+      }
+    } else {
+      setGeoData(null)
     }
   }
 
@@ -112,7 +147,8 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
     if (!validation.isValid) {
       console.error('Missing required fields:', { 
         name: !!form.name, 
-        address: !!form.address, 
+        postal_code: !!form.postal_code, 
+        address: !!form.address,
         category: !!form.category 
       })
       setIsLoading(false)
@@ -136,6 +172,9 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
         name: form.name.trim(),
         description: form.description.trim() || null,
         address: form.address.trim(),
+        postal_code: form.postal_code.trim(),
+        latitude: geoData?.latitude || null,
+        longitude: geoData?.longitude || null,
         category: form.category,
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
@@ -195,6 +234,7 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
           name: "",
           description: "",
           address: "",
+          postal_code: "",
           category: "",
           email: "",
           phone: "",
@@ -475,14 +515,38 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Adresse * <span className="text-red-500">*</span>
+                  Code postal * <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="Ex: 123 Rue de la Paix, 75001 Paris"
+                  placeholder="Ex: H2X 1Y4"
+                  value={form.postal_code}
+                  onChange={e => handlePostalCodeChange(e.target.value)}
+                  required
+                  disabled={isGeocoding}
+                />
+                {isGeocoding && (
+                  <p className="text-sm text-gray-500 mt-1">📍 Recherche du secteur...</p>
+                )}
+                {geoData && (
+                  <p className="text-sm text-green-600 mt-1">
+                    ✅ Secteur trouvé: {geoData.address}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  Adresse complète * <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  placeholder="Ex: 123 Rue Saint-Paul Est"
                   value={form.address}
                   onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Adresse exacte de votre commerce (numéro, rue, etc.)
+                </p>
               </div>
 
               <div>

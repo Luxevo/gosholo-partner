@@ -73,7 +73,7 @@ export default function LoginPage() {
           <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
             <span className="text-2xl font-bold text-white">G</span>
           </div>
-          <h1 className="text-2xl font-bold text-brand-primary">Gosholo Partner</h1>
+          <h1 className="text-2xl font-bold text-brand-primary">gosholo</h1>
           <p className="text-brand-primary/70">Connectez-vous à votre tableau de bord</p>
         </div>
 
