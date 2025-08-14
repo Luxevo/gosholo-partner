@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Check, Building2 } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Check, Building2, Facebook, Instagram, Linkedin } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
 import { geocodePostalCode, validateCanadianPostalCode, formatPostalCode } from "@/lib/mapbox-geocoding"
+import { formatSocialMediaUrl, validateSocialMediaLinks } from "@/lib/social-media-utils"
 
 interface Commerce {
   id: string
@@ -27,6 +28,9 @@ interface Commerce {
   postal_code: string | null
   latitude: number | null
   longitude: number | null
+  facebook_url: string | null
+  instagram_url: string | null
+  linkedin_url: string | null
   status: string
   created_at: string | null
   updated_at: string | null
@@ -75,6 +79,9 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
     email: commerce?.email || "",
     phone: commerce?.phone || "",
     website: commerce?.website || "",
+    facebook_url: commerce?.facebook_url || "",
+    instagram_url: commerce?.instagram_url || "",
+    linkedin_url: commerce?.linkedin_url || "",
     image_url: commerce?.image_url || ""
   })
   
@@ -90,6 +97,18 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category) errors.push('Catégorie requise')
+    
+    // Validate social media URLs
+    const socialValidation = validateSocialMediaLinks({
+      facebook_url: form.facebook_url,
+      instagram_url: form.instagram_url,
+      linkedin_url: form.linkedin_url,
+      website: form.website
+    })
+    
+    if (!socialValidation.isValid) {
+      errors.push(...socialValidation.errors)
+    }
     
     return {
       isValid: errors.length === 0,
@@ -179,6 +198,9 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
         website: form.website.trim() || null,
+        facebook_url: form.facebook_url.trim() || null,
+        instagram_url: form.instagram_url.trim() || null,
+        linkedin_url: form.linkedin_url.trim() || null,
         image_url: form.image_url.trim() || null,
         status: 'active'
       }
@@ -239,6 +261,9 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
           email: "",
           phone: "",
           website: "",
+          facebook_url: "",
+          instagram_url: "",
+          linkedin_url: "",
           image_url: ""
         })
       }
@@ -575,36 +600,96 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
                   <label className="block text-sm font-medium text-primary mb-2">
                     Email
                   </label>
-                  <Input
-                    type="email"
-                    placeholder="contact@commerce.com"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  />
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="email"
+                      placeholder="contact@commerce.com"
+                      value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
                     Téléphone
                   </label>
-                  <Input
-                    type="tel"
-                    placeholder="01 23 45 67 89"
-                    value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                  />
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="tel"
+                      placeholder="(514) 123-4567"
+                      value={form.phone}
+                      onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
                     Site web
                   </label>
-                  <Input
-                    type="url"
-                    placeholder="https://www.commerce.com"
-                    value={form.website}
-                    onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
-                  />
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="url"
+                      placeholder="https://www.commerce.com"
+                      value={form.website}
+                      onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Facebook
+                  </label>
+                  <div className="relative">
+                    <Facebook className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="url"
+                      placeholder="facebook.com/moncommerce ou https://facebook.com/moncommerce"
+                      value={form.facebook_url}
+                      onChange={e => setForm(f => ({ ...f, facebook_url: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    Instagram
+                  </label>
+                  <div className="relative">
+                    <Instagram className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="url"
+                      placeholder="instagram.com/moncommerce ou @moncommerce"
+                      value={form.instagram_url}
+                      onChange={e => setForm(f => ({ ...f, instagram_url: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary mb-2">
+                    LinkedIn
+                  </label>
+                  <div className="relative">
+                    <Linkedin className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <Input
+                      type="url"
+                      placeholder="linkedin.com/company/moncommerce"
+                      value={form.linkedin_url}
+                      onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

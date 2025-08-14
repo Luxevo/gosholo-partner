@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram, Linkedin } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
+import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
+import { validateSocialMediaLinks } from "@/lib/social-media-utils"
 
 interface Commerce {
   id: string
@@ -22,6 +24,12 @@ interface Commerce {
   phone: string
   website: string
   image_url: string
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
+  facebook_url: string | null
+  instagram_url: string | null
+  linkedin_url: string | null
   status: string
   created_at: string
   updated_at: string
@@ -58,20 +66,70 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     name: commerce.name || "",
     description: commerce.description || "",
     address: commerce.address || "",
+    postal_code: commerce.postal_code || "",
     category: commerce.category || "",
     email: commerce.email || "",
     phone: commerce.phone || "",
     website: commerce.website || "",
+    facebook_url: commerce.facebook_url || "",
+    instagram_url: commerce.instagram_url || "",
+    linkedin_url: commerce.linkedin_url || "",
     image_url: commerce.image_url || "",
   })
+
+  const [isGeocoding, setIsGeocoding] = useState(false)
+  const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(
+    commerce.latitude && commerce.longitude 
+      ? { latitude: commerce.latitude, longitude: commerce.longitude, address: commerce.address }
+      : null
+  )
+
+  const handlePostalCodeChange = async (value: string) => {
+    setForm(f => ({ ...f, postal_code: value }))
+    
+    if (validateCanadianPostalCode(value)) {
+      setIsGeocoding(true)
+      try {
+        const result = await geocodePostalCode(value)
+        setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
+        setForm(f => ({ 
+          ...f, 
+          postal_code: result.postal_code 
+        }))
+      } catch (error) {
+        console.error('Geocoding failed:', error)
+        setGeoData(null)
+      } finally {
+        setIsGeocoding(false)
+      }
+    } else {
+      setGeoData(null)
+    }
+  }
 
   const validateForm = () => {
     const errors = []
     if (!form.name.trim()) errors.push('Nom du commerce requis')
     if (!form.description.trim()) errors.push('Description requise')
-    if (!form.address.trim()) errors.push('Adresse requise')
+    if (!form.postal_code.trim()) errors.push('Code postal requis')
+    if (form.postal_code.trim() && !validateCanadianPostalCode(form.postal_code)) {
+      errors.push('Code postal invalide (format: H2X 1Y4)')
+    }
+    if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category) errors.push('Catégorie requise')
     if (!form.email.trim()) errors.push('Email requis')
+    
+    // Validate social media URLs
+    const socialValidation = validateSocialMediaLinks({
+      facebook_url: form.facebook_url,
+      instagram_url: form.instagram_url,
+      linkedin_url: form.linkedin_url,
+      website: form.website
+    })
+    
+    if (!socialValidation.isValid) {
+      errors.push(...socialValidation.errors)
+    }
     
     return {
       isValid: errors.length === 0,
@@ -114,10 +172,16 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           name: form.name.trim(),
           description: form.description.trim(),
           address: form.address.trim(),
+          postal_code: form.postal_code.trim(),
+          latitude: geoData?.latitude || null,
+          longitude: geoData?.longitude || null,
           category: form.category,
           email: form.email.trim(),
           phone: form.phone.trim() || null,
           website: form.website.trim() || null,
+          facebook_url: form.facebook_url.trim() || null,
+          instagram_url: form.instagram_url.trim() || null,
+          linkedin_url: form.linkedin_url.trim() || null,
           image_url: form.image_url.trim() || null,
           updated_at: new Date().toISOString(),
         })
@@ -198,14 +262,38 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Adresse * <span className="text-red-500">*</span>
+              Code postal * <span className="text-red-500">*</span>
             </label>
             <Input
-              placeholder="Adresse complète du commerce"
+              placeholder="Ex: H2X 1Y4, M5V 3A8, V6B 1A1"
+              value={form.postal_code}
+              onChange={e => handlePostalCodeChange(e.target.value)}
+              required
+              disabled={isGeocoding}
+            />
+            {isGeocoding && (
+              <p className="text-sm text-gray-500 mt-1">📍 Recherche du secteur...</p>
+            )}
+            {geoData && (
+              <p className="text-sm text-green-600 mt-1">
+                ✅ Secteur trouvé: {geoData.address}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">
+              Adresse complète * <span className="text-red-500">*</span>
+            </label>
+            <Input
+              placeholder="Ex: 123 Rue Saint-Paul Est"
               value={form.address}
               onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
               required
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Adresse exacte de votre commerce (numéro, rue, etc.)
+            </p>
           </div>
 
           <div>
@@ -226,41 +314,106 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             </Select>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Email * <span className="text-red-500">*</span>
-            </label>
-            <Input
-              type="email"
-              placeholder="contact@commerce.com"
-              value={form.email}
-              onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-              required
-            />
-          </div>
+          {/* Contact Information */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-primary">Informations de contact</h3>
+            
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Email * <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="email"
+                  placeholder="contact@commerce.com"
+                  value={form.email}
+                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Téléphone (optionnel)
-            </label>
-            <Input
-              type="tel"
-              placeholder="+33 1 23 45 67 89"
-              value={form.phone}
-              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Téléphone (optionnel)
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="tel"
+                  placeholder="(514) 123-4567"
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              Site web (optionnel)
-            </label>
-            <Input
-              type="url"
-              placeholder="https://www.commerce.com"
-              value={form.website}
-              onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
-            />
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Site web (optionnel)
+              </label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="url"
+                  placeholder="https://www.commerce.com"
+                  value={form.website}
+                  onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Facebook (optionnel)
+              </label>
+              <div className="relative">
+                <Facebook className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="url"
+                  placeholder="facebook.com/moncommerce ou https://facebook.com/moncommerce"
+                  value={form.facebook_url}
+                  onChange={e => setForm(f => ({ ...f, facebook_url: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                Instagram (optionnel)
+              </label>
+              <div className="relative">
+                <Instagram className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="url"
+                  placeholder="instagram.com/moncommerce ou @moncommerce"
+                  value={form.instagram_url}
+                  onChange={e => setForm(f => ({ ...f, instagram_url: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
+                LinkedIn (optionnel)
+              </label>
+              <div className="relative">
+                <Linkedin className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                <Input
+                  type="url"
+                  placeholder="linkedin.com/company/moncommerce"
+                  value={form.linkedin_url}
+                  onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))}
+                  className="pl-10"
+                />
+              </div>
+            </div>
           </div>
 
           <div>

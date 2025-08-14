@@ -57,9 +57,12 @@ export type Database = {
           created_at: string | null
           description: string | null
           email: string | null
+          facebook_url: string | null
           id: string
           image_url: string | null
+          instagram_url: string | null
           latitude: number | null
+          linkedin_url: string | null
           longitude: number | null
           name: string
           phone: string | null
@@ -77,9 +80,12 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           latitude?: number | null
+          linkedin_url?: string | null
           longitude?: number | null
           name: string
           phone?: string | null
@@ -97,9 +103,12 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           email?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           latitude?: number | null
+          linkedin_url?: string | null
           longitude?: number | null
           name?: string
           phone?: string | null
@@ -122,10 +131,13 @@ export type Database = {
           custom_location: string | null
           description: string
           end_date: string | null
+          facebook_url: string | null
           id: string
           image_url: string | null
+          instagram_url: string | null
           is_active: boolean | null
           latitude: number | null
+          linkedin_url: string | null
           longitude: number | null
           postal_code: string | null
           start_date: string | null
@@ -144,10 +156,13 @@ export type Database = {
           custom_location?: string | null
           description: string
           end_date?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_active?: boolean | null
           latitude?: number | null
+          linkedin_url?: string | null
           longitude?: number | null
           postal_code?: string | null
           start_date?: string | null
@@ -166,10 +181,13 @@ export type Database = {
           custom_location?: string | null
           description?: string
           end_date?: string | null
+          facebook_url?: string | null
           id?: string
           image_url?: string | null
+          instagram_url?: string | null
           is_active?: boolean | null
           latitude?: number | null
+          linkedin_url?: string | null
           longitude?: number | null
           postal_code?: string | null
           start_date?: string | null
