@@ -128,6 +128,35 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     if (!form.start_date) errors.push('Date de début requise')
     if (!form.end_date) errors.push('Date de fin requise')
     
+    // Date validations
+    if (form.start_date && form.end_date) {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // Reset time to start of day
+      const startDate = new Date(form.start_date)
+      const endDate = new Date(form.end_date)
+      
+      // Cannot select past dates (no date before today)
+      if (startDate < today) {
+        errors.push('La date de début ne peut pas être dans le passé')
+      }
+      
+      if (endDate < today) {
+        errors.push('La date de fin ne peut pas être dans le passé')
+      }
+      
+      // End date must be after start date
+      if (endDate < startDate) {
+        errors.push('La date de fin doit être après la date de début')
+      }
+      
+      // Maximum 30 days duration
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      if (diffDays > 30) {
+        errors.push('La durée de l\'offre ne peut pas dépasser 30 jours')
+      }
+    }
+    
     return {
       isValid: errors.length === 0,
       errors
@@ -660,6 +689,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <Input
                   type="date"
                   value={form.start_date}
+                  min={format(new Date(), "yyyy-MM-dd")}
                   onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
                   required
                 />
@@ -671,6 +701,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <Input
                   type="date"
                   value={form.end_date}
+                  min={form.start_date || format(new Date(), "yyyy-MM-dd")}
+                  max={form.start_date ? format(new Date(new Date(form.start_date).getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd") : ""}
                   onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
                   required
                 />

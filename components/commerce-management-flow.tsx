@@ -17,22 +17,22 @@ interface Commerce {
   id: string
   user_id: string
   name: string
-  description: string
+  description: string | null
   address: string
-  category: string
-  email: string
-  phone: string
-  website: string
-  image_url: string
+  category: string | null
+  email: string | null
+  phone: string | null
+  website: string | null
+  image_url: string | null
   postal_code: string | null
   latitude: number | null
   longitude: number | null
   facebook_url: string | null
   instagram_url: string | null
   linkedin_url: string | null
-  status: string
-  created_at: string
-  updated_at: string
+  status: string | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 interface CommerceManagementFlowProps {

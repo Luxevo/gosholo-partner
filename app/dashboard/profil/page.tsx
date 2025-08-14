@@ -40,6 +40,7 @@ import PasswordChangeFlow from "@/components/password-change-flow"
 import SubscriptionManagementFlow from "@/components/subscription-management-flow"
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
+import { Tables } from "@/types/supabase"
 
 interface UserSubscription {
   id: string
@@ -68,21 +69,7 @@ interface Profile {
   updated_at: string | null
 }
 
-interface Commerce {
-  id: string
-  user_id: string
-  name: string
-  description: string
-  address: string
-  category: string
-  email: string
-  phone: string
-  website: string
-  image_url: string
-  status: string
-  created_at: string
-  updated_at: string
-}
+type Commerce = Tables<'commerces'>
 
 export default function ProfilPage() {
   const supabase = createClient()
@@ -98,7 +85,6 @@ export default function ProfilPage() {
   const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
   const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false)
   const [isSubscriptionManagementOpen, setIsSubscriptionManagementOpen] = useState(false)
-  const [isAccountSettingsOpen, setIsAccountSettingsOpen] = useState(false)
   const [isDeleteCommerceOpen, setIsDeleteCommerceOpen] = useState(false)
   const [commerceToDelete, setCommerceToDelete] = useState<Commerce | null>(null)
   const [isManageCommerceOpen, setIsManageCommerceOpen] = useState(false)
@@ -149,21 +135,7 @@ export default function ProfilPage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
       
-      // Transform data to match expected interface with default values
-      const transformedCommerces = (commercesData || []).map(commerce => ({
-        ...commerce,
-        description: commerce.description || '',
-        category: commerce.category || '',
-        email: commerce.email || '',
-        phone: commerce.phone || '',
-        website: commerce.website || '',
-        image_url: commerce.image_url || '',
-        status: commerce.status || '',
-        created_at: commerce.created_at || '',
-        updated_at: commerce.updated_at || ''
-      }))
-      
-      setCommerces(transformedCommerces)
+      setCommerces(commercesData || [])
 
       // Get boost credits
       const { data: boostCreditsData } = await supabase
@@ -356,7 +328,7 @@ export default function ProfilPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Mon Profil & Commerces</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">Mon Profil</h1>
           <p className="text-primary/70">Gérez votre compte et vos commerces Gosholo Partner</p>
         </div>
 
