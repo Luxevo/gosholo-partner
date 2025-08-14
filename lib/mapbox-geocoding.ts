@@ -21,8 +21,23 @@ export async function geocodePostalCode(postalCode: string): Promise<GeocodingRe
   // Format postal code with space if needed
   const formattedPostalCode = postalCode.toUpperCase().replace(/\s/g, '').replace(/(.{3})(.{3})/, '$1 $2')
   
-  // Query specifically for Montreal/Quebec first, then broader Canada
-  const query = `${formattedPostalCode} Montreal QC Canada`
+  // Auto-detect province from first letter of postal code for better accuracy
+  const provinceMap: { [key: string]: string } = {
+    'A': 'NL', // Newfoundland and Labrador
+    'B': 'NS', // Nova Scotia  
+    'C': 'PE', // Prince Edward Island
+    'E': 'NB', // New Brunswick
+    'G': 'QC', 'H': 'QC', 'J': 'QC', // Quebec
+    'K': 'ON', 'L': 'ON', 'M': 'ON', 'N': 'ON', 'P': 'ON', // Ontario
+    'R': 'MB', // Manitoba
+    'S': 'SK', // Saskatchewan
+    'T': 'AB', // Alberta
+    'V': 'BC', // British Columbia
+    'X': 'NU', 'Y': 'YT', 'Z': 'NT' // Territories
+  }
+  
+  const provinceCode = provinceMap[formattedPostalCode[0]] || ''
+  const query = `${formattedPostalCode} ${provinceCode} Canada`
   const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=CA&limit=1&types=postcode`
   
   try {

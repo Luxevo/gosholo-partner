@@ -518,7 +518,7 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
                   Code postal * <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="Ex: H2X 1Y4"
+                  placeholder="Ex: H2X 1Y4 (QC), M5V 3A8 (ON), V6B 1A1 (BC)"
                   value={form.postal_code}
                   onChange={e => handlePostalCodeChange(e.target.value)}
                   required

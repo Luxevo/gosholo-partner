@@ -574,7 +574,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     Code postal (optionnel)
                   </label>
                   <Input
-                    placeholder="Ex: H2X 1Y4"
+                    placeholder="Ex: H2X 1Y4, M5V 3A8, V6B 1A1"
                     value={form.postal_code}
                     onChange={e => handlePostalCodeChange(e.target.value)}
                     disabled={isGeocoding}
