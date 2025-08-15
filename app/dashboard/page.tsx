@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -22,6 +22,7 @@ import {
   Trash2,
   CheckCircle,
   Zap,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
@@ -30,6 +31,7 @@ import OfferCreationFlow from "@/components/offer-creation-flow"
 import EventCreationFlow from "@/components/event-creation-flow"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import BoostPurchaseForm from "@/components/boost-purchase-form"
 
 // CommerceCard Component
 interface CommerceCardProps {
@@ -47,9 +49,144 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const [isCreateOfferDialogOpen, setIsCreateOfferDialogOpen] = useState(false)
   const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false)
   const [isManageCommerceDialogOpen, setIsManageCommerceDialogOpen] = useState(false)
+  const [isBoostModalOpen, setIsBoostModalOpen] = useState(false)
+  const [boostingItem, setBoostingItem] = useState<{type: 'offer' | 'event', item: any} | null>(null)
+  const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
+  const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
   
   const activeOffers = commerce.offers?.filter((offer: any) => offer.is_active) || []
   const upcomingEvents = commerce.events || [] // For now, consider all events as upcoming
+
+  // Load boost credits
+  const loadBoostCredits = async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: boostCreditsData } = await supabase
+        .from('user_boost_credits')
+        .select('available_en_vedette, available_visibilite')
+        .eq('user_id', user.id)
+        .single()
+      
+      setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
+    }
+  }
+
+  // Load boost credits on component mount
+  React.useEffect(() => {
+    loadBoostCredits()
+  }, [])
+
+  // Boost handlers
+  const handleBoostOffer = (offer: any) => {
+    setBoostingItem({ type: 'offer', item: offer })
+    setIsBoostModalOpen(true)
+  }
+
+  const handleBoostEvent = (event: any) => {
+    setBoostingItem({ type: 'event', item: event })
+    setIsBoostModalOpen(true)
+  }
+
+  const handleApplyBoost = async (boostType: 'en_vedette' | 'visibilite') => {
+    if (!boostingItem || !boostCredits) return
+
+    const availableCredits = boostType === 'en_vedette' 
+      ? boostCredits.available_en_vedette 
+      : boostCredits.available_visibilite
+
+    if (availableCredits <= 0) {
+      // Show purchase form
+      setShowPurchaseForm(boostType)
+      return
+    }
+
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Check if content is already boosted
+      const tableName = boostingItem.type === 'offer' ? 'offers' : 'events'
+      const { data: existingContent } = await supabase
+        .from(tableName)
+        .select('boosted')
+        .eq('id', boostingItem.item.id)
+        .single()
+
+      if (existingContent?.boosted) {
+        toast({
+          title: "Déjà boosté",
+          description: "Ce contenu est déjà boosté.",
+          variant: "destructive"
+        })
+        return
+      }
+
+      // Apply boost
+      await supabase
+        .from(tableName)
+        .update({
+          boosted: true,
+          boost_type: boostType,
+          boosted_at: new Date().toISOString()
+        })
+        .eq('id', boostingItem.item.id)
+
+      // Update boost credits
+      const newCredits = {
+        [boostType === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
+          (boostType === 'en_vedette' ? boostCredits.available_en_vedette : boostCredits.available_visibilite) - 1
+      }
+
+      await supabase
+        .from('user_boost_credits')
+        .update(newCredits)
+        .eq('user_id', user.id)
+
+      // Update local state
+      setBoostCredits(prev => prev ? {
+        ...prev,
+        [boostType === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
+          (boostType === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) - 1
+      } : null)
+
+      toast({
+        title: "Boost appliqué !",
+        description: `Votre ${boostingItem.type === 'offer' ? 'offre' : 'événement'} est maintenant boosté pour 72 heures.`,
+      })
+
+      setIsBoostModalOpen(false)
+      setBoostingItem(null)
+
+    } catch (error) {
+      console.error('Error applying boost:', error)
+      toast({
+        title: "Erreur",
+        description: "Impossible d'appliquer le boost.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handlePurchaseSuccess = async () => {
+    if (!showPurchaseForm) return
+
+    // Close purchase form
+    setShowPurchaseForm(null)
+    
+    // Update boost credits (add 1 credit for the purchased boost)
+    setBoostCredits(prev => prev ? {
+      ...prev,
+      [showPurchaseForm === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
+        (showPurchaseForm === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) + 1
+    } : { available_en_vedette: showPurchaseForm === 'en_vedette' ? 1 : 0, available_visibilite: showPurchaseForm === 'visibilite' ? 1 : 0 })
+
+    // Automatically apply the boost
+    setTimeout(() => {
+      handleApplyBoost(showPurchaseForm)
+    }, 500)
+  }
 
   const getOfferStatus = (offer: any) => {
     if (!offer.is_active) return { label: 'Terminée', variant: 'secondary' as const }
@@ -226,8 +363,14 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
                      </div>
                    </div>
                    <div className="flex items-center space-x-1">
-                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                       <Zap className="h-4 w-4 text-orange-600" />
+                     <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       className="h-auto px-2 py-1"
+                       onClick={() => handleBoostOffer(offer)}
+                     >
+                       <Zap className="h-4 w-4 text-orange-600 mr-1" />
+                       <span className="text-xs text-orange-600 font-medium">Boost</span>
                      </Button>
                      <Button 
                        variant="ghost" 
@@ -296,8 +439,14 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Zap className="h-4 w-4 text-orange-600" />
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-auto px-2 py-1"
+                      onClick={() => handleBoostEvent(event)}
+                    >
+                      <Zap className="h-4 w-4 text-orange-600 mr-1" />
+                      <span className="text-xs text-orange-600 font-medium">Boost</span>
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -448,6 +597,88 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
          />
        </DialogContent>
      </Dialog>
+
+     {/* Boost Modal */}
+     <Dialog open={isBoostModalOpen} onOpenChange={setIsBoostModalOpen}>
+       <DialogContent className="sm:max-w-md">
+         <DialogHeader>
+           <DialogTitle>Booster votre {boostingItem?.type === 'offer' ? 'offre' : 'événement'}</DialogTitle>
+           <DialogDescription>
+             Choisissez le type de boost pour augmenter la visibilité de "{boostingItem?.item?.title}" pendant 72 heures.
+           </DialogDescription>
+         </DialogHeader>
+         <div className="space-y-4">
+           {/* En Vedette Boost */}
+           <div className="border rounded-lg p-4">
+             <div className="flex items-center gap-3 mb-3">
+               <div className="p-2 bg-orange-100 rounded-full">
+                 <Sparkles className="h-5 w-5 text-orange-600" />
+               </div>
+               <div>
+                 <h4 className="font-medium text-orange-800">En Vedette</h4>
+                 <p className="text-xs text-orange-600">72h de visibilité premium</p>
+               </div>
+             </div>
+             <ul className="text-xs text-orange-700 space-y-1 mb-3">
+               <li>• Badge "En Vedette" visible</li>
+               <li>• Priorité dans les recherches</li>
+               <li>• Mise en avant sur la carte</li>
+             </ul>
+             <Button
+               onClick={() => handleApplyBoost('en_vedette')}
+               className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm"
+               size="sm"
+             >
+               {boostCredits?.available_en_vedette ? 
+                 `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
+                 "Acheter 5$"
+               }
+             </Button>
+           </div>
+
+           {/* Visibilité Boost */}
+           <div className="border rounded-lg p-4">
+             <div className="flex items-center gap-3 mb-3">
+               <div className="p-2 bg-blue-100 rounded-full">
+                 <TrendingUp className="h-5 w-5 text-blue-600" />
+               </div>
+               <div>
+                 <h4 className="font-medium text-blue-800">Visibilité</h4>
+                 <p className="text-xs text-blue-600">72h de portée élargie</p>
+               </div>
+             </div>
+             <ul className="text-xs text-blue-700 space-y-1 mb-3">
+               <li>• Plus visible sur la carte</li>
+               <li>• Augmente le trafic</li>
+               <li>• Portée géographique élargie</li>
+             </ul>
+             <Button
+               onClick={() => handleApplyBoost('visibilite')}
+               className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
+               size="sm"
+             >
+               {boostCredits?.available_visibilite ? 
+                 `Utiliser crédit (${boostCredits.available_visibilite} dispo)` : 
+                 "Acheter 5$"
+               }
+             </Button>
+           </div>
+         </div>
+       </DialogContent>
+     </Dialog>
+
+     {/* Purchase Form Modal */}
+     {showPurchaseForm && (
+       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+         <div className="max-w-md w-full">
+           <BoostPurchaseForm
+             boostType={showPurchaseForm}
+             onSuccess={handlePurchaseSuccess}
+             onCancel={() => setShowPurchaseForm(null)}
+           />
+         </div>
+       </div>
+     )}
      </>
    )
  }
