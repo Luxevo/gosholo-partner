@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2 } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
 
@@ -20,6 +20,9 @@ interface Event {
   image_url: string | null
   uses_commerce_location: boolean
   custom_location: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
   condition: string | null
   is_active: boolean
   created_at: string | null
@@ -35,6 +38,7 @@ interface Commerce {
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
+type ViewType = 'admin' | 'customer'
 
 // Utility functions
 const formatDate = (dateString: string) => {
@@ -46,7 +50,178 @@ const formatDate = (dateString: string) => {
   })
 }
 
-// EventCard Component
+// Customer View Event Card Component
+interface CustomerEventCardProps {
+  event: Event
+  commerce: Commerce | undefined
+  onEdit: (event: Event) => void
+  onDelete: (event: Event) => void
+}
+
+const CustomerEventCard = ({ event, commerce, onEdit, onDelete }: CustomerEventCardProps) => {
+  // Format dates for event display
+  const formatEventDate = (dateString: string) => {
+    if (!dateString) return "Date non définie"
+    const date = new Date(dateString)
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const formatEventTime = (dateString: string) => {
+    if (!dateString) return ""
+    const date = new Date(dateString)
+    return date.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    })
+  }
+
+  const getEventTimeRange = () => {
+    if (!event.start_date || !event.end_date) return "Horaire à définir"
+    return `${formatEventTime(event.start_date)}-${formatEventTime(event.end_date)}`
+  }
+
+  const getEventCategory = () => {
+    // Try to categorize based on title/description keywords
+    const text = (event.title + " " + event.description).toLowerCase()
+    if (text.includes('food') || text.includes('cuisine') || text.includes('restaurant')) return 'Food Fest'
+    if (text.includes('music') || text.includes('concert') || text.includes('musique')) return 'Music'
+    if (text.includes('art') || text.includes('expo') || text.includes('gallery')) return 'Art'
+    if (text.includes('sport') || text.includes('fitness')) return 'Sport'
+    if (text.includes('market') || text.includes('marché')) return 'Market'
+    return 'Event'
+  }
+
+  return (
+    <div className="relative max-w-sm">
+      <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+        {/* Image Section */}
+        <div className="relative h-48">
+          {event.image_url ? (
+            <img 
+              src={event.image_url} 
+              alt={event.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+              <div className="text-white text-center">
+                <Calendar className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                <p className="text-sm opacity-80">Image de l'événement</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Trending Badge */}
+          <div className="absolute top-3 left-3">
+            <div className="px-3 py-1 rounded-full text-xs font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
+              <TrendingUp className="h-3 w-3 mr-1" />
+              Trending
+            </div>
+          </div>
+
+          {/* Heart Icon */}
+          <div className="absolute top-3 right-3">
+            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+              <Heart className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Date and Category Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
+            <div className="flex justify-between items-center">
+              <div className="text-sm">
+                {event.start_date && (
+                  <>
+                    <span className="font-medium">
+                      {formatEventDate(event.start_date)}
+                    </span>
+                    <span className="mx-2">•</span>
+                    <span>{getEventTimeRange()}</span>
+                  </>
+                )}
+              </div>
+              <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
+                {getEventCategory()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-4">
+          {/* Event Title and Price */}
+          <div className="flex items-start justify-between mb-1">
+            <h3 className="text-lg font-bold text-gray-900 line-clamp-1 flex-1">
+              {event.title}
+            </h3>
+            <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
+              {event.condition || "Entrée libre"}
+            </span>
+          </div>
+
+          {/* Event Location */}
+          <div className="mb-2">
+            <div className="flex items-center text-sm text-gray-600">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span className="truncate">
+                {event.custom_location || commerce?.name || "Lieu à confirmer"}
+              </span>
+            </div>
+          </div>
+
+          {/* Event Stats */}
+          <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+            <div className="flex items-center">
+              <Users className="h-3 w-3 mr-1 text-orange-500" />
+              <span className="text-orange-500 font-medium">1.2k+ intéressés</span>
+            </div>
+            <span>•</span>
+            <span>Outdoor</span>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 w-1/2">
+            <button className="text-white font-semibold py-1 px-3 rounded-full hover:opacity-90 transition-colors text-sm flex-1" style={{ backgroundColor: '#FF6233' }}>
+              Participer
+            </button>
+            <button className="border border-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full hover:bg-gray-50 transition-colors text-sm flex-1">
+              Details
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Admin Actions Overlay */}
+      <div className="absolute top-2 right-2 bg-white/95 rounded-lg p-1 shadow-md">
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(event)}
+            className="h-7 w-7 p-0"
+          >
+            <Edit className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(event)}
+            className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Admin EventCard Component
 interface EventCardProps {
   event: Event
   onEdit: (event: Event) => void
@@ -202,6 +377,37 @@ const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsPr
   )
 }
 
+// View Toggle Component
+interface ViewToggleProps {
+  viewType: ViewType
+  onViewChange: (view: ViewType) => void
+}
+
+const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
+  return (
+    <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+      <Button
+        variant={viewType === 'admin' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onViewChange('admin')}
+        className="flex items-center gap-2"
+      >
+        <List className="h-4 w-4" />
+        Gestion
+      </Button>
+      <Button
+        variant={viewType === 'customer' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onViewChange('customer')}
+        className="flex items-center gap-2"
+      >
+        <LayoutGrid className="h-4 w-4" />
+        Aperçu client
+      </Button>
+    </div>
+  )
+}
+
 // Commerce Filter Component
 interface CommerceFilterProps {
   commerces: Commerce[]
@@ -269,6 +475,7 @@ export default function EvenementsPage() {
   const [itemToDelete, setItemToDelete] = useState<Event | null>(null)
   const [filterActive, setFilterActive] = useState<FilterType>('all')
   const [selectedCommerce, setSelectedCommerce] = useState<string>('all')
+  const [viewType, setViewType] = useState<ViewType>('admin')
 
   // Load events from database
   const loadEvents = async () => {
@@ -450,17 +657,24 @@ export default function EvenementsPage() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <FilterButtons 
-          filterActive={filterActive}
-          onFilterChange={handleFilterChange}
-          events={events}
-        />
-        <CommerceFilter
-          commerces={commerces}
-          selectedCommerce={selectedCommerce}
-          onCommerceChange={handleCommerceChange}
+      {/* Filters and View Toggle */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <FilterButtons 
+            filterActive={filterActive}
+            onFilterChange={handleFilterChange}
+            events={events}
+          />
+          <CommerceFilter
+            commerces={commerces}
+            selectedCommerce={selectedCommerce}
+            onCommerceChange={handleCommerceChange}
+          />
+        </div>
+        
+        <ViewToggle
+          viewType={viewType}
+          onViewChange={setViewType}
         />
       </div>
 
@@ -471,16 +685,51 @@ export default function EvenementsPage() {
         ) : filteredEvents.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-4">
-            {filteredEvents.map((event) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
-                onEdit={handleEditEvent}
-                onDelete={handleDeleteEvent}
-              />
-            ))}
-          </div>
+          viewType === 'admin' ? (
+            <div className="grid gap-4">
+              {filteredEvents.map((event) => (
+                <EventCard 
+                  key={event.id} 
+                  event={event} 
+                  onEdit={handleEditEvent}
+                  onDelete={handleDeleteEvent}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Customer Preview Explanation */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <LayoutGrid className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="text-blue-800">
+                    <div className="font-medium mb-1">👀 Aperçu de l'expérience utilisateur</div>
+                    <p className="text-sm">
+                      Voici exactement comment vos événements apparaissent aux utilisateurs dans l'application Gosholo. 
+                      Les petites icônes d'édition en haut à droite vous permettent de modifier vos événements directement depuis cette vue.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredEvents.map((event) => {
+                  const commerce = commerces.find(c => c.id === event.commerce_id)
+                  return (
+                    <CustomerEventCard 
+                      key={event.id} 
+                      event={event}
+                      commerce={commerce}
+                      onEdit={handleEditEvent}
+                      onDelete={handleDeleteEvent}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          )
         )}
       </div>
 

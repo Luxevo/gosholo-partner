@@ -7,11 +7,12 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, Calendar, MapPin, Check, Users, Heart, TrendingUp } from "lucide-react"
+import { Store, Calendar, MapPin, Check, Users, Heart, TrendingUp, Sparkles, Zap } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
+import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
 
 interface Event {
@@ -52,6 +53,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   // Preview and confirmation mode states
   const [isPreviewMode, setIsPreviewMode] = useState(false)
   const [isConfirmationMode, setIsConfirmationMode] = useState(false)
+  const [isSuccessMode, setIsSuccessMode] = useState(false)
+  const [createdEventId, setCreatedEventId] = useState<string | null>(null)
+  const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
+  const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
   
      // Initialize form with event data if editing, otherwise with defaults
    const [form, setForm] = useState({
@@ -92,12 +97,13 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
      }
    }
 
-  // Load user's commerces
+  // Load user's commerces and boost credits
   useEffect(() => {
-    const loadCommerces = async () => {
+    const loadData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
+          // Load commerces
           const { data: commercesData } = await supabase
             .from('commerces')
             .select('id, name, category, address')
@@ -108,12 +114,21 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
           if (commercesData && commercesData.length === 1 && !commerceId && !event) {
             setForm(f => ({ ...f, selectedCommerceId: commercesData[0].id }))
           }
+
+          // Load boost credits
+          const { data: boostCreditsData } = await supabase
+            .from('user_boost_credits')
+            .select('available_en_vedette, available_visibilite')
+            .eq('user_id', user.id)
+            .single()
+          
+          setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
         }
       } catch (error) {
-        console.error('Error loading commerces:', error)
+        console.error('Error loading data:', error)
       }
     }
-    loadCommerces()
+    loadData()
   }, [commerceId, event])
 
   const validateForm = () => {
@@ -245,28 +260,20 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
         result = insertData
         console.log('Event created:', result)
+        setCreatedEventId(result.id)
       }
       
       // Refresh dashboard counts
       refreshCounts()
       
-             // Reset form and close
-       if (!isEditMode) {
-         setForm({
-           title: "",
-           short_description: "",
-           business_address: "",
-           postal_code: "",
-           conditions: "",
-           start_date: format(new Date(), "yyyy-MM-dd"),
-           end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-           selectedCommerceId: "",
-           image_url: "",
-         })
-       }
-      
-      if (onCancel) {
-        onCancel()
+      if (isEditMode) {
+        // For edit mode, close immediately
+        if (onCancel) {
+          onCancel()
+        }
+      } else {
+        // For new events, show success screen with boost options
+        setIsSuccessMode(true)
       }
     } catch (error) {
       console.error('Unexpected error saving event:', error)
@@ -540,9 +547,214 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     )
   }
 
+  // Success with Boost Offers Component
+  const SuccessWithBoosts = () => {
+    const handleApplyBoost = async (boostType: 'en_vedette' | 'visibilite') => {
+      if (!createdEventId || !boostCredits) return
+
+      const availableCredits = boostType === 'en_vedette' 
+        ? boostCredits.available_en_vedette 
+        : boostCredits.available_visibilite
+
+      if (availableCredits <= 0) {
+        // Show purchase form
+        setShowPurchaseForm(boostType)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        // Apply boost to the created event
+        const { data: applyResult, error } = await supabase.rpc('use_boost_credits', {
+          user_uuid: user.id,
+          credits_to_use: 1
+        })
+
+        if (error) {
+          console.error('Error applying boost:', error)
+          return
+        }
+
+        // Update the event with boost
+        await supabase
+          .from('events')
+          .update({
+            boosted: true,
+            boost_type: boostType,
+            boosted_at: new Date().toISOString()
+          })
+          .eq('id', createdEventId)
+
+        // Update local boost credits
+        setBoostCredits(prev => prev ? {
+          ...prev,
+          [boostType === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
+            (boostType === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) - 1
+        } : null)
+
+        // Show success and close after delay
+        setTimeout(() => {
+          if (onCancel) {
+            onCancel()
+          }
+        }, 2000)
+
+      } catch (error) {
+        console.error('Error applying boost:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    const handlePurchaseSuccess = async () => {
+      if (!showPurchaseForm) return
+
+      // Close purchase form
+      setShowPurchaseForm(null)
+      
+      // Update boost credits (add 1 credit for the purchased boost)
+      setBoostCredits(prev => prev ? {
+        ...prev,
+        [showPurchaseForm === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
+          (showPurchaseForm === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) + 1
+      } : { available_en_vedette: showPurchaseForm === 'en_vedette' ? 1 : 0, available_visibilite: showPurchaseForm === 'visibilite' ? 1 : 0 })
+
+      // Automatically apply the boost
+      setTimeout(() => {
+        handleApplyBoost(showPurchaseForm)
+      }, 500)
+    }
+
+    const handleSkipBoost = () => {
+      if (onCancel) {
+        onCancel()
+      }
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Success Message */}
+        <div className="text-center mb-6">
+          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <Check className="h-8 w-8 text-green-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            🎉 Événement créé avec succès !
+          </h2>
+          <p className="text-muted-foreground">
+            Votre événement est maintenant en ligne et visible par les utilisateurs.
+          </p>
+        </div>
+
+        {/* Boost Offers */}
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
+          <div className="text-center mb-4">
+            <Zap className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+            <h3 className="text-lg font-semibold text-orange-800">
+              Boostez votre événement maintenant ?
+            </h3>
+            <p className="text-sm text-orange-700 mt-1">
+              Augmentez la visibilité de votre nouvel événement pendant 72 heures
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* En Vedette Boost */}
+            <div className="bg-white rounded-lg p-4 border border-orange-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-orange-100 rounded-full">
+                  <Sparkles className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-orange-800">En Vedette</h4>
+                  <p className="text-xs text-orange-600">72h de visibilité premium</p>
+                </div>
+              </div>
+              <ul className="text-xs text-orange-700 space-y-1 mb-3">
+                <li>• Badge "En Vedette" visible</li>
+                <li>• Priorité dans les recherches</li>
+                <li>• Mise en avant sur la carte</li>
+              </ul>
+              <Button
+                onClick={() => handleApplyBoost('en_vedette')}
+                disabled={isLoading}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2"
+                size="sm"
+              >
+                {boostCredits?.available_en_vedette ? 
+                  `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
+                  "Acheter 5$"
+                }
+              </Button>
+            </div>
+
+            {/* Visibilité Boost */}
+            <div className="bg-white rounded-lg p-4 border border-orange-200">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-blue-800">Visibilité</h4>
+                  <p className="text-xs text-blue-600">72h de portée élargie</p>
+                </div>
+              </div>
+              <ul className="text-xs text-blue-700 space-y-1 mb-3">
+                <li>• Plus visible sur la carte</li>
+                <li>• Augmente le trafic</li>
+                <li>• Portée géographique élargie</li>
+              </ul>
+              <Button
+                onClick={() => handleApplyBoost('visibilite')}
+                disabled={isLoading}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2"
+                size="sm"
+              >
+                {boostCredits?.available_visibilite ? 
+                  `Utiliser crédit (${boostCredits.available_visibilite} dispo)` : 
+                  "Acheter 5$"
+                }
+              </Button>
+            </div>
+          </div>
+
+          {/* Skip Option */}
+          <div className="text-center pt-3 border-t border-orange-200">
+            <Button
+              variant="ghost"
+              onClick={handleSkipBoost}
+              className="text-orange-700 hover:text-orange-800 text-sm"
+              disabled={isLoading}
+            >
+              Passer pour le moment
+            </Button>
+          </div>
+        </div>
+
+        {/* Purchase Form Modal */}
+        {showPurchaseForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="max-w-md w-full">
+              <BoostPurchaseForm
+                boostType={showPurchaseForm}
+                onSuccess={handlePurchaseSuccess}
+                onCancel={() => setShowPurchaseForm(null)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
-      {isConfirmationMode ? (
+      {isSuccessMode ? (
+        <SuccessWithBoosts />
+      ) : isConfirmationMode ? (
         <EventConfirmation />
       ) : isPreviewMode ? (
         <EventPreview />
