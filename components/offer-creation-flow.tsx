@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, Tag, Calendar, DollarSign, MapPin, Check } from "lucide-react"
+import { Store, Tag, Calendar, MapPin, Check, Heart } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -401,107 +401,120 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   // Preview Component
   const OfferPreview = () => {
     const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
-    const getTypeLabel = (type: string) => {
-      switch (type) {
-        case "en_magasin": return "En magasin"
-        case "en_ligne": return "En ligne"
-        case "les_deux": return "Les deux"
-        default: return type
+    
+    // Calculate time remaining
+    const getTimeRemaining = () => {
+      if (!form.end_date) return "Non défini"
+      const endDate = new Date(form.end_date)
+      const now = new Date()
+      const diffTime = endDate.getTime() - now.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      
+      if (diffDays <= 1) {
+        const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+        return diffHours > 0 ? `Se termine dans ${diffHours}h` : "Expiré"
       }
+      return `Se termine dans ${diffDays}j`
     }
 
-    const formatDate = (dateString: string) => {
-      if (!dateString) return "Non spécifié"
-      const date = new Date(dateString)
-      return date.toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      })
+    // Extract discount percentage from title if present
+    const getDiscountFromTitle = () => {
+      const match = form.title.match(/(\d+)%/)
+      return match ? match[1] : "25" // Default to 25% if no percentage found
     }
+
 
     return (
       <div className="space-y-6">
         <div className="text-center mb-6">
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Prévisualisation de votre offre
+            Aperçu de votre offre
           </h2>
           <p className="text-muted-foreground">
-            Vérifiez que toutes les informations sont correctes avant de publier
+            Voici comment votre offre apparaîtra aux utilisateurs de gosholo
           </p>
         </div>
 
-        {/* Preview Card */}
-        <Card className="border-2 border-blue-200 bg-blue-50/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg font-semibold text-primary">
-                  {form.title}
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm text-muted-foreground">
-                  {form.short_description}
-                </CardDescription>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                Prévisualisation
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Offer Details */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Type:</span>
-                  <span>{getTypeLabel(form.type)}</span>
-                </div>
-                
-                {form.conditions && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <span className="font-medium">Condition:</span>
-                    <span className="text-muted-foreground">{form.conditions}</span>
+        {/* User-facing Offer Card Preview */}
+        <div className="max-w-sm mx-auto">
+          <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            {/* Image Section */}
+            <div className="relative h-48 bg-gradient-to-br from-orange-400 to-orange-500">
+              {form.image_url ? (
+                <img 
+                  src={form.image_url} 
+                  alt={form.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <Store className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                    <p className="text-sm opacity-80">Image de l'offre</p>
                   </div>
-                )}
-                
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Localisation:</span>
-                  <span>
-                    {form.business_address 
-                      ? form.business_address 
-                      : selectedCommerce?.address || "Emplacement du commerce"
-                    }
-                  </span>
                 </div>
-
-                <div className="flex items-center gap-2 text-sm">
-                  <Store className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Commerce:</span>
-                  <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+              )}
+              
+              {/* Discount Badge */}
+              <div className="absolute top-3 left-3">
+                <div className="px-3 py-1 rounded-full text-sm font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
+                  <Tag className="h-3 w-3 mr-1" />
+                  {getDiscountFromTitle()}% OFF
                 </div>
               </div>
-              
-              {/* Dates */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Début:</span>
-                  <span className="text-green-600 font-medium">{formatDate(form.start_date)}</span>
+
+              {/* Heart Icon */}
+              <div className="absolute top-3 right-3">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-gray-400" />
                 </div>
-                
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Fin:</span>
-                  <span className="text-red-600 font-medium">{formatDate(form.end_date)}</span>
+              </div>
+
+              {/* Bottom Info Bar */}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span>
+                    {form.conditions || "Conditions disponibles"} • {selectedCommerce?.category || "Restaurant"}
+                  </span>
+                  <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
+                    {getTimeRemaining()}
+                  </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Content Section */}
+            <div className="text-white p-4" style={{ backgroundColor: '#FF6233' }}>
+              <h3 className="text-lg font-bold mb-1 line-clamp-1">
+                {form.title}
+              </h3>
+              <div className="flex items-center text-sm opacity-90 mb-1">
+                <span>{selectedCommerce?.category || "Restaurant"}</span>
+                <span className="mx-2">•</span>
+                <span>{selectedCommerce?.name || "Commerce"}</span>
+              </div>
+              <div className="flex items-center text-sm opacity-90 mb-3">
+                <MapPin className="h-3 w-3 mr-1" />
+                <span className="text-xs">
+                  {form.business_address || selectedCommerce?.address || "Emplacement du commerce"}
+                </span>
+              </div>
+
+              {/* Action Button */}
+              <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
+                Réclamer l'offre
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Preview Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+          <div className="text-blue-800 text-sm">
+            <div className="font-medium mb-1">✨ Aperçu de l'expérience utilisateur</div>
+            <p>C'est exactement ainsi que votre offre apparaîtra aux utilisateurs dans l'application Gosholo.</p>
+          </div>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">

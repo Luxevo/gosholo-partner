@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2 } from "lucide-react"
+import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
 import { checkAndDeactivateOffers, getDaysRemaining, getOfferStatus } from "@/lib/offer-utils"
@@ -22,6 +22,9 @@ interface Offer {
   offer_type: "in_store" | "online" | "both"
   uses_commerce_location: boolean
   custom_location: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
   condition: string | null
   is_active: boolean
   created_at: string | null
@@ -37,6 +40,7 @@ interface Commerce {
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
+type ViewType = 'admin' | 'customer'
 
 // Utility functions
 const formatDate = (dateString: string) => {
@@ -61,7 +65,134 @@ const getTypeLabel = (type: string) => {
   }
 }
 
-// OfferCard Component
+// Customer View Offer Card Component
+interface CustomerOfferCardProps {
+  offer: Offer
+  commerce: Commerce | undefined
+  onEdit: (offer: Offer) => void
+  onDelete: (offer: Offer) => void
+}
+
+const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferCardProps) => {
+  // Calculate time remaining
+  const getTimeRemaining = () => {
+    if (!offer.end_date) return "Non défini"
+    const endDate = new Date(offer.end_date)
+    const now = new Date()
+    const diffTime = endDate.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    if (diffDays <= 1) {
+      const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
+      return diffHours > 0 ? `Se termine dans ${diffHours}h` : "Expiré"
+    }
+    return `Se termine dans ${diffDays}j`
+  }
+
+  // Extract discount percentage from title if present
+  const getDiscountFromTitle = () => {
+    const match = offer.title.match(/(\d+)%/)
+    return match ? match[1] : "25" // Default to 25% if no percentage found
+  }
+
+  return (
+    <div className="relative max-w-sm">
+      <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+        {/* Image Section */}
+        <div className="relative h-48 bg-gradient-to-br from-orange-400 to-orange-500">
+          {offer.image_url ? (
+            <img 
+              src={offer.image_url} 
+              alt={offer.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
+              <div className="text-white text-center">
+                <Store className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                <p className="text-sm opacity-80">Image de l'offre</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Discount Badge */}
+          <div className="absolute top-3 left-3">
+            <div className="px-3 py-1 rounded-full text-sm font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
+              <Tag className="h-3 w-3 mr-1" />
+              {getDiscountFromTitle()}% OFF
+            </div>
+          </div>
+
+          {/* Heart Icon */}
+          <div className="absolute top-3 right-3">
+            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+              <Heart className="w-4 h-4 text-gray-400" />
+            </div>
+          </div>
+
+          {/* Bottom Info Bar */}
+          <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
+            <div className="flex justify-between items-center text-sm">
+              <span>
+                {offer.condition || "Conditions disponibles"} • {commerce?.category || "Restaurant"}
+              </span>
+              <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
+                {getTimeRemaining()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="text-white p-4" style={{ backgroundColor: '#FF6233' }}>
+          <h3 className="text-lg font-bold mb-1 line-clamp-1">
+            {offer.title}
+          </h3>
+          <div className="flex items-center text-sm opacity-90 mb-1">
+            <span>{commerce?.category || "Restaurant"}</span>
+            <span className="mx-2">•</span>
+            <span>{commerce?.name || "Commerce"}</span>
+          </div>
+          <div className="flex items-center text-sm opacity-90 mb-3">
+            <MapPin className="h-3 w-3 mr-1" />
+            <span className="text-xs">
+              {offer.custom_location || commerce?.name || "Emplacement du commerce"}
+            </span>
+          </div>
+
+          {/* Action Button */}
+          <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
+            Réclamer l'offre
+          </button>
+        </div>
+      </div>
+
+      {/* Admin Actions Overlay */}
+      <div className="absolute top-2 right-2 bg-white/95 rounded-lg p-1 shadow-md">
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(offer)}
+            className="h-7 w-7 p-0"
+          >
+            <Edit className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(offer)}
+            className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Admin OfferCard Component
 interface OfferCardProps {
   offer: Offer
   onEdit: (offer: Offer) => void
@@ -236,6 +367,37 @@ const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsPr
   )
 }
 
+// View Toggle Component
+interface ViewToggleProps {
+  viewType: ViewType
+  onViewChange: (view: ViewType) => void
+}
+
+const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
+  return (
+    <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+      <Button
+        variant={viewType === 'admin' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onViewChange('admin')}
+        className="flex items-center gap-2"
+      >
+        <List className="h-4 w-4" />
+        Gestion
+      </Button>
+      <Button
+        variant={viewType === 'customer' ? 'default' : 'ghost'}
+        size="sm"
+        onClick={() => onViewChange('customer')}
+        className="flex items-center gap-2"
+      >
+        <LayoutGrid className="h-4 w-4" />
+        Aperçu client
+      </Button>
+    </div>
+  )
+}
+
 // Commerce Filter Component
 interface CommerceFilterProps {
   commerces: Commerce[]
@@ -303,6 +465,7 @@ export default function OffresPage() {
   const [itemToDelete, setItemToDelete] = useState<Offer | null>(null)
   const [filterActive, setFilterActive] = useState<FilterType>('all')
   const [selectedCommerce, setSelectedCommerce] = useState<string>('all')
+  const [viewType, setViewType] = useState<ViewType>('admin')
 
   // Load offers from database
   const loadOffers = async () => {
@@ -490,17 +653,24 @@ export default function OffresPage() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <FilterButtons 
-          filterActive={filterActive}
-          onFilterChange={handleFilterChange}
-          offers={offers}
-        />
-        <CommerceFilter
-          commerces={commerces}
-          selectedCommerce={selectedCommerce}
-          onCommerceChange={handleCommerceChange}
+      {/* Filters and View Toggle */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <FilterButtons 
+            filterActive={filterActive}
+            onFilterChange={handleFilterChange}
+            offers={offers}
+          />
+          <CommerceFilter
+            commerces={commerces}
+            selectedCommerce={selectedCommerce}
+            onCommerceChange={handleCommerceChange}
+          />
+        </div>
+        
+        <ViewToggle
+          viewType={viewType}
+          onViewChange={setViewType}
         />
       </div>
 
@@ -511,16 +681,33 @@ export default function OffresPage() {
         ) : filteredOffers.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-4">
-            {filteredOffers.map((offer) => (
-              <OfferCard 
-                key={offer.id} 
-                offer={offer} 
-                onEdit={handleEditOffer}
-                onDelete={handleDeleteOffer}
-              />
-            ))}
-          </div>
+          viewType === 'admin' ? (
+            <div className="grid gap-4">
+              {filteredOffers.map((offer) => (
+                <OfferCard 
+                  key={offer.id} 
+                  offer={offer} 
+                  onEdit={handleEditOffer}
+                  onDelete={handleDeleteOffer}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredOffers.map((offer) => {
+                const commerce = commerces.find(c => c.id === offer.commerce_id)
+                return (
+                  <CustomerOfferCard 
+                    key={offer.id} 
+                    offer={offer}
+                    commerce={commerce}
+                    onEdit={handleEditOffer}
+                    onDelete={handleDeleteOffer}
+                  />
+                )
+              })}
+            </div>
+          )
         )}
       </div>
 
