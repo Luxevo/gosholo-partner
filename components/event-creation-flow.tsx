@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, Calendar, MapPin, Check, Users } from "lucide-react"
+import { Store, Calendar, MapPin, Check, Users, Heart, TrendingUp } from "lucide-react"
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -366,92 +366,162 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   const EventPreview = () => {
     const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
 
-    const formatDate = (dateString: string) => {
-      if (!dateString) return "Non spécifié"
+    // Format dates for event display
+    const formatEventDate = (dateString: string) => {
+      if (!dateString) return "Date non définie"
       const date = new Date(dateString)
       return date.toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
       })
+    }
+
+    const formatEventTime = (dateString: string) => {
+      if (!dateString) return ""
+      const date = new Date(dateString)
+      return date.toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    }
+
+    const getEventTimeRange = () => {
+      if (!form.start_date || !form.end_date) return "Horaire à définir"
+      return `${formatEventTime(form.start_date)}-${formatEventTime(form.end_date)}`
+    }
+
+    const getEventCategory = () => {
+      // Try to categorize based on title/description keywords
+      const text = (form.title + " " + form.short_description).toLowerCase()
+      if (text.includes('food') || text.includes('cuisine') || text.includes('restaurant')) return 'Food Fest'
+      if (text.includes('music') || text.includes('concert') || text.includes('musique')) return 'Music'
+      if (text.includes('art') || text.includes('expo') || text.includes('gallery')) return 'Art'
+      if (text.includes('sport') || text.includes('fitness')) return 'Sport'
+      if (text.includes('market') || text.includes('marché')) return 'Market'
+      return 'Event'
     }
 
     return (
       <div className="space-y-6">
         <div className="text-center mb-6">
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Prévisualisation de votre événement
+            Aperçu de votre événement
           </h2>
           <p className="text-muted-foreground">
-            Vérifiez que toutes les informations sont correctes avant de publier
+            Voici comment votre événement apparaîtra aux utilisateurs de Gosholo
           </p>
         </div>
 
-        {/* Preview Card */}
-        <Card className="border-2 border-blue-200 bg-blue-50/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg font-semibold text-primary">
-                  {form.title}
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm text-muted-foreground">
-                  {form.short_description}
-                </CardDescription>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                Prévisualisation
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Event Details */}
-              <div className="space-y-3">
-                {form.conditions && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <span className="font-medium">Conditions:</span>
-                    <span className="text-muted-foreground">{form.conditions}</span>
+        {/* User-facing Event Card Preview */}
+        <div className="max-w-sm mx-auto">
+          <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+            {/* Image Section */}
+            <div className="relative h-48">
+              {form.image_url ? (
+                <img 
+                  src={form.image_url} 
+                  alt={form.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <Calendar className="h-12 w-12 mx-auto mb-2 opacity-80" />
+                    <p className="text-sm opacity-80">Image de l'événement</p>
                   </div>
-                )}
-                
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Localisation:</span>
-                  <span>
-                    {form.business_address 
-                      ? form.business_address 
-                      : selectedCommerce?.address || "Emplacement du commerce"
-                    }
+                </div>
+              )}
+              
+              {/* Trending Badge */}
+              <div className="absolute top-3 left-3">
+                <div className="px-3 py-1 rounded-full text-xs font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Trending
+                </div>
+              </div>
+
+              {/* Heart Icon */}
+              <div className="absolute top-3 right-3">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Date and Category Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm">
+                    {form.start_date && (
+                      <>
+                        <span className="font-medium">
+                          {formatEventDate(form.start_date)}
+                        </span>
+                        <span className="mx-2">•</span>
+                        <span>{getEventTimeRange()}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
+                    {getEventCategory()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-4">
+              {/* Event Title and Price */}
+              <div className="flex items-start justify-between mb-1">
+                <h3 className="text-lg font-bold text-gray-900 line-clamp-1 flex-1">
+                  {form.title}
+                </h3>
+                <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
+                  {form.conditions || "Entrée libre"}
+                </span>
+              </div>
+
+              {/* Event Location */}
+              <div className="mb-2">
+                <div className="flex items-center text-sm text-gray-600">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  <span className="truncate">
+                    {form.business_address || selectedCommerce?.address || "Lieu à confirmer"}
                   </span>
                 </div>
-
-                <div className="flex items-center gap-2 text-sm">
-                  <Store className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Commerce:</span>
-                  <span>{selectedCommerce?.name || "Non sélectionné"}</span>
-                </div>
               </div>
-              
-              {/* Dates */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Début:</span>
-                  <span className="text-green-600 font-medium">{formatDate(form.start_date)}</span>
+
+              {/* Event Stats */}
+              <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                <div className="flex items-center">
+                  <Users className="h-3 w-3 mr-1 text-orange-500" />
+                  <span className="text-orange-500 font-medium">1.2k+ intéressés</span>
                 </div>
-                
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Fin:</span>
-                  <span className="text-red-600 font-medium">{formatDate(form.end_date)}</span>
-                </div>
+                <span>•</span>
+                <span>Outdoor</span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 w-1/2">
+                <button className="text-white font-semibold py-1 px-3 rounded-full hover:opacity-90 transition-colors text-sm flex-1" style={{ backgroundColor: '#FF6233' }}>
+                  Participer
+                </button>
+                <button className="border border-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full hover:bg-gray-50 transition-colors text-sm flex-1">
+                  Details
+                </button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Preview Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+          <div className="text-blue-800 text-sm">
+            <div className="font-medium mb-1">✨ Aperçu de l'expérience utilisateur</div>
+            <p>C'est exactement ainsi que votre événement apparaîtra aux utilisateurs dans l'application Gosholo.</p>
+          </div>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
