@@ -105,11 +105,11 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
         <div className="flex items-center space-x-4">
           {/* Boost Credits - Vedette */}
           <Link href="/dashboard/boosts">
-            <div className="flex items-center space-x-2 bg-brand-accent/10 px-3 py-1.5 rounded-lg border border-brand-accent/30 hover:bg-brand-accent/20 hover:border-brand-accent/50 transition-colors cursor-pointer">
-              <Crown className="h-4 w-4 text-brand-accent" />
+            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer" style={{ backgroundColor: 'rgba(178, 253, 157, 0.2)', borderColor: 'rgba(178, 253, 157, 0.5)' }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.3)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.7)' }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.2)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.5)' }}>
+              <Crown className="h-4 w-4 text-green-700" />
               <div className="flex items-center space-x-1 text-sm">
-                <span className="text-brand-accent/80">Vedette:</span>
-                <span className="font-medium text-brand-accent">
+                <span className="text-green-700/80">Vedette:</span>
+                <span className="font-medium text-green-700">
                   {isLoading ? '...' : (userData.boostCreditsVedette || 0)}
                 </span>
               </div>

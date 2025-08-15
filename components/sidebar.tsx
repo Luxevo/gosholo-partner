@@ -19,12 +19,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { counts: { commerces, offers, events, totalBoosts, isLoading } } = useDashboard()
 
   const navigation = [
-    { name: "Tableau de bord", href: "/dashboard", icon: Home, badge: null },
-    { name: "Offres", href: "/dashboard/offres", icon: Tag, badge: isLoading ? null : offers },
-    { name: "Événements", href: "/dashboard/evenements", icon: Calendar, badge: isLoading ? null : events },
-    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap, badge: isLoading ? null : totalBoosts },
-    { name: "Profil & compte", href: "/dashboard/profil", icon: User, badge: null },
-    { name: "Support", href: "/dashboard/support", icon: HelpCircle, badge: 1 },
+    { name: "Tableau de bord", href: "/dashboard", icon: Home },
+    { name: "Événements", href: "/dashboard/evenements", icon: Calendar },
+    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap },
+    { name: "Profil & compte", href: "/dashboard/profil", icon: User },
+    { name: "Support", href: "/dashboard/support", icon: HelpCircle },
   ]
 
   return (
@@ -53,17 +52,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                 <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
               </div>
-              {item.badge && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "text-xs",
-                    isActive ? "bg-white/20 text-white" : "bg-brand-primary/10 text-brand-primary",
-                  )}
-                >
-                  {item.badge}
-                </Badge>
-              )}
             </Link>
           )
         })}

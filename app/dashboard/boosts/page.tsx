@@ -399,6 +399,7 @@ export default function BoostsPage() {
               <Crown className="h-5 w-5" />
               <span>Ton Abonnement</span>
             </CardTitle>
+            <CardDescription>Passez au niveau supérieur avec gosholo Plus</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
