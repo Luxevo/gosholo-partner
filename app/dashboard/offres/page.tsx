@@ -693,19 +693,37 @@ export default function OffresPage() {
               ))}
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredOffers.map((offer) => {
-                const commerce = commerces.find(c => c.id === offer.commerce_id)
-                return (
-                  <CustomerOfferCard 
-                    key={offer.id} 
-                    offer={offer}
-                    commerce={commerce}
-                    onEdit={handleEditOffer}
-                    onDelete={handleDeleteOffer}
-                  />
-                )
-              })}
+            <div className="space-y-4">
+              {/* Customer Preview Explanation */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <LayoutGrid className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="text-blue-800">
+                    <div className="font-medium mb-1">👀 Aperçu de l'expérience utilisateur</div>
+                    <p className="text-sm">
+                      Voici exactement comment vos offres apparaissent aux utilisateurs dans l'application Gosholo. 
+                      Les petites icônes d'édition en haut à droite vous permettent de modifier vos offres directement depuis cette vue.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredOffers.map((offer) => {
+                  const commerce = commerces.find(c => c.id === offer.commerce_id)
+                  return (
+                    <CustomerOfferCard 
+                      key={offer.id} 
+                      offer={offer}
+                      commerce={commerce}
+                      onEdit={handleEditOffer}
+                      onDelete={handleDeleteOffer}
+                    />
+                  )
+                })}
+              </div>
             </div>
           )
         )}
