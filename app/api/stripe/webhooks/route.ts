@@ -5,62 +5,70 @@ import { supabaseAdmin } from '@/lib/supabase/service'
 import Stripe from 'stripe'
 
 // This needs to be set when you create the webhook in Stripe dashboard
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
-  const signature = (await headers()).get('stripe-signature')!
+  const signature = (await headers()).get('stripe-signature')
+
+  // Validate required webhook configuration
+  if (!webhookSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET is not configured')
+    return NextResponse.json(
+      { error: 'Webhook not configured' },
+      { status: 500 }
+    )
+  }
+
+  if (!signature) {
+    console.error('Missing stripe-signature header')
+    return NextResponse.json(
+      { error: 'Missing signature' },
+      { status: 400 }
+    )
+  }
 
   let event: Stripe.Event
 
   try {
-    // Try signature validation first
-    if (webhookSecret && signature) {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    } else {
-      // Fallback: parse event directly (TESTING ONLY)
-      console.warn('⚠️ TESTING MODE: Skipping webhook signature validation')
-      event = JSON.parse(body) as Stripe.Event
-    }
+    // Validate webhook signature - this is critical for security
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
   } catch (error) {
     console.error('Webhook signature verification failed:', error)
-    console.log('Webhook secret:', webhookSecret ? 'SET' : 'MISSING')
-    console.log('Signature:', signature ? 'PRESENT' : 'MISSING')
-    
-    // Try parsing without signature (TESTING ONLY)
-    try {
-      console.warn('⚠️ FALLBACK: Attempting to parse event without signature validation')
-      event = JSON.parse(body) as Stripe.Event
-    } catch (parseError) {
-      console.error('Failed to parse webhook body:', parseError)
-      return NextResponse.json(
-        { error: 'Invalid signature and unparseable body' },
-        { status: 400 }
-      )
-    }
+    return NextResponse.json(
+      { error: 'Invalid signature' },
+      { status: 400 }
+    )
   }
 
   try {
     const supabase = supabaseAdmin
+    console.log('Processing webhook event:', event.type)
 
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
-        const { userId, boostType, type } = paymentIntent.metadata
+        const { userId, boostType, type } = paymentIntent.metadata || {}
 
         if (type === 'boost_purchase' && userId && boostType) {
-          console.log(`Processing boost purchase: ${boostType} for user ${userId}`)
           
           // Get payment method details for card info
           let cardLast4 = ''
           let cardBrand = ''
           
-          if (paymentIntent.payment_method) {
-            const paymentMethod = await stripe.paymentMethods.retrieve(
-              paymentIntent.payment_method as string
-            )
-            cardLast4 = paymentMethod.card?.last4 || ''
-            cardBrand = paymentMethod.card?.brand || ''
+          try {
+            if (paymentIntent.payment_method) {
+              const paymentMethod = await stripe.paymentMethods.retrieve(
+                paymentIntent.payment_method as string
+              )
+              cardLast4 = paymentMethod.card?.last4 || ''
+              cardBrand = paymentMethod.card?.brand || ''
+            }
+          } catch (pmError) {
+            console.error('Error retrieving payment method:', pmError)
+            // Continue without card details rather than failing the whole webhook
+            cardLast4 = 'unknown'
+            cardBrand = 'unknown'
           }
 
           // Record transaction
@@ -76,8 +84,7 @@ export async function POST(request: NextRequest) {
           
           if (transactionError) {
             console.error('Error recording transaction:', transactionError)
-          } else {
-            console.log('Transaction recorded successfully')
+            throw new Error(`Transaction insert failed: ${transactionError.message}`)
           }
 
           // Add boost credit to user - simplified approach
@@ -86,11 +93,16 @@ export async function POST(request: NextRequest) {
             : 'available_visibilite'
 
           // First, try to get existing record
-          const { data: existingCredits } = await supabase
+          const { data: existingCredits, error: fetchError } = await supabase
             .from('user_boost_credits')
             .select('*')
             .eq('user_id', userId)
             .single()
+
+          if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('Error fetching existing credits:', fetchError)
+            throw new Error(`Credits fetch failed: ${fetchError.message}`)
+          }
 
           if (existingCredits) {
             // Update existing record by incrementing the credit
@@ -102,8 +114,7 @@ export async function POST(request: NextRequest) {
               
             if (updateError) {
               console.error('Error updating boost credits:', updateError)
-            } else {
-              console.log(`Updated boost credits: ${creditField} = ${newValue}`)
+              throw new Error(`Credits update failed: ${updateError.message}`)
             }
           } else {
             // Create new record
@@ -117,12 +128,10 @@ export async function POST(request: NextRequest) {
               
             if (insertError) {
               console.error('Error creating boost credits:', insertError)
-            } else {
-              console.log(`Created new boost credits for user ${userId}`)
+              throw new Error(`Credits insert failed: ${insertError.message}`)
             }
           }
 
-          console.log(`Boost purchase completed for user ${userId}: ${boostType}`)
         }
         break
       }
@@ -131,16 +140,7 @@ export async function POST(request: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session
         const { userId, type } = session.metadata || {}
         
-        console.log('Checkout session completed:', {
-          sessionId: session.id,
-          userId,
-          type,
-          mode: session.mode,
-          status: session.status
-        })
-
         if (type === 'subscription' && userId) {
-          console.log(`Processing subscription for user ${userId}`)
           
           // Update user profile to mark as subscribed
           const { error: profileError } = await supabase
@@ -150,8 +150,6 @@ export async function POST(request: NextRequest) {
             
           if (profileError) {
             console.error('Error updating profile subscription:', profileError)
-          } else {
-            console.log('Updated profile subscription status')
           }
 
           // Add subscription boost credits (don't overwrite existing ones)
@@ -173,8 +171,6 @@ export async function POST(request: NextRequest) {
               
             if (updateError) {
               console.error('Error updating subscription boost credits:', updateError)
-            } else {
-              console.log('Added subscription boost credits to existing account')
             }
           } else {
             // Create new credits record
@@ -188,8 +184,6 @@ export async function POST(request: NextRequest) {
               
             if (insertError) {
               console.error('Error creating subscription boost credits:', insertError)
-            } else {
-              console.log('Created new subscription boost credits')
             }
           }
           
@@ -204,11 +198,7 @@ export async function POST(request: NextRequest) {
             
           if (subscriptionError) {
             console.error('Error recording subscription:', subscriptionError)
-          } else {
-            console.log('Recorded subscription in database')
           }
-
-          console.log(`Subscription activated for user ${userId}`)
         }
         break
       }
@@ -227,7 +217,6 @@ export async function POST(request: NextRequest) {
             .update({ is_subscribed: false })
             .eq('id', userId)
 
-          console.log(`Subscription cancelled for user ${userId}`)
         }
         break
       }

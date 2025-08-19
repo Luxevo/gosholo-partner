@@ -28,6 +28,7 @@ import { applyBoost, removeBoost, formatBoostRemainingTime, isBoostExpired } fro
 import { useBoostExpiry } from "@/hooks/use-boost-expiry"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { getStripe } from "@/lib/stripe"
+import { useDashboard } from "@/contexts/dashboard-context"
 
 interface UserContent {
   id: string
@@ -54,6 +55,7 @@ interface BoostCredits {
 
 export default function BoostsPage() {
   const supabase = createClient()
+  const { refreshCounts } = useDashboard()
   const [userContent, setUserContent] = useState<UserContent[]>([])
   const [stats, setStats] = useState<UserStats | null>(null)
   const [boostCredits, setBoostCredits] = useState<BoostCredits | null>(null)
@@ -86,11 +88,15 @@ export default function BoostsPage() {
         }
 
         // Get user profile and subscription status
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('is_subscribed')
           .eq('id', user.id)
           .single()
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError)
+        }
 
         // Also check subscriptions table for more detailed info
         const { data: subscriptionData, error: subError } = await supabase
@@ -108,7 +114,20 @@ export default function BoostsPage() {
         
         // Use both sources to determine subscription status
         const isSubscribed = profileData?.is_subscribed || subscriptionData?.status === 'active'
-        setSubscription({ is_subscribed: isSubscribed, subscription_data: subscriptionData })
+        const planType = subscriptionData?.plan_type || (profileData?.is_subscribed ? 'pro' : 'free')
+        
+        console.log('🔍 Subscription Debug:', {
+          profileSubscribed: profileData?.is_subscribed,
+          subscriptionActive: subscriptionData?.status === 'active',
+          finalIsSubscribed: isSubscribed,
+          planType
+        })
+        
+        setSubscription({ 
+          is_subscribed: isSubscribed, 
+          subscription_data: subscriptionData,
+          plan_type: planType
+        })
 
         // Get boost credits
         const { data: boostCreditsData } = await supabase
@@ -238,6 +257,9 @@ export default function BoostsPage() {
           ...prev,
           boostedContent: prev.boostedContent + 1
         } : null)
+        
+        // Refresh header counts to update boost credits display
+        refreshCounts()
       } else {
         alert(result.error || 'Erreur lors de l\'application du boost')
       }
@@ -290,7 +312,9 @@ export default function BoostsPage() {
   
   // Handle successful purchase
   const handlePurchaseSuccess = () => {
-    // Refresh the page data to get updated boost credits
+    // Refresh dashboard context to update header credits
+    refreshCounts()
+    // Also refresh local page data
     window.location.reload()
   }
   

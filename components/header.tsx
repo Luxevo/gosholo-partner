@@ -15,64 +15,17 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useDashboard } from "@/contexts/dashboard-context"
 
 interface HeaderProps {
   onMenuClick?: () => void
   showMobileMenu?: boolean
 }
 
-interface UserData {
-  boostCreditsVedette: number
-  boostCreditsVisibilite: number
-  subscriptionPlan: 'free' | 'pro'
-}
-
 export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
-  const [userData, setUserData] = useState<UserData>({ boostCreditsVedette: 0, boostCreditsVisibilite: 0, subscriptionPlan: 'free' });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser()
-        if (userError || !user) {
-          console.error('Authentication error:', userError)
-          return
-        }
-
-        // Get user subscription
-        const { data: subscriptionData } = await supabase
-          .from('subscriptions')
-          .select('plan_type')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        // Get boost credits
-        const { data: boostCreditsData } = await supabase
-          .from('user_boost_credits')
-          .select('available_en_vedette, available_visibilite')
-          .eq('user_id', user.id)
-          .maybeSingle()
-
-        setUserData({
-          boostCreditsVedette: boostCreditsData?.available_en_vedette || 0,
-          boostCreditsVisibilite: boostCreditsData?.available_visibilite || 0,
-          subscriptionPlan: subscriptionData?.plan_type || 'free'
-        })
-      } catch (error) {
-        console.error('Error fetching user data:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchUserData()
-  }, [supabase])
+  const { counts } = useDashboard();
 
   const handleLogout = async () => {
     try {
@@ -110,7 +63,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               <div className="flex items-center space-x-1 text-sm">
                 <span className="text-green-700/80">Vedette:</span>
                 <span className="font-medium text-green-700">
-                  {isLoading ? '...' : (userData.boostCreditsVedette || 0)}
+                  {counts.isLoading ? '...' : counts.boostCreditsVedette}
                 </span>
               </div>
             </div>
@@ -123,7 +76,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               <div className="flex items-center space-x-1 text-sm">
                 <span className="text-blue-600/80">Visibilité:</span>
                 <span className="font-medium text-blue-600">
-                  {isLoading ? '...' : (userData.boostCreditsVisibilite || 0)}
+                  {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
                 </span>
               </div>
             </div>
@@ -132,13 +85,13 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
           {/* Subscription Plan */}
           <Link href="/dashboard/boosts">
             <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer">
-              {userData.subscriptionPlan === 'pro' ? (
+              {counts.subscriptionPlan === 'pro' ? (
                 <Crown className="h-4 w-4 text-yellow-600" />
               ) : (
                 <Star className="h-4 w-4 text-gray-500" />
               )}
               <span className="text-sm font-medium text-blue-700">
-                {isLoading ? '...' : userData.subscriptionPlan === 'pro' ? 'Pro' : 'Gratuit'}
+                {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Pro' : 'Gratuit'}
               </span>
             </div>
           </Link>

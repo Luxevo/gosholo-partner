@@ -176,6 +176,9 @@ export async function applyBoost(
     }
     
     return { success: true }
+    
+    // Note: Components using this function should call refreshCounts() from DashboardContext
+    // after successful boost application to update the header display
   } catch (error) {
     console.error('Error applying boost:', error)
     return { success: false, error: 'Erreur inattendue' }

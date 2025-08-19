@@ -8,6 +8,9 @@ interface DashboardCounts {
   offers: number
   events: number
   totalBoosts: number
+  boostCreditsVedette: number
+  boostCreditsVisibilite: number
+  subscriptionPlan: 'free' | 'pro'
   isLoading: boolean
 }
 
@@ -75,6 +78,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     offers: 0,
     events: 0,
     totalBoosts: 0,
+    boostCreditsVedette: 0,
+    boostCreditsVisibilite: 0,
+    subscriptionPlan: 'free',
     isLoading: true
   })
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -164,14 +170,44 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
       // Get boost credits
       let totalBoosts = 0
+      let boostCreditsVedette = 0
+      let boostCreditsVisibilite = 0
+      
       const { data: boostCredits } = await supabase
         .from('user_boost_credits')
         .select('available_en_vedette, available_visibilite')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
       
       if (boostCredits) {
-        totalBoosts = (boostCredits.available_en_vedette || 0) + (boostCredits.available_visibilite || 0)
+        boostCreditsVedette = boostCredits.available_en_vedette || 0
+        boostCreditsVisibilite = boostCredits.available_visibilite || 0
+        totalBoosts = boostCreditsVedette + boostCreditsVisibilite
+      }
+
+      // Get subscription status
+      let subscriptionPlan: 'free' | 'pro' = 'free'
+      
+      // Check profile subscription status
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_subscribed')
+        .eq('id', user.id)
+        .single()
+
+      // Check subscriptions table
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan_type, status')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      // Determine subscription plan
+      if (profile?.is_subscribed || subscription?.status === 'active') {
+        subscriptionPlan = subscription?.plan_type || 'pro'
       }
 
       setCounts({
@@ -179,13 +215,23 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         offers: offersCount,
         events: eventsCount,
         totalBoosts,
+        boostCreditsVedette,
+        boostCreditsVisibilite,
+        subscriptionPlan,
         isLoading: false
       })
       setIsLoading(false)
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
-      setCounts(prev => ({ ...prev, totalBoosts: 0, isLoading: false }))
+      setCounts(prev => ({ 
+        ...prev, 
+        totalBoosts: 0, 
+        boostCreditsVedette: 0, 
+        boostCreditsVisibilite: 0,
+        subscriptionPlan: 'free',
+        isLoading: false 
+      }))
       setIsLoading(false)
     }
   }
