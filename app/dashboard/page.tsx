@@ -36,9 +36,10 @@ import BoostPurchaseForm from "@/components/boost-purchase-form"
 // CommerceCard Component
 interface CommerceCardProps {
   commerce: any
+  onRefresh: () => void
 }
 
-const CommerceCard = ({ commerce }: CommerceCardProps) => {
+const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const { toast } = useToast()
   const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<any>(null)
@@ -206,7 +207,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
     setIsEditOfferDialogOpen(false)
     setEditingOffer(null)
     // Refresh the dashboard to show updated data
-    window.location.reload()
+    onRefresh()
   }
 
   const handleEditEvent = (event: any) => {
@@ -218,7 +219,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
     setIsEditEventDialogOpen(false)
     setEditingEvent(null)
     // Refresh the dashboard to show updated data
-    window.location.reload()
+    onRefresh()
   }
 
   const handleCreateOffer = () => {
@@ -228,7 +229,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const handleOfferCreated = () => {
     setIsCreateOfferDialogOpen(false)
     // Refresh the dashboard to show updated data
-    window.location.reload()
+    onRefresh()
   }
 
   const handleCreateEvent = () => {
@@ -238,7 +239,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const handleEventCreated = () => {
     setIsCreateEventDialogOpen(false)
     // Refresh the dashboard to show updated data
-    window.location.reload()
+    onRefresh()
   }
 
   const handleManageCommerce = () => {
@@ -248,7 +249,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
   const handleCommerceUpdated = () => {
     setIsManageCommerceDialogOpen(false)
     // Refresh the dashboard to show updated data
-    window.location.reload()
+    onRefresh()
   }
 
   const handleDeleteOffer = (offer: any) => {
@@ -291,7 +292,7 @@ const CommerceCard = ({ commerce }: CommerceCardProps) => {
       setItemToDelete(null)
       
       // Refresh the dashboard to show updated data
-      window.location.reload()
+      onRefresh()
     } catch (error) {
       console.error(`Unexpected error deleting ${itemToDelete.type}:`, error)
       toast({
@@ -762,7 +763,12 @@ export default function Dashboard() {
                   Remplissez les informations pour créer un nouveau commerce.
                 </DialogDescription>
               </DialogHeader>
-              <CommerceCreationFlow onCancel={() => setIsDialogOpen(false)} />
+              <CommerceCreationFlow 
+                onCancel={() => {
+                  setIsDialogOpen(false)
+                  refreshCounts()
+                }} 
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -773,7 +779,7 @@ export default function Dashboard() {
           </div>
         ) : commerces.length > 0 ? (
           commerces.map((commerce) => (
-            <CommerceCard key={commerce.id} commerce={commerce} />
+            <CommerceCard key={commerce.id} commerce={commerce} onRefresh={refreshCounts} />
           ))
         ) : (
           <Card>
