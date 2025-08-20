@@ -636,29 +636,29 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     }
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Success Message */}
-        <div className="text-center mb-6">
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-            <Check className="h-8 w-8 text-green-600" />
+        <div className="text-center mb-4">
+          <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+            <Check className="h-6 w-6 text-green-600" />
           </div>
-          <h2 className="text-xl font-semibold text-primary mb-2">
+          <h2 className="text-lg font-semibold text-primary mb-1">
             🎉 Événement créé avec succès !
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Votre événement est maintenant en ligne et visible par les utilisateurs.
           </p>
         </div>
 
         {/* Boost Offers */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-6">
-          <div className="text-center mb-4">
-            <Zap className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-            <h3 className="text-lg font-semibold text-orange-800">
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4">
+          <div className="text-center mb-3">
+            <Zap className="h-6 w-6 text-orange-500 mx-auto mb-1" />
+            <h3 className="text-base font-semibold text-orange-800">
               Boostez votre événement maintenant ?
             </h3>
-            <p className="text-sm text-orange-700 mt-1">
-              Augmentez la visibilité de votre nouvel événement pendant 72 heures
+            <p className="text-xs text-orange-700 mt-1">
+              Augmentez la visibilité pendant 72 heures
             </p>
           </div>
 
