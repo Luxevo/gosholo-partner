@@ -145,26 +145,26 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     
     // Date validations
     if (form.start_date && form.end_date) {
-      const today = new Date()
-      today.setHours(0, 0, 0, 0) // Reset time to start of day
-      const startDate = new Date(form.start_date)
-      const endDate = new Date(form.end_date)
+      // Get today's date in YYYY-MM-DD format to match input format
+      const todayString = format(new Date(), "yyyy-MM-dd")
       
-      // Cannot select past dates (no date before today)
-      if (startDate < today) {
+      // Compare date strings directly to avoid timezone issues
+      if (form.start_date < todayString) {
         errors.push('La date de début ne peut pas être dans le passé')
       }
       
-      if (endDate < today) {
+      if (form.end_date < todayString) {
         errors.push('La date de fin ne peut pas être dans le passé')
       }
       
-      // End date must be after start date
-      if (endDate < startDate) {
+      // End date must be after start date (string comparison works for YYYY-MM-DD)
+      if (form.end_date < form.start_date) {
         errors.push('La date de fin doit être après la date de début')
       }
       
       // Maximum 30 days duration
+      const startDate = new Date(form.start_date)
+      const endDate = new Date(form.end_date)
       const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
       if (diffDays > 30) {
@@ -431,21 +431,21 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
 
     return (
-      <div className="space-y-6">
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-semibold text-primary mb-2">
+      <div className="space-y-4">
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-semibold text-primary mb-1">
             Aperçu de votre offre
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Voici comment votre offre apparaîtra aux utilisateurs de gosholo
           </p>
         </div>
 
         {/* User-facing Offer Card Preview */}
-        <div className="max-w-sm mx-auto">
+        <div className="max-w-xs mx-auto">
           <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
             {/* Image Section */}
-            <div className="relative h-48 bg-gradient-to-br from-orange-400 to-orange-500">
+            <div className="relative h-40 bg-gradient-to-br from-orange-400 to-orange-500">
               {form.image_url ? (
                 <img 
                   src={form.image_url} 
@@ -455,34 +455,34 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
                   <div className="text-white text-center">
-                    <Store className="h-12 w-12 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm opacity-80">Image de l'offre</p>
+                    <Store className="h-8 w-8 mx-auto mb-1 opacity-80" />
+                    <p className="text-xs opacity-80">Image de l'offre</p>
                   </div>
                 </div>
               )}
               
               {/* Discount Badge */}
-              <div className="absolute top-3 left-3">
-                <div className="px-3 py-1 rounded-full text-sm font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
-                  <Tag className="h-3 w-3 mr-1" />
+              <div className="absolute top-2 left-2">
+                <div className="px-2 py-1 rounded-full text-xs font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
+                  <Tag className="h-2 w-2 mr-1" />
                   {getDiscountFromTitle()}% OFF
                 </div>
               </div>
 
               {/* Heart Icon */}
-              <div className="absolute top-3 right-3">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-gray-400" />
+              <div className="absolute top-2 right-2">
+                <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center">
+                  <Heart className="w-3 h-3 text-gray-400" />
                 </div>
               </div>
 
               {/* Bottom Info Bar */}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span>
-                    {form.conditions || "Conditions disponibles"} • {selectedCommerce?.category || "Restaurant"}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="truncate">
+                    {selectedCommerce?.category || "Restaurant"}
                   </span>
-                  <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
+                  <div className="text-white px-1 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
                     {getTimeRemaining()}
                   </div>
                 </div>
@@ -490,47 +490,48 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             </div>
 
             {/* Content Section */}
-            <div className="text-white p-4" style={{ backgroundColor: '#FF6233' }}>
-              <h3 className="text-lg font-bold mb-1 line-clamp-1">
+            <div className="text-white p-3" style={{ backgroundColor: '#FF6233' }}>
+              <h3 className="text-sm font-bold mb-1 line-clamp-1">
                 {form.title}
               </h3>
-              <div className="flex items-center text-sm opacity-90 mb-1">
-                <span>{selectedCommerce?.category || "Restaurant"}</span>
-                <span className="mx-2">•</span>
-                <span>{selectedCommerce?.name || "Commerce"}</span>
+              <div className="flex items-center text-xs opacity-90 mb-1">
+                <span className="truncate">{selectedCommerce?.category || "Restaurant"}</span>
+                <span className="mx-1">•</span>
+                <span className="truncate">{selectedCommerce?.name || "Commerce"}</span>
               </div>
-              <div className="flex items-center text-sm opacity-90 mb-3">
-                <MapPin className="h-3 w-3 mr-1" />
-                <span className="text-xs">
+              <div className="flex items-center text-xs opacity-90 mb-2">
+                <MapPin className="h-2 w-2 mr-1 flex-shrink-0" />
+                <span className="text-xs truncate">
                   {form.business_address || selectedCommerce?.address || "Emplacement du commerce"}
                 </span>
               </div>
 
               {/* Action Button */}
-              <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
-                Réclamer l'offre
-              </button>
+              <div className="text-orange-500  px-1 py-0.5 rounded-full text-xs font-medium bg-white w-20" >
+                Claim Offer
+              </div>
             </div>
           </div>
         </div>
 
         {/* Preview Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
           <div className="text-blue-800 text-sm">
             <div className="font-medium mb-1">✨ Aperçu de l'expérience utilisateur</div>
-            <p>C'est exactement ainsi que votre offre apparaîtra aux utilisateurs dans l'application Gosholo.</p>
+            <p className="text-xs">C'est exactement ainsi que votre offre apparaîtra aux utilisateurs dans l'application Gosholo.</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToEdit}>
+        <div className="flex justify-between gap-3 pt-3 border-t">
+          <Button variant="outline" onClick={handleBackToEdit} size="sm">
             ← Retour modifier
           </Button>
           <Button 
             className="bg-accent hover:bg-accent/80 text-white" 
             onClick={handleConfirmPublish}
             disabled={isLoading}
+            size="sm"
           >
             Continuer vers la publication
           </Button>
