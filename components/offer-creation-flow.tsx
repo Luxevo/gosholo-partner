@@ -627,6 +627,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
       }
     }
 
+
     return (
       <div className="space-y-6">
         {/* Success Message */}

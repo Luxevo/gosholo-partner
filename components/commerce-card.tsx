@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,14 +31,13 @@ interface CommerceCardProps {
 
 const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const { toast } = useToast()
+  const router = useRouter()
   const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<any>(null)
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<any>(null)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<{type: 'offer' | 'event', item: any} | null>(null)
-  const [isCreateOfferDialogOpen, setIsCreateOfferDialogOpen] = useState(false)
-  const [isCreateEventDialogOpen, setIsCreateEventDialogOpen] = useState(false)
   const [isManageCommerceDialogOpen, setIsManageCommerceDialogOpen] = useState(false)
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false)
   const [boostingItem, setBoostingItem] = useState<{type: 'offer' | 'event', item: any} | null>(null)
@@ -213,23 +213,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   }
 
   const handleCreateOffer = () => {
-    setIsCreateOfferDialogOpen(true)
-  }
-
-  const handleOfferCreated = () => {
-    setIsCreateOfferDialogOpen(false)
-    // Refresh the dashboard to show updated data
-    onRefresh()
+    router.push('/dashboard/offres?create=true')
   }
 
   const handleCreateEvent = () => {
-    setIsCreateEventDialogOpen(true)
-  }
-
-  const handleEventCreated = () => {
-    setIsCreateEventDialogOpen(false)
-    // Refresh the dashboard to show updated data
-    onRefresh()
+    router.push('/dashboard/evenements?create=true')
   }
 
   const handleManageCommerce = () => {
@@ -589,37 +577,6 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
        </DialogContent>
      </Dialog>
 
-     {/* Create Offer Dialog */}
-     <Dialog open={isCreateOfferDialogOpen} onOpenChange={setIsCreateOfferDialogOpen}>
-       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-         <DialogHeader>
-           <DialogTitle>Créer une nouvelle offre</DialogTitle>
-           <DialogDescription>
-             Créez une nouvelle offre pour {commerce.name}.
-           </DialogDescription>
-         </DialogHeader>
-         <OfferCreationFlow 
-           commerceId={commerce.id}
-           onCancel={handleOfferCreated}
-         />
-       </DialogContent>
-     </Dialog>
-
-     {/* Create Event Dialog */}
-     <Dialog open={isCreateEventDialogOpen} onOpenChange={setIsCreateEventDialogOpen}>
-       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-         <DialogHeader>
-           <DialogTitle>Créer un nouvel événement</DialogTitle>
-           <DialogDescription>
-             Créez un nouvel événement pour {commerce.name}.
-           </DialogDescription>
-         </DialogHeader>
-         <EventCreationFlow 
-           commerceId={commerce.id}
-           onCancel={handleEventCreated}
-         />
-       </DialogContent>
-     </Dialog>
 
      {/* Edit Event Dialog */}
      <Dialog open={isEditEventDialogOpen} onOpenChange={setIsEditEventDialogOpen}>

@@ -20,6 +20,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   const navigation = [
     { name: "Tableau de bord", href: "/dashboard", icon: Home },
+    { name: "Offres", href: "/dashboard/offres", icon: Tag },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar },
     { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap },
     { name: "Profil & compte", href: "/dashboard/profil", icon: User },

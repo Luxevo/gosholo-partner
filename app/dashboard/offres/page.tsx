@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -453,6 +454,7 @@ const EmptyState = () => (
 // Main Component
 export default function OffresPage() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
   
   // State
   const [offers, setOffers] = useState<Offer[]>([])
@@ -465,7 +467,7 @@ export default function OffresPage() {
   const [itemToDelete, setItemToDelete] = useState<Offer | null>(null)
   const [filterActive, setFilterActive] = useState<FilterType>('all')
   const [selectedCommerce, setSelectedCommerce] = useState<string>('all')
-  const [viewType, setViewType] = useState<ViewType>('admin')
+  const [viewType, setViewType] = useState<ViewType>('customer')
 
   // Load offers from database
   const loadOffers = async () => {
@@ -550,6 +552,13 @@ export default function OffresPage() {
   useEffect(() => {
     loadOffers()
   }, [])
+
+  // Auto-open dialog if create parameter is present
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setIsDialogOpen(true)
+    }
+  }, [searchParams])
 
   // Filtered offers
   const filteredOffers = useMemo(() => {
