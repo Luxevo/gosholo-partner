@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
   const supabase = createClient()
@@ -69,27 +70,21 @@ export default function LoginPage() {
   
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">G</span>
-          </div>
-          <h1 className="text-2xl font-bold text-brand-primary">gosholo</h1>
-          <p className="text-brand-primary/70">Connectez-vous à votre tableau de bord</p>
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center ">
+      <div className="w-full max-w-md ">
+        <div className="text-center  flex flex-col items-center">
+        <div className="relative w-80 h-32 overflow-hidden"> {/* Much smaller height, wider */}
+    <Image
+      src="/logo.png"
+      alt="Logo"
+      fill
+      className="object-cover scale-[1.8]"
+    />
+  </div>
+  <p className="text-brand-primary/70">Connectez-vous à votre espace commerçant</p>
         </div>
 
-        <Alert className="border-brand-primary/20 bg-brand-primary/5">
-          <AlertDescription className="text-sm">
-            <strong>Compte de démonstration :</strong>
-            <br />
-            Email: demo@gosholo.com
-            <br />
-            Mot de passe: demo123
-          </AlertDescription>
-        </Alert>
-
-        <Card className="border-brand-primary/20">
+        <Card className="border-brand-primary/20 border-2 mb-5">
           <CardHeader className="space-y-1">
             <CardTitle className="text-xl text-brand-primary">Connexion</CardTitle>
             <CardDescription>Entrez vos identifiants pour accéder à votre espace commerçant</CardDescription>
