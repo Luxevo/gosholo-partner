@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -462,7 +462,7 @@ const EmptyState = () => (
 )
 
 // Main Component
-export default function EvenementsPage() {
+function EvenementsPageContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
   
@@ -802,5 +802,13 @@ export default function EvenementsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function EvenementsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-12">Chargement...</div>}>
+      <EvenementsPageContent />
+    </Suspense>
   )
 }
