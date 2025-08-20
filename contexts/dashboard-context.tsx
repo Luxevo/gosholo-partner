@@ -92,12 +92,21 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       const supabase = createClient()
       
+      // Check if we have a session first to avoid AuthSessionMissingError
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session?.user) {
+        // No session available - middleware will handle redirect
+        setIsLoading(false)
+        return
+      }
+      
       // Get authenticated user (middleware ensures user is authenticated)
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError || !user) {
-        // This should not happen since middleware protects the route
-        console.error('Unexpected authentication error:', userError)
+        // Session exists but getUser failed - let middleware handle redirect
+        console.error('Authentication error:', userError)
         setIsLoading(false)
         return
       }
