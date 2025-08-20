@@ -54,6 +54,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const [boostingItem, setBoostingItem] = useState<{type: 'offer' | 'event', item: any} | null>(null)
   const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
   const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
+  const [isDeleteCommerceConfirmOpen, setIsDeleteCommerceConfirmOpen] = useState(false)
   
   const activeOffers = commerce.offers?.filter((offer: any) => offer.is_active) || []
   const upcomingEvents = commerce.events || [] // For now, consider all events as upcoming
@@ -252,6 +253,85 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     onRefresh()
   }
 
+  const handleDeleteCommerce = () => {
+    setIsDeleteCommerceConfirmOpen(true)
+  }
+
+  const confirmDeleteCommerce = async () => {
+    try {
+      const supabase = createClient()
+      
+      // First delete all associated offers
+      if (commerce.offers && commerce.offers.length > 0) {
+        const { error: offersError } = await supabase
+          .from('offers')
+          .delete()
+          .eq('commerce_id', commerce.id)
+        
+        if (offersError) {
+          console.error('Error deleting offers:', offersError)
+          toast({
+            title: "Erreur",
+            description: "Erreur lors de la suppression des offres associées",
+            variant: "destructive"
+          })
+          return
+        }
+      }
+
+      // Then delete all associated events
+      if (commerce.events && commerce.events.length > 0) {
+        const { error: eventsError } = await supabase
+          .from('events')
+          .delete()
+          .eq('commerce_id', commerce.id)
+        
+        if (eventsError) {
+          console.error('Error deleting events:', eventsError)
+          toast({
+            title: "Erreur",
+            description: "Erreur lors de la suppression des événements associés",
+            variant: "destructive"
+          })
+          return
+        }
+      }
+
+      // Finally delete the commerce
+      const { error } = await supabase
+        .from('commerces')
+        .delete()
+        .eq('id', commerce.id)
+
+      if (error) {
+        console.error('Error deleting commerce:', error)
+        toast({
+          title: "Erreur",
+          description: "Erreur lors de la suppression du commerce",
+          variant: "destructive"
+        })
+        return
+      }
+
+      toast({
+        title: "Succès",
+        description: "Commerce supprimé avec succès",
+      })
+
+      setIsDeleteCommerceConfirmOpen(false)
+      
+      // Refresh the dashboard to show updated data
+      onRefresh()
+    } catch (error) {
+      console.error('Unexpected error deleting commerce:', error)
+      toast({
+        title: "Erreur",
+        description: "Erreur inattendue lors de la suppression",
+        variant: "destructive"
+      })
+    }
+  }
+
   const handleDeleteOffer = (offer: any) => {
     setItemToDelete({ type: 'offer', item: offer })
     setIsDeleteConfirmOpen(true)
@@ -322,9 +402,19 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
             )}
             <span>{commerce.name}</span>
           </div>
-                     <Button variant="outline" size="sm" onClick={handleManageCommerce}>
-             Gérer ce commerce
-           </Button>
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" onClick={handleManageCommerce}>
+              Gérer ce commerce
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0 hover:bg-red-50"
+              onClick={handleDeleteCommerce}
+            >
+              <Trash2 className="h-4 w-4 text-red-600" />
+            </Button>
+          </div>
         </CardTitle>
         <CardDescription>
           {commerce.address}
@@ -664,6 +754,40 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                }
              </Button>
            </div>
+         </div>
+       </DialogContent>
+     </Dialog>
+
+     {/* Delete Commerce Confirmation Dialog */}
+     <Dialog open={isDeleteCommerceConfirmOpen} onOpenChange={setIsDeleteCommerceConfirmOpen}>
+       <DialogContent className="sm:max-w-[425px]">
+         <DialogHeader>
+           <DialogTitle>Confirmer la suppression du commerce</DialogTitle>
+           <DialogDescription>
+             Êtes-vous sûr de vouloir supprimer ce commerce ? Cette action supprimera également toutes les offres et événements associés.
+             Cette action est irréversible.
+           </DialogDescription>
+         </DialogHeader>
+         <div className="py-4">
+           <p className="text-sm text-muted-foreground">
+             <strong>{commerce.name}</strong>
+           </p>
+           {(commerce.offers?.length || 0) + (commerce.events?.length || 0) > 0 && (
+             <p className="text-sm text-red-600 mt-2">
+               ⚠️ Ce commerce contient {commerce.offers?.length || 0} offre(s) et {commerce.events?.length || 0} événement(s) qui seront également supprimé(s).
+             </p>
+           )}
+         </div>
+         <div className="flex justify-end space-x-2">
+           <Button variant="outline" onClick={() => setIsDeleteCommerceConfirmOpen(false)}>
+             Annuler
+           </Button>
+           <Button 
+             variant="destructive" 
+             onClick={confirmDeleteCommerce}
+           >
+             Supprimer le commerce
+           </Button>
          </div>
        </DialogContent>
      </Dialog>
