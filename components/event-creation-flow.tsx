@@ -411,12 +411,12 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     }
 
     return (
-      <div className="space-y-6">
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-semibold text-primary mb-2">
+      <div className="space-y-4">
+        <div className="text-center mb-4">
+          <h2 className="text-lg font-semibold text-primary mb-1">
             Aperçu de votre événement
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Voici comment votre événement apparaîtra aux utilisateurs de Gosholo
           </p>
         </div>
@@ -523,22 +523,23 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         </div>
 
         {/* Preview Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
           <div className="text-blue-800 text-sm">
             <div className="font-medium mb-1">✨ Aperçu de l'expérience utilisateur</div>
-            <p>C'est exactement ainsi que votre événement apparaîtra aux utilisateurs dans l'application Gosholo.</p>
+            <p className="text-xs">C'est exactement ainsi que votre événement apparaîtra aux utilisateurs dans l'application Gosholo.</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToEdit}>
+        <div className="flex justify-between gap-3 pt-3 border-t">
+          <Button variant="outline" onClick={handleBackToEdit} size="sm">
             ← Retour modifier
           </Button>
           <Button 
             className="bg-accent hover:bg-accent/80 text-white" 
             onClick={handleConfirmPublish}
             disabled={isLoading}
+            size="sm"
           >
             Continuer vers la publication
           </Button>
