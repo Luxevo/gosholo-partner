@@ -19,6 +19,10 @@ npm start          # Start production server
 
 # Code Quality
 npm run lint       # Run Next.js linting
+
+# Testing (if available)
+# No test framework currently configured
+# Consider adding: jest, @testing-library/react, playwright for e2e
 ```
 
 ## Architecture
@@ -39,12 +43,18 @@ npm run lint       # Run Next.js linting
 ### Database Schema
 Core entities managed via Supabase:
 - `profiles` - User account information with subscription status
-- `commerces` - Business/store information with categories
-- `offers` - Business offers with boost capabilities and expiration
-- `events` - Business events with boost capabilities
-- `user_boost_credits` - Available boost credits per user
-- `boost_transactions` - Purchase history for boost credits
-- `subscriptions` - User subscription plans (free/pro)
+- `commerces` - Business/store information with categories and location data
+- `offers` - Business offers with boost capabilities, expiration, and location
+- `events` - Business events with boost capabilities and date ranges
+- `user_boost_credits` - Available boost credits per user (en_vedette, visibilite)
+- `boost_transactions` - Purchase history for boost credits with Stripe data
+- `subscriptions` - User subscription plans (free/pro) with status tracking
+
+#### Key Database Functions
+- `check_content_limit()` - Validates content creation based on subscription plan
+- `expire_old_boosts()` - Automatically expires boosts after 72 hours
+- `use_boost_credits()` - Handles boost credit deduction
+- `user_has_credits()` - Checks if user has sufficient credits
 
 ### Project Structure
 ```
@@ -103,6 +113,7 @@ sql/                    # Database functions and procedures
 - **Boost System**: En Vedette (featured) and Visibilité (map visibility) boosts
 - **Payment Processing**: Stripe integration for boost purchases (5€ each) and subscriptions (8€/month)
 - **Boost Expiry**: 72-hour automatic expiration with cleanup functions
+- **Content Limits**: Enforced at database level via RLS policies and frontend validation
 
 #### State Management
 - `DashboardContext` provides global state for user profile, commerces, offers, events, and boost credits
@@ -123,6 +134,8 @@ sql/                    # Database functions and procedures
 - Row-level security policies enforce data access controls
 - Business logic functions for content limits and boost management
 - Automatic expiry cleanup for offers and boosts
+- Real-time subscriptions for live data updates (if needed)
+- Proper error handling with user-friendly messages
 
 #### Content Management
 - **Offers**: Automatic 30-day expiration with status indicators
@@ -167,10 +180,12 @@ sql/                    # Database functions and procedures
 - Responsive breakpoints: sm (640px), md (768px), lg (1024px)
 
 ### Authentication
-- Protected routes require authentication check
-- User profiles are managed in the `profiles` table
-- Handle auth state changes appropriately
-- Redirect unauthenticated users to login
+- **Middleware-based protection**: `middleware.ts` handles all authentication and redirects
+- Protected routes (`/dashboard/*`) automatically redirect unauthenticated users to login
+- Auth pages (`/login`, `/register`, etc.) redirect authenticated users to dashboard
+- User profiles are managed in the `profiles` table with subscription status
+- Login page handles redirect parameters for seamless user experience after auth
+- Authentication state is managed by Supabase Auth with SSR support
 
 ### Payment Integration
 - Use Stripe Elements for secure payment processing
@@ -189,26 +204,138 @@ sql/                    # Database functions and procedures
 
 Required environment variables:
 ```bash
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Stripe Configuration
 STRIPE_SECRET_KEY=your_stripe_secret_key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+# Optional Stripe Price IDs for specific products
+STRIPE_SUBSCRIPTION_PRICE_ID=your_subscription_price_id
+STRIPE_BOOST_EN_VEDETTE_PRICE_ID=your_boost_vedette_price_id
+STRIPE_BOOST_VISIBILITE_PRICE_ID=your_boost_visibilite_price_id
+
+# Mapbox Configuration
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token
 ```
 
 ## Important Files
 
+- `middleware.ts` - Authentication middleware with automatic redirects
 - `contexts/dashboard-context.tsx` - Central state management with boost credits
 - `types/supabase.ts` - Database type definitions (auto-generated)
 - `components/dashboard-layout.tsx` - Main responsive layout
 - `components/boost-purchase-form.tsx` - Stripe payment integration
 - `lib/supabase/client.ts` - Database client configuration
+- `lib/supabase/server.ts` - Server-side Supabase client
 - `lib/stripe.ts` - Stripe configuration
 - `hooks/use-offer-expiration.ts` - Automatic offer expiry cleanup
 - `hooks/use-boost-expiry.ts` - Automatic boost expiry cleanup
 - `app/api/stripe/webhooks/route.ts` - Payment webhook handler
+- `app/(auth)/login/page.tsx` - Login with redirect handling
 - `components.json` - shadcn/ui configuration
 - `tailwind.config.ts` - Styling configuration with brand colors
 - `SUBSCRIPTION_SYSTEM.md` - Detailed subscription system documentation
 - `BOOST_TESTING_GUIDE.md` - Comprehensive boost system testing procedures
+
+## Common Development Patterns
+
+### Adding New Database Operations
+1. **Middleware handles authentication**: No need to check auth in protected routes
+2. **Use type-safe queries**: Import types from `types/supabase.ts`
+3. **Handle RLS policies**: Ensure proper row-level security for user data
+4. **Error handling**: Provide user-friendly error messages
+
+```typescript
+// Example pattern for database operations (in protected routes)
+const supabase = createClient()
+const { data: { user } } = await supabase.auth.getUser()
+// User is guaranteed to exist due to middleware protection
+
+const { data, error } = await supabase
+  .from('offers')
+  .select('*')
+  .eq('user_id', user!.id)
+
+if (error) {
+  console.error('Database error:', error)
+  throw new Error('Failed to fetch data')
+}
+```
+
+### Context State Updates
+- Always refresh dashboard context after mutations using `refreshCounts()`
+- Update local state immediately for better UX, then refresh from server
+- Handle loading states appropriately in components
+
+### Boost Credit Management
+- Check available credits before allowing boost actions
+- Deduct credits optimistically, rollback on error
+- Update both `user_boost_credits` table and context state
+- Handle 72-hour expiry logic in `use-boost-expiry.ts`
+
+### Form Validation Patterns
+- Use React Hook Form with Zod for consistent validation
+- Follow existing form patterns in flow components
+- Provide real-time validation feedback
+- Handle server-side validation errors gracefully
+
+## Key Architecture Decisions
+
+### Why Context Over Redux
+- Simpler state management for dashboard-focused app
+- Direct integration with Supabase real-time features
+- Easier to understand and maintain for small to medium complexity
+
+### Why Supabase Functions Over API Routes
+- Leverages database-level business logic
+- Better performance with direct database functions
+- Consistent with RLS security model
+- Easier to test and maintain
+
+### Why 72-Hour Boost Expiry
+- Provides meaningful visibility window
+- Prevents indefinite boosting without payment
+- Automatic cleanup reduces manual intervention
+- Balances user value with business model
+
+## Important Development Notes
+
+### Middleware Authentication Flow
+- **Protected routes**: All `/dashboard/*` routes are automatically protected
+- **Auth redirects**: Unauthenticated users are redirected to `/login` with return URL
+- **Seamless login**: After login, users are redirected to their originally requested page
+- **Auth page protection**: Authenticated users are redirected away from auth pages
+- **API routes**: Middleware skips API routes to avoid interference with webhooks
+
+### Content Limits Enforcement
+- Free users: 1 total content (offer OR event)
+- Pro users: 5 total content (mix of offers and events)
+- Limits enforced at multiple levels: frontend, API, and database RLS
+- Use `check_content_limit()` function before allowing content creation
+
+### Stripe Integration
+- All payments go through Stripe Elements for security
+- Webhook handling is critical for credit allocation
+- Test with Stripe test cards: `4242 4242 4242 4242`
+- Production requires proper webhook endpoint configuration
+
+### Mobile-First Development
+- Always test on mobile devices (responsive design)
+- Touch targets should be minimum 44px for accessibility
+- Use `use-mobile.tsx` hook for breakpoint detection
+- Sidebar becomes drawer on mobile using shadcn/ui Sheet
+
+### Security Considerations
+- Never expose Stripe secret keys in frontend code
+- All sensitive operations happen server-side or in database functions
+- RLS policies protect user data isolation
+- Input validation with Zod schemas prevents malicious data
+
+### Data Refresh Patterns
+- Call `refreshCounts()` after any mutation that affects dashboard state
+- Use optimistic updates for better UX, but always sync with server
+- Handle loading states gracefully to prevent flickering
+- Consider implementing real-time subscriptions for live updates

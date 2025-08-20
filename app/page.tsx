@@ -1,30 +1,8 @@
-"use client"
-
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-
 export default function HomePage() {
-  const router = useRouter()
-
-  useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      const supabase = createClient()
-      
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session?.user) {
-        // User is logged in, redirect to commerces
-        router.push('/dashboard')
-      } else {
-        // User is not logged in, redirect to login
-        router.push('/login')
-      }
-    }
-
-    checkAuthAndRedirect()
-  }, [router])
-
+  // This page should never be seen - middleware redirects:
+  // - Not authenticated: / → /login  
+  // - Authenticated: / → /dashboard
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center">
       <div className="text-center space-y-4">

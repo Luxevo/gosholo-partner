@@ -92,11 +92,12 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setIsLoading(true)
       const supabase = createClient()
       
-      // Check authentication first
+      // Get authenticated user (middleware ensures user is authenticated)
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError || !user) {
-        console.error('Authentication error:', userError)
+        // This should not happen since middleware protects the route
+        console.error('Unexpected authentication error:', userError)
         setIsLoading(false)
         return
       }

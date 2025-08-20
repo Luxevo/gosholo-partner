@@ -731,35 +731,6 @@ export default function Dashboard() {
     }
   }
 
-  const stats = [
-    {
-      title: "Commerces",
-      value: counts.commerces,
-      change: "+12%",
-      changeType: "positive",
-      icon: Store,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-    },
-    {
-      title: "Offres actives",
-      value: counts.offers,
-      change: "+8%",
-      changeType: "positive",
-      icon: Tag,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Événements",
-      value: counts.events,
-      change: "+15%",
-      changeType: "positive",
-      icon: Calendar,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    }
-  ]
 
   return (
     <div className="space-y-6">

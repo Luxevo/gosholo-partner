@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import Link from "next/link"
 export default function LoginPage() {
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -60,8 +61,9 @@ export default function LoginPage() {
       }
     }
 
-    // Redirect to commerces page
-    router.push("/dashboard")
+    // Redirect to the originally requested page or dashboard
+    const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
+    router.push(redirectTo)
     setIsLoading(false)
   }
   
