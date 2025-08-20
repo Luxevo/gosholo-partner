@@ -417,8 +417,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
           {activeOffers.length > 0 ? (
             activeOffers.map((offer: any) => (
               <div key={offer.id} className="border rounded-lg p-3 mb-2" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
                     {offer.image_url && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
@@ -440,35 +440,25 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                        </div>
                      </div>
                    </div>
-                   <div className="flex items-center space-x-1">
-                     <Button 
-                       variant="ghost" 
-                       size="sm" 
-                       className="h-auto px-2 py-1"
+                   <div className="flex items-center gap-2">
+                     <button 
+                       className="px-2 py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded"
                        onClick={() => handleBoostOffer(offer)}
                      >
-                       <Zap className="h-4 w-4 text-orange-600 mr-1" />
-                       <span className="text-xs text-orange-600 font-medium">Boost</span>
-                     </Button>
-                     <Button 
-                       variant="ghost" 
-                       size="sm" 
-                       className="h-8 w-8 p-0"
+                       Boost
+                     </button>
+                     <button 
+                       className="p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
                        onClick={() => handleEditOffer(offer)}
                      >
-                       <Edit className="h-4 w-4 text-gray-600" />
-                     </Button>
-                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                       <CheckCircle className="h-4 w-4 text-green-600" />
-                     </Button>
-                     <Button 
-                       variant="ghost" 
-                       size="sm" 
-                       className="h-8 w-8 p-0"
+                       <Edit className="h-4 w-4" />
+                     </button>
+                     <button 
+                       className="p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded"
                        onClick={() => handleDeleteOffer(offer)}
                      >
-                       <Trash2 className="h-4 w-4 text-red-600" />
-                     </Button>
+                       <Trash2 className="h-4 w-4" />
+                     </button>
                    </div>
                 </div>
               </div>
@@ -493,8 +483,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event: any) => (
               <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3 flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
                     {event.image_url && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
@@ -516,35 +506,25 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-auto px-2 py-1"
+                  <div className="flex items-center gap-2">
+                    <button 
+                      className="px-2 py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded"
                       onClick={() => handleBoostEvent(event)}
                     >
-                      <Zap className="h-4 w-4 text-orange-600 mr-1" />
-                      <span className="text-xs text-orange-600 font-medium">Boost</span>
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
+                      Boost
+                    </button>
+                    <button 
+                      className="p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
                       onClick={() => handleEditEvent(event)}
                     >
-                      <Edit className="h-4 w-4 text-gray-600" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button 
+                      className="p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded"
                       onClick={() => handleDeleteEvent(event)}
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
-                    </Button>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
