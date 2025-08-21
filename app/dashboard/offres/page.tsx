@@ -457,7 +457,7 @@ const EmptyState = () => (
 function OffresPageContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
-  const { counts } = useDashboard()
+  const { counts, refreshCounts } = useDashboard()
   
   // State
   const [offers, setOffers] = useState<Offer[]>([])
@@ -611,6 +611,7 @@ function OffresPageContent() {
       setIsDeleteConfirmOpen(false)
       setItemToDelete(null)
       loadOffers()
+      refreshCounts() // Refresh dashboard commerce data
     } catch (error) {
       console.error('Unexpected error deleting offer:', error)
     }

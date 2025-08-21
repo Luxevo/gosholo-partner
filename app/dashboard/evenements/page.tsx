@@ -467,7 +467,7 @@ const EmptyState = () => (
 function EvenementsPageContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
-  const { counts } = useDashboard()
+  const { counts, refreshCounts } = useDashboard()
   
   // State
   const [events, setEvents] = useState<Event[]>([])
@@ -615,6 +615,7 @@ function EvenementsPageContent() {
       setIsDeleteConfirmOpen(false)
       setItemToDelete(null)
       loadEvents()
+      refreshCounts() // Refresh dashboard commerce data
     } catch (error) {
       console.error('Unexpected error deleting event:', error)
     }
