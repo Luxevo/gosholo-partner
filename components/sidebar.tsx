@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store } from "lucide-react"
+import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store, Receipt } from "lucide-react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import Image from "next/image"
 
@@ -23,6 +23,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: "Offres", href: "/dashboard/offres", icon: Tag },
     { name: "Événements", href: "/dashboard/evenements", icon: Calendar },
     { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap },
+    { name: "Historique de paiement", href: "/dashboard/historique-paiement", icon: Receipt },
     { name: "Profil & compte", href: "/dashboard/profil", icon: User },
     { name: "Support", href: "/dashboard/support", icon: HelpCircle },
   ]

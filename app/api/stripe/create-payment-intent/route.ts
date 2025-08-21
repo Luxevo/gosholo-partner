@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     // Create PaymentIntent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price.unit_amount,
-      currency: 'usd',
+      currency: price.currency,
       metadata: {
         userId: user.id,
         boostType,
