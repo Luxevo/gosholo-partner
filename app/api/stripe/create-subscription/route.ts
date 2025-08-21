@@ -9,7 +9,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user from Supabase
-    const supabase = createClient()
+    const supabase = await createClient()
+    
+    if (!supabase) {
+      console.error('Failed to create Supabase client')
+      return NextResponse.json(
+        { error: 'Configuration error' },
+        { status: 500 }
+      )
+    }
+
+    if (!supabase.auth) {
+      console.error('Supabase auth is undefined')
+      return NextResponse.json(
+        { error: 'Authentication service unavailable' },
+        { status: 500 }
+      )
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {

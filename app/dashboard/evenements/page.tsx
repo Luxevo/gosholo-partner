@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -467,6 +468,7 @@ const EmptyState = () => (
 function EvenementsPageContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { counts, refreshCounts } = useDashboard()
   
   // State
@@ -686,7 +688,12 @@ function EvenementsPageContent() {
                   <span className="text-amber-700 ml-2">- Limite atteinte!</span>
                 )}
               </div>
-              <Button size="sm" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
+                onClick={() => router.push('/dashboard/boosts')}
+              >
                 <Crown className="h-4 w-4 mr-1" />
                 Passer au Pro
               </Button>
