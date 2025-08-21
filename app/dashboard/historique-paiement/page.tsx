@@ -426,7 +426,7 @@ export default function PaymentHistoryPage() {
 
         {/* Summary Card */}
         {!isLoading && !error && allTransactions.length > 0 && (
-          <Card className="bg-gradient-to-r from-brand-primary/5 to-brand-accent/5">
+          <Card className="bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 sticky bottom-4 z-10 shadow-lg border-2">
             <CardHeader>
               <CardTitle className="text-lg">Résumé</CardTitle>
               <CardDescription>Statistiques de vos paiements</CardDescription>
