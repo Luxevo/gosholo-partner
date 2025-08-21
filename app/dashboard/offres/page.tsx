@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store } from "lucide-react"
+import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
 import { checkAndDeactivateOffers, getDaysRemaining, getOfferStatus } from "@/lib/offer-utils"
+import { useDashboard } from "@/contexts/dashboard-context"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Types
 interface Offer {
@@ -455,6 +457,7 @@ const EmptyState = () => (
 function OffresPageContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
+  const { counts } = useDashboard()
   
   // State
   const [offers, setOffers] = useState<Offer[]>([])
@@ -645,7 +648,11 @@ function OffresPageContent() {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-accent hover:bg-accent/80 text-white">
+            <Button 
+              className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+              disabled={!counts.canCreateContent}
+              title={!counts.canCreateContent ? 'Limite de contenu atteinte. Passez au plan Pro pour créer plus de contenu.' : ''}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Créer une offre
             </Button>
@@ -661,6 +668,27 @@ function OffresPageContent() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Content Limit Banner */}
+      {counts.subscriptionPlan === 'free' && (
+        <Alert className={`border-l-4 ${counts.canCreateContent ? 'border-l-blue-500 bg-blue-50' : 'border-l-amber-500 bg-amber-50'}`}>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <span className="font-medium">Plan Gratuit:</span> {counts.totalContent}/{counts.contentLimit} contenu utilisé
+                {!counts.canCreateContent && (
+                  <span className="text-amber-700 ml-2">- Limite atteinte!</span>
+                )}
+              </div>
+              <Button size="sm" variant="outline" className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
+                <Crown className="h-4 w-4 mr-1" />
+                Passer au Pro
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Filters and View Toggle */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">

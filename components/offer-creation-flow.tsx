@@ -14,6 +14,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
+import { useToast } from "@/hooks/use-toast"
 
 interface Offer {
   id: string
@@ -45,6 +46,7 @@ interface OfferCreationFlowProps {
 export default function OfferCreationFlow({ onCancel, commerceId, offer }: OfferCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
   
@@ -277,6 +279,23 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         result = updateData
         console.log('Offer updated:', result)
       } else {
+        // Check content limits before creating new offer
+        const { data: canCreate } = await supabase
+          .rpc('check_content_limit', { 
+            user_uuid: (await supabase.auth.getUser()).data.user?.id,
+            content_type: 'offer'
+          })
+
+        if (!canCreate) {
+          toast({
+            variant: "destructive",
+            title: "Limite de contenu atteinte",
+            description: "Passez au plan Pro pour créer plus de contenu."
+          })
+          setIsLoading(false)
+          return
+        }
+
         // Create new offer
         const { data: insertData, error: insertError } = await supabase
           .from('offers')

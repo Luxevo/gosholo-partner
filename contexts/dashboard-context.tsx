@@ -12,6 +12,9 @@ interface DashboardCounts {
   boostCreditsVisibilite: number
   subscriptionPlan: 'free' | 'pro'
   isLoading: boolean
+  totalContent: number
+  contentLimit: number
+  canCreateContent: boolean
 }
 
 interface UserProfile {
@@ -81,7 +84,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     boostCreditsVedette: 0,
     boostCreditsVisibilite: 0,
     subscriptionPlan: 'free',
-    isLoading: true
+    isLoading: true,
+    totalContent: 0,
+    contentLimit: 1,
+    canCreateContent: true
   })
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [commerces, setCommerces] = useState<Commerce[]>([])
@@ -220,6 +226,11 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         subscriptionPlan = subscription?.plan_type || 'pro'
       }
 
+      // Calculate content limits
+      const totalContent = offersCount + eventsCount
+      const contentLimit = subscriptionPlan === 'pro' ? 5 : 1
+      const canCreateContent = totalContent < contentLimit
+
       setCounts({
         commerces: commercesCount,
         offers: offersCount,
@@ -228,7 +239,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         boostCreditsVedette,
         boostCreditsVisibilite,
         subscriptionPlan,
-        isLoading: false
+        isLoading: false,
+        totalContent,
+        contentLimit,
+        canCreateContent
       })
       setIsLoading(false)
 
@@ -240,7 +254,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         boostCreditsVedette: 0, 
         boostCreditsVisibilite: 0,
         subscriptionPlan: 'free',
-        isLoading: false 
+        isLoading: false,
+        totalContent: prev.offers + prev.events,
+        contentLimit: 1,
+        canCreateContent: (prev.offers + prev.events) < 1
       }))
       setIsLoading(false)
     }

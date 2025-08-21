@@ -14,6 +14,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
+import { useToast } from "@/hooks/use-toast"
 
 interface Event {
   id: string
@@ -44,6 +45,7 @@ interface EventCreationFlowProps {
 export default function EventCreationFlow({ onCancel, commerceId, event }: EventCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
   
@@ -242,6 +244,23 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         result = updateData
         console.log('Event updated:', result)
       } else {
+        // Check content limits before creating new event
+        const { data: canCreate } = await supabase
+          .rpc('check_content_limit', { 
+            user_uuid: (await supabase.auth.getUser()).data.user?.id,
+            content_type: 'event'
+          })
+
+        if (!canCreate) {
+          toast({
+            variant: "destructive",
+            title: "Limite de contenu atteinte",
+            description: "Passez au plan Pro pour créer plus de contenu."
+          })
+          setIsLoading(false)
+          return
+        }
+
         // Create new event
         const { data: insertData, error: insertError } = await supabase
           .from('events')
