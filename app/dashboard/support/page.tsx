@@ -23,7 +23,7 @@ export default function SupportPage() {
 
   return (
     <div>
-      <div className="p-4 lg:p-6 max-w-xl mx-auto space-y-8">
+      <div className="p-4 lg:p-6 max-w-xl mx-auto space-y-6 sm:space-y-8">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-1">Support</h1>
           <p className="text-primary/70 text-sm lg:text-base mb-4">Contactez-nous rapidement ou consultez la FAQ</p>
@@ -43,6 +43,7 @@ export default function SupportPage() {
                     placeholder="Votre nom"
                     value={form.name}
                     onChange={handleChange}
+                    className="h-12 sm:h-10"
                     required
                   />
                 </div>
@@ -53,6 +54,7 @@ export default function SupportPage() {
                     placeholder="Votre email"
                     value={form.email}
                     onChange={handleChange}
+                    className="h-12 sm:h-10"
                     required
                   />
                 </div>
@@ -63,10 +65,11 @@ export default function SupportPage() {
                     value={form.message}
                     onChange={handleChange}
                     rows={4}
+                    className="min-h-[120px] sm:min-h-[100px]"
                     required
                   />
                 </div>
-                <Button type="submit" className="bg-accent hover:bg-accent/80 text-white w-full">Envoyer</Button>
+                <Button type="submit" className="bg-accent hover:bg-accent/80 text-white w-full h-12 sm:h-10">Envoyer</Button>
               </form>
             )}
           </CardContent>
@@ -75,12 +78,14 @@ export default function SupportPage() {
           <CardHeader>
             <CardTitle className="text-lg text-primary">Contact direct</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="mb-2">
-              <span className="font-medium text-primary">Email :</span> <a href="mailto:support@gosholo.com" className="text-accent underline">support@gosholo.com</a>
+          <CardContent className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="font-medium text-primary text-sm sm:text-base">Email :</span> 
+              <a href="mailto:support@gosholo.com" className="text-accent underline text-sm sm:text-base">support@gosholo.com</a>
             </div>
-            <div className="mb-2">
-              <span className="font-medium text-primary">FAQ :</span> <span className="text-secondary">(Bientôt disponible)</span>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="font-medium text-primary text-sm sm:text-base">FAQ :</span> 
+              <span className="text-secondary text-sm sm:text-base">(Bientôt disponible)</span>
             </div>
             {/* Future: Chat or built-in messaging */}
           </CardContent>

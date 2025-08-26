@@ -328,27 +328,27 @@ export default function ProfilPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Mon Profil</h1>
-          <p className="text-primary/70">Gérez votre compte et vos commerces Gosholo Partner</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Mon Profil</h1>
+          <p className="text-primary/70 text-sm sm:text-base">Gérez votre compte et vos commerces Gosholo Partner</p>
         </div>
 
         {/* Current Plan and Account Info - Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Current Plan Card */}
           <Card className="border-primary/20">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                 <div className="flex items-center space-x-3">
                   {subscription?.plan_type === 'pro' ? (
-                    <Crown className="h-8 w-8 text-yellow-500" />
+                    <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />
                   ) : (
-                    <Star className="h-8 w-8 text-gray-400" />
+                    <Star className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                   )}
                   <div>
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-lg sm:text-xl">
                       Plan {subscription?.plan_type === 'pro' ? 'Pro' : 'Gratuit'}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm">
                       {subscription?.plan_type === 'pro' 
                         ? 'Accès complet avec boosts' 
                         : 'Accès de base limité'
@@ -391,15 +391,15 @@ export default function ProfilPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
-                    <Tag className="h-5 w-5 text-blue-500 mr-2" />
-                    <span className="font-semibold text-lg">{stats?.offers || 0}</span>
+                    <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2" />
+                    <span className="font-semibold text-base sm:text-lg">{stats?.offers || 0}</span>
                   </div>
                   <p className="text-xs text-primary/70">Offres</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
-                    <Calendar className="h-5 w-5 text-green-500 mr-2" />
-                    <span className="font-semibold text-lg">{stats?.events || 0}</span>
+                    <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-2" />
+                    <span className="font-semibold text-base sm:text-lg">{stats?.events || 0}</span>
                   </div>
                   <p className="text-xs text-primary/70">Événements</p>
                 </div>
@@ -409,8 +409,8 @@ export default function ProfilPage() {
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <Zap className="h-5 w-5 text-orange-500" />
-                    <span className="font-medium">Crédits Boost</span>
+                    <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+                    <span className="font-medium text-sm sm:text-base">Crédits Boost</span>
                   </div>
                   <Badge variant="outline">
                     {stats?.boostCredits || 0} disponible{(stats?.boostCredits || 0) > 1 ? 's' : ''}
@@ -428,29 +428,29 @@ export default function ProfilPage() {
           {/* Account Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Informations du compte</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Informations du compte</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-primary/70">Email</label>
-                  <p className="font-medium">{user?.email}</p>
+                  <p className="font-medium text-sm sm:text-base">{user?.email}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-primary/70">Nom</label>
-                  <p className="font-medium">
+                  <p className="font-medium text-sm sm:text-base">
                     {profile?.first_name} {profile?.last_name}
                   </p>
                 </div>
                 {profile?.phone && (
                   <div>
                     <label className="text-sm font-medium text-primary/70">Téléphone</label>
-                    <p className="font-medium">{profile.phone}</p>
+                    <p className="font-medium text-sm sm:text-base">{profile.phone}</p>
                   </div>
                 )}
                 <div>
                   <label className="text-sm font-medium text-primary/70">Membre depuis</label>
-                  <p className="font-medium">
+                  <p className="font-medium text-sm sm:text-base">
                     {subscription?.starts_at 
                       ? new Date(subscription.starts_at).toLocaleDateString('fr-FR')
                       : 'N/A'
@@ -458,16 +458,16 @@ export default function ProfilPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3 pt-4">
-                <Button variant="outline" onClick={() => setIsProfileEditOpen(true)}>
+              <div className="flex flex-col sm:flex-wrap sm:flex-row gap-3 pt-4">
+                <Button variant="outline" onClick={() => setIsProfileEditOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <User className="h-4 w-4 mr-2" />
                   Modifier le profil
                 </Button>
-                <Button variant="outline" onClick={() => setIsPasswordChangeOpen(true)}>
+                <Button variant="outline" onClick={() => setIsPasswordChangeOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <Lock className="h-4 w-4 mr-2" />
                   Changer le mot de passe
                 </Button>
-                <Button variant="outline" onClick={() => setIsSubscriptionManagementOpen(true)}>
+                <Button variant="outline" onClick={() => setIsSubscriptionManagementOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <CreditCard className="h-4 w-4 mr-2" />
                   Gérer l'abonnement
                 </Button>
@@ -480,17 +480,17 @@ export default function ProfilPage() {
         {/* Commerces Management */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
               <div>
-                <CardTitle>Mes Commerces</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg sm:text-xl">Mes Commerces</CardTitle>
+                <CardDescription className="text-sm">
                   Gérez vos commerces et leurs informations
                 </CardDescription>
               </div>
-                             <Button onClick={handleCreateCommerce}>
-                 <Plus className="h-4 w-4 mr-2" />
-                 Ajouter un commerce
-               </Button>
+              <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter un commerce
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -499,22 +499,24 @@ export default function ProfilPage() {
                 <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commerce</h3>
                 <p className="text-gray-600 mb-4">Créez votre premier commerce pour commencer</p>
-                                 <Button onClick={handleCreateCommerce}>
-                   <Plus className="h-4 w-4 mr-2" />
-                   Créer un commerce
-                 </Button>
+                <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Créer un commerce
+                </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {commerces.map((commerce) => (
                   <div key={commerce.id} className="border rounded-lg p-4 h-full">
                     <div className="flex flex-col h-full">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <Building2 className="h-5 w-5 text-primary" />
-                          <h4 className="font-semibold text-lg">{commerce.name}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 gap-2 sm:gap-0">
+                          <div className="flex items-center space-x-3">
+                            <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
+                            <h4 className="font-semibold text-base sm:text-lg">{commerce.name}</h4>
+                          </div>
                           {commerce.category && (
-                            <Badge variant="secondary">{commerce.category}</Badge>
+                            <Badge variant="secondary" className="w-fit">{commerce.category}</Badge>
                           )}
                         </div>
                         
@@ -523,25 +525,25 @@ export default function ProfilPage() {
                         )}
                         
                         <div className="space-y-2 text-sm">
-                          <div className="flex items-center space-x-2">
-                            <MapPin className="h-4 w-4 text-gray-400" />
+                          <div className="flex items-start space-x-2">
+                            <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
                             <span className="truncate">{commerce.address}</span>
                           </div>
                           {commerce.phone && (
                             <div className="flex items-center space-x-2">
-                              <Phone className="h-4 w-4 text-gray-400" />
+                              <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
                               <span>{commerce.phone}</span>
                             </div>
                           )}
                           {commerce.email && (
                             <div className="flex items-center space-x-2">
-                              <User className="h-4 w-4 text-gray-400" />
+                              <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
                               <span className="truncate">{commerce.email}</span>
                             </div>
                           )}
                           {commerce.website && (
                             <div className="flex items-center space-x-2">
-                              <Globe className="h-4 w-4 text-gray-400" />
+                              <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
                               <span className="text-blue-600 hover:underline truncate">
                                 <a href={commerce.website} target="_blank" rel="noopener noreferrer">
                                   {commerce.website}
@@ -559,20 +561,20 @@ export default function ProfilPage() {
                         </div>
                       </div>
                       
-                      <div className="flex space-x-2 mt-4 pt-4 border-t">
-                                                 <Button
-                           variant="outline"
-                           size="sm"
-                           className="flex-1"
-                           onClick={() => handleEditCommerce(commerce)}
-                         >
-                           <Edit className="h-4 w-4 mr-1" />
-                           Modifier
-                         </Button>
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mt-4 pt-4 border-t">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-10 sm:h-8 w-full sm:w-auto"
+                          onClick={() => handleEditCommerce(commerce)}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Modifier
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-10 sm:h-8 w-full sm:w-auto text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={() => confirmDeleteCommerce(commerce)}
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
@@ -590,13 +592,13 @@ export default function ProfilPage() {
         {/* Account Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Actions du compte</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Actions du compte</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <Button 
                 variant="outline" 
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 h-12 sm:h-10"
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />
@@ -609,7 +611,7 @@ export default function ProfilPage() {
 
       {/* Profile Edit Dialog */}
       <Dialog open={isProfileEditOpen} onOpenChange={setIsProfileEditOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier le profil</DialogTitle>
             <DialogDescription>
@@ -628,7 +630,7 @@ export default function ProfilPage() {
 
       {/* Password Change Dialog */}
       <Dialog open={isPasswordChangeOpen} onOpenChange={setIsPasswordChangeOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Changer le mot de passe</DialogTitle>
             <DialogDescription>
@@ -644,7 +646,7 @@ export default function ProfilPage() {
 
       {/* Subscription Management Dialog */}
       <Dialog open={isSubscriptionManagementOpen} onOpenChange={setIsSubscriptionManagementOpen}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Gérer l'abonnement</DialogTitle>
             <DialogDescription>
@@ -664,7 +666,7 @@ export default function ProfilPage() {
     
              {/* Manage Commerce Dialog */}
        <Dialog open={isManageCommerceOpen} onOpenChange={setIsManageCommerceOpen}>
-         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+         <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
            <DialogHeader>
              <DialogTitle>Gérer le commerce</DialogTitle>
              <DialogDescription>
@@ -683,7 +685,7 @@ export default function ProfilPage() {
 
                {/* Create Commerce Dialog */}
         <Dialog open={isCreateCommerceOpen} onOpenChange={setIsCreateCommerceOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Créer un nouveau commerce</DialogTitle>
               <DialogDescription>
@@ -698,7 +700,7 @@ export default function ProfilPage() {
 
         {/* Delete Commerce Confirmation Dialog */}
         <Dialog open={isDeleteCommerceOpen} onOpenChange={setIsDeleteCommerceOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Supprimer le commerce</DialogTitle>
               <DialogDescription>
@@ -716,9 +718,10 @@ export default function ProfilPage() {
                   </p>
                 </div>
               )}
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-2">
                 <Button 
                   variant="outline" 
+                  className="w-full sm:w-auto h-12 sm:h-10"
                   onClick={() => {
                     setIsDeleteCommerceOpen(false)
                     setCommerceToDelete(null)
@@ -728,6 +731,7 @@ export default function ProfilPage() {
                 </Button>
                 <Button 
                   variant="destructive" 
+                  className="w-full sm:w-auto h-12 sm:h-10"
                   onClick={handleDeleteCommerce}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />

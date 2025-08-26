@@ -210,7 +210,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0">
           <div className="flex items-start space-x-3 flex-1">
             {offer.image_url && (
               <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -221,7 +221,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
                 />
               </div>
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-primary">
                 {offer.title}
               </CardTitle>
@@ -230,51 +230,53 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
               </CardDescription>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={status.variant} className="text-xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+            <Badge variant={status.variant} className="text-xs w-fit">
               {status.label}
             </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(offer)}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(offer)}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Supprimer
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(offer)}
+                className="h-10 sm:h-8 w-10 sm:w-8 p-0"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDelete(offer)}
+                className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                <span className="sm:hidden">Supprimer</span>
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
       
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Offer Details */}
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
-              <Tag className="h-4 w-4 text-muted-foreground" />
+              <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="font-medium">Type:</span>
               <span>{getTypeLabel(offer.offer_type)}</span>
             </div>
             
             {offer.condition && (
               <div className="flex items-start gap-2 text-sm">
-                <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                 <span className="font-medium">Condition:</span>
                 <span className="text-muted-foreground">{offer.condition}</span>
               </div>
             )}
             
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-start gap-2 text-sm">
+              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
               <span className="font-medium">Localisation:</span>
               <span>
                 {offer.uses_commerce_location 
@@ -286,16 +288,16 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
           </div>
           
           {/* Timing and Status */}
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="font-medium">Créée le:</span>
               <span>{offer.created_at ? formatDate(offer.created_at) : "N/A"}</span>
             </div>
             
             {offer.is_active && daysRemaining !== null && (
               <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Jours restants:</span>
                 <span className={daysRemaining <= 7 ? "text-brand-accent font-medium" : ""}>
                   {daysRemaining} jours
@@ -305,7 +307,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             
             {offer.updated_at && offer.updated_at !== offer.created_at && (
               <div className="flex items-center gap-2 text-sm">
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Modifiée le:</span>
                 <span className="text-brand-secondary font-medium">{formatDate(offer.updated_at)}</span>
               </div>
@@ -313,7 +315,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             
             {offer.start_date && (
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Début:</span>
                 <span className="text-brand-primary font-medium">{formatDate(offer.start_date)}</span>
               </div>
@@ -321,7 +323,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             
             {offer.end_date && (
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Fin:</span>
                 <span className="text-brand-accent font-medium">{formatDate(offer.end_date)}</span>
               </div>

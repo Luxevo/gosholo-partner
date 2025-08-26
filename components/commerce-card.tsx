@@ -364,7 +364,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     <>
       <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <div className="flex items-center space-x-3">
             {commerce.image_url && (
               <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -375,38 +375,44 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 />
               </div>
             )}
-            <span>{commerce.name}</span>
+            <span className="text-lg sm:text-xl font-semibold">{commerce.name}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={handleManageCommerce}>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleManageCommerce}
+              className="h-12 sm:h-8 w-full sm:w-auto"
+            >
               Gérer ce commerce
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 w-8 p-0 hover:bg-red-50"
+              className="h-12 w-full sm:h-8 sm:w-8 p-0 hover:bg-red-50 text-red-600"
               onClick={handleDeleteCommerce}
             >
-              <Trash2 className="h-4 w-4 text-red-600" />
+              <Trash2 className="h-4 w-4" />
+              <span className="sm:hidden ml-2">Supprimer le commerce</span>
             </Button>
           </div>
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm sm:text-base">
           {commerce.address}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Offers Section */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-            <Tag className="h-4 w-4 mr-2" style={{ color: 'rgb(0,82,102)' }} />
+          <h4 className="font-medium text-gray-900 mb-3 sm:mb-4 flex items-center text-base sm:text-lg">
+            <Tag className="h-4 w-4 sm:h-5 sm:w-5 mr-2" style={{ color: 'rgb(0,82,102)' }} />
             Offres actives
           </h4>
           {activeOffers.length > 0 ? (
             activeOffers.map((offer: any) => (
-              <div key={offer.id} className="border rounded-lg p-3 mb-2" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 flex-1">
+              <div key={offer.id} className="border rounded-lg p-3 sm:p-4 mb-3 sm:mb-4" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start sm:items-center space-x-3 flex-1">
                     {offer.image_url && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
@@ -416,63 +422,68 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                         />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <h5 className="font-medium text-gray-900">{offer.title}</h5>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant={getOfferStatus(offer).variant} className="text-xs">
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-gray-900 text-sm sm:text-base mb-1">{offer.title}</h5>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <Badge variant={getOfferStatus(offer).variant} className="text-xs w-fit">
                           {getOfferStatus(offer).label}
                         </Badge>
-                                               <span className="text-xs text-gray-500">
-                           Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
-                         </span>
-                       </div>
-                     </div>
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <button 
-                       className="px-2 py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded"
-                       onClick={() => handleBoostOffer(offer)}
-                     >
-                       Boost
-                     </button>
-                     <button 
-                       className="p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
-                       onClick={() => handleEditOffer(offer)}
-                     >
-                       <Edit className="h-4 w-4" />
-                     </button>
-                     <button 
-                       className="p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded"
-                       onClick={() => handleDeleteOffer(offer)}
-                     >
-                       <Trash2 className="h-4 w-4" />
-                     </button>
-                   </div>
+                        <span className="text-xs text-gray-500">
+                          Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 sm:gap-1">
+                    <button 
+                      className="px-3 py-2 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      onClick={() => handleBoostOffer(offer)}
+                    >
+                      Boost
+                    </button>
+                    <button 
+                      className="p-2 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      onClick={() => handleEditOffer(offer)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button 
+                      className="p-2 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      onClick={() => handleDeleteOffer(offer)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
           ) : (
-                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-               <p className="text-gray-600 text-sm mb-2">Aucune offre en cours</p>
-               <Button variant="outline" size="sm" onClick={handleCreateOffer}>
-                 <Plus className="h-4 w-4 mr-1" />
-                 Créer une offre
-               </Button>
-             </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">Aucune offre en cours</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleCreateOffer}
+                className="h-12 sm:h-8 w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Créer une offre
+              </Button>
+            </div>
           )}
         </div>
 
         {/* Events Section */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-2 flex items-center">
-            <Calendar className="h-4 w-4 mr-2 text-orange-600" />
+          <h4 className="font-medium text-gray-900 mb-3 sm:mb-4 flex items-center text-base sm:text-lg">
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-orange-600" />
             Événements à venir
           </h4>
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event: any) => (
-              <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3 flex-1">
+              <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start sm:items-center space-x-3 flex-1">
                     {event.image_url && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
@@ -482,10 +493,10 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                         />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <h5 className="font-medium text-gray-900">{event.title}</h5>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant={getEventStatus(event).variant} className="text-xs">
+                    <div className="flex-1 min-w-0">
+                      <h5 className="font-medium text-gray-900 text-sm sm:text-base mb-1">{event.title}</h5>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <Badge variant={getEventStatus(event).variant} className="text-xs w-fit">
                           {getEventStatus(event).label}
                         </Badge>
                         <span className="text-xs text-gray-500">
@@ -494,21 +505,21 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 sm:gap-1">
                     <button 
-                      className="px-2 py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded"
+                      className="px-3 py-2 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[44px] sm:min-h-[32px]"
                       onClick={() => handleBoostEvent(event)}
                     >
                       Boost
                     </button>
                     <button 
-                      className="p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded"
+                      className="p-2 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[44px] sm:min-h-[32px]"
                       onClick={() => handleEditEvent(event)}
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button 
-                      className="p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded"
+                      className="p-2 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[44px] sm:min-h-[32px]"
                       onClick={() => handleDeleteEvent(event)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -518,13 +529,18 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
               </div>
             ))
           ) : (
-                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-               <p className="text-gray-600 text-sm mb-2">Aucun événement à venir</p>
-               <Button variant="outline" size="sm" onClick={handleCreateEvent}>
-                 <Plus className="h-4 w-4 mr-1" />
-                 Créer un événement
-               </Button>
-             </div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
+              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">Aucun événement à venir</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleCreateEvent}
+                className="h-12 sm:h-8 w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Créer un événement
+              </Button>
+            </div>
           )}
         </div>
       </CardContent>

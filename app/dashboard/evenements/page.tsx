@@ -236,7 +236,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0">
           <div className="flex items-start space-x-3 flex-1">
             {event.image_url && (
               <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
@@ -247,7 +247,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
                 />
               </div>
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <CardTitle className="text-lg font-semibold text-primary">
                 {event.title}
               </CardTitle>
@@ -256,66 +256,68 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
               </CardDescription>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+            <Badge variant="secondary" className="text-xs w-fit">
               Événement
             </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(event)}
-              className="h-8 w-8 p-0"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onDelete(event)}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Supprimer
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEdit(event)}
+                className="h-10 sm:h-8 w-10 sm:w-8 p-0"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onDelete(event)}
+                className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                <span className="sm:hidden">Supprimer</span>
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
       
       <CardContent className="pt-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     {/* Event Details */}
-           <div className="space-y-3">
-             {event.condition && (
-               <div className="flex items-start gap-2 text-sm">
-                 <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                 <span className="font-medium">Conditions:</span>
-                 <span className="text-muted-foreground">{event.condition}</span>
-               </div>
-             )}
-             
-             <div className="flex items-center gap-2 text-sm">
-               <MapPin className="h-4 w-4 text-muted-foreground" />
-               <span className="font-medium">Localisation:</span>
-               <span>
-                 {event.uses_commerce_location 
-                   ? "Emplacement du commerce" 
-                   : event.custom_location || "Non spécifié"
-                 }
-               </span>
-             </div>
-           </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Event Details */}
+          <div className="space-y-3 sm:space-y-4">
+            {event.condition && (
+              <div className="flex items-start gap-2 text-sm">
+                <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <span className="font-medium">Conditions:</span>
+                <span className="text-muted-foreground">{event.condition}</span>
+              </div>
+            )}
+            
+            <div className="flex items-start gap-2 text-sm">
+              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+              <span className="font-medium">Localisation:</span>
+              <span>
+                {event.uses_commerce_location 
+                  ? "Emplacement du commerce" 
+                  : event.custom_location || "Non spécifié"
+                }
+              </span>
+            </div>
+          </div>
           
           {/* Timing and Status */}
-          <div className="space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="font-medium">Créé le:</span>
               <span>{event.created_at ? formatDate(event.created_at) : "N/A"}</span>
             </div>
             
             {event.updated_at && event.updated_at !== event.created_at && (
               <div className="flex items-center gap-2 text-sm">
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Modifié le:</span>
                 <span className="text-blue-600 font-medium">{formatDate(event.updated_at)}</span>
               </div>
@@ -323,7 +325,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             
             {event.start_date && (
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Début:</span>
                 <span className="text-green-600 font-medium">{formatDate(event.start_date)}</span>
               </div>
@@ -331,7 +333,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             
             {event.end_date && (
               <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="font-medium">Fin:</span>
                 <span className="text-red-600 font-medium">{formatDate(event.end_date)}</span>
               </div>

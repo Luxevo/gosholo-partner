@@ -279,18 +279,19 @@ export default function PaymentHistoryPage() {
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
             <Button
               onClick={openCustomerPortal}
               disabled={isLoadingPortal}
               variant="outline"
               size="sm"
+              className="h-12 sm:h-8 w-full sm:w-auto"
             >
               <Settings className="h-4 w-4 mr-2" />
               {isLoadingPortal ? 'Chargement...' : 'Gérer mes cartes'}
             </Button>
             
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
               <Receipt className="h-4 w-4" />
               <span>{allTransactions.length} transaction{allTransactions.length !== 1 ? 's' : ''}</span>
             </div>
@@ -300,7 +301,7 @@ export default function PaymentHistoryPage() {
         {/* Loading State */}
         {isLoading && (
           <Card>
-            <CardContent className="flex items-center justify-center py-12">
+            <CardContent className="flex items-center justify-center py-8 sm:py-12">
               <div className="text-center space-y-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
                 <p className="text-muted-foreground">Chargement des transactions...</p>
@@ -320,7 +321,7 @@ export default function PaymentHistoryPage() {
         {/* Empty State */}
         {!isLoading && !error && allTransactions.length === 0 && (
           <Card>
-            <CardContent className="flex items-center justify-center py-12">
+            <CardContent className="flex items-center justify-center py-8 sm:py-12">
               <div className="text-center space-y-4">
                 <Receipt className="h-12 w-12 text-muted-foreground mx-auto" />
                 <div>
@@ -329,7 +330,7 @@ export default function PaymentHistoryPage() {
                     Vos achats de boosts et abonnements apparaîtront ici
                   </p>
                 </div>
-                <Button asChild>
+                <Button asChild className="h-12 sm:h-10 w-full sm:w-auto">
                   <a href="/dashboard/boosts">
                     <Zap className="h-4 w-4 mr-2" />
                     Acheter des boosts
@@ -350,73 +351,138 @@ export default function PaymentHistoryPage() {
 
               return (
                 <Card key={`${transaction.type}-${transaction.id}`} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className={`p-3 rounded-full ${isBoost ? 'bg-blue-100' : 'bg-yellow-100'}`}>
+                  <CardContent className="p-4 sm:p-6">
+                    {/* Mobile Layout */}
+                    <div className="block sm:hidden">
+                      <div className="flex items-start space-x-3 mb-3">
+                        <div className={`p-2 rounded-full flex-shrink-0 ${isBoost ? 'bg-blue-100' : 'bg-yellow-100'}`}>
                           {isBoost ? (
                             boostTransaction!.boost_type === 'en_vedette' ? (
-                              <Sparkles className="h-6 w-6 text-blue-600" />
+                              <Sparkles className="h-5 w-5 text-blue-600" />
                             ) : (
-                              <Eye className="h-6 w-6 text-blue-600" />
+                              <Eye className="h-5 w-5 text-blue-600" />
                             )
                           ) : (
-                            <CreditCard className="h-6 w-6 text-yellow-600" />
+                            <CreditCard className="h-5 w-5 text-yellow-600" />
                           )}
                         </div>
                         
-                        <div className="space-y-1">
-                          <h3 className="font-semibold text-lg">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-base mb-1">
                             {isBoost 
                               ? `Boost ${BOOST_LABELS[boostTransaction!.boost_type]}`
                               : `Abonnement ${subscriptionTransaction!.plan_type.toUpperCase()}`
                             }
                           </h3>
-                          <p className="text-sm text-muted-foreground flex items-center gap-2">
-                            <Calendar className="h-3 w-3" />
+                          <p className="text-sm text-muted-foreground mb-1">
                             {formatDate(transaction.created_at)}
                           </p>
                           {isBoost && boostTransaction!.card_brand && (
-                            <p className="text-xs text-muted-foreground flex items-center gap-1">
-                              <CreditCard className="h-3 w-3" />
+                            <p className="text-xs text-muted-foreground">
                               {boostTransaction!.card_brand.toUpperCase()} •••• {boostTransaction!.card_last_four}
                             </p>
                           )}
                         </div>
                       </div>
-
-                      <div className="text-right space-y-2">
-                        <div className="text-xl font-bold text-brand-primary">
+                      
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-lg font-bold text-brand-primary">
                           {formatCurrency(
                             isBoost 
                               ? boostTransaction!.amount_cents 
                               : subscriptionTransaction!.amount
                           )}
                         </div>
-                        <div className="flex items-center justify-end gap-2">
-                          {getStatusBadge(transaction.status)}
-                          {isBoost && boostTransaction!.stripe_payment_intent_id && (
-                            <Button
-                              onClick={() => openReceipt(boostTransaction!.stripe_payment_intent_id!)}
-                              variant="ghost"
-                              size="sm"
-                            >
-                              <Receipt className="h-3 w-3 mr-1" />
-                              Reçu
-                            </Button>
-                          )}
-                        </div>
+                        {getStatusBadge(transaction.status)}
                       </div>
+                      
+                      {isBoost && boostTransaction!.stripe_payment_intent_id && (
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            onClick={() => openReceipt(boostTransaction!.stripe_payment_intent_id!)}
+                            variant="outline"
+                            size="sm"
+                            className="w-full h-10"
+                          >
+                            <Receipt className="h-4 w-4 mr-2" />
+                            Voir le reçu
+                          </Button>
+                          <p className="text-xs text-muted-foreground break-all">
+                            ID: {boostTransaction!.stripe_payment_intent_id}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Transaction ID */}
-                    {isBoost && boostTransaction!.stripe_payment_intent_id && (
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <p className="text-xs text-muted-foreground">
-                          ID de transaction: {boostTransaction!.stripe_payment_intent_id}
-                        </p>
+                    {/* Desktop Layout */}
+                    <div className="hidden sm:block">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`p-3 rounded-full ${isBoost ? 'bg-blue-100' : 'bg-yellow-100'}`}>
+                            {isBoost ? (
+                              boostTransaction!.boost_type === 'en_vedette' ? (
+                                <Sparkles className="h-6 w-6 text-blue-600" />
+                              ) : (
+                                <Eye className="h-6 w-6 text-blue-600" />
+                              )
+                            ) : (
+                              <CreditCard className="h-6 w-6 text-yellow-600" />
+                            )}
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <h3 className="font-semibold text-lg">
+                              {isBoost 
+                                ? `Boost ${BOOST_LABELS[boostTransaction!.boost_type]}`
+                                : `Abonnement ${subscriptionTransaction!.plan_type.toUpperCase()}`
+                              }
+                            </h3>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              <Calendar className="h-3 w-3" />
+                              {formatDate(transaction.created_at)}
+                            </p>
+                            {isBoost && boostTransaction!.card_brand && (
+                              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <CreditCard className="h-3 w-3" />
+                                {boostTransaction!.card_brand.toUpperCase()} •••• {boostTransaction!.card_last_four}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="text-right space-y-2">
+                          <div className="text-xl font-bold text-brand-primary">
+                            {formatCurrency(
+                              isBoost 
+                                ? boostTransaction!.amount_cents 
+                                : subscriptionTransaction!.amount
+                            )}
+                          </div>
+                          <div className="flex items-center justify-end gap-2">
+                            {getStatusBadge(transaction.status)}
+                            {isBoost && boostTransaction!.stripe_payment_intent_id && (
+                              <Button
+                                onClick={() => openReceipt(boostTransaction!.stripe_payment_intent_id!)}
+                                variant="ghost"
+                                size="sm"
+                              >
+                                <Receipt className="h-3 w-3 mr-1" />
+                                Reçu
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Transaction ID */}
+                      {isBoost && boostTransaction!.stripe_payment_intent_id && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <p className="text-xs text-muted-foreground">
+                            ID de transaction: {boostTransaction!.stripe_payment_intent_id}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               )
@@ -432,21 +498,21 @@ export default function PaymentHistoryPage() {
               <CardDescription>Statistiques de vos paiements</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-primary">
+                  <div className="text-xl sm:text-2xl font-bold text-brand-primary">
                     {transactions.length}
                   </div>
                   <div className="text-sm text-muted-foreground">Boosts achetés</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-brand-accent">
+                  <div className="text-xl sm:text-2xl font-bold text-brand-accent">
                     {subscriptions.length}
                   </div>
                   <div className="text-sm text-muted-foreground">Abonnements</div>
                 </div>
-                <div className="text-center col-span-2 md:col-span-1">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="text-center sm:col-span-2 lg:col-span-1">
+                  <div className="text-xl sm:text-2xl font-bold text-green-600">
                     {formatCurrency(
                       transactions.reduce((sum, t) => sum + t.amount_cents, 0) +
                       subscriptions.reduce((sum, s) => sum + s.amount, 0)

@@ -44,16 +44,16 @@ export default function Dashboard() {
 
       {/* Commerce Cards Section */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
           <h1 className="text-2xl lg:text-3xl font-bold text-primary">Vos commerces</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="w-full sm:w-auto h-12 sm:h-10">
+                <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
                 Ajouter un commerce
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>Créer un nouveau commerce</DialogTitle>
                 <DialogDescription>
@@ -70,25 +70,27 @@ export default function Dashboard() {
           </Dialog>
         </div>
         {isLoading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 
-mx-auto"></div>
-            <p className="text-gray-600 mt-2">Chargement de vos commerces...</p>
+          <div className="text-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-gray-600 mt-2 sm:mt-4">Chargement de vos commerces...</p>
           </div>
         ) : commerces.length > 0 ? (
-          commerces.map((commerce) => (
-            <CommerceCard key={commerce.id} commerce={commerce} onRefresh={refreshCounts} 
-/>
-          ))
+          <div className="space-y-4 sm:space-y-6">
+            {commerces.map((commerce) => (
+              <CommerceCard key={commerce.id} commerce={commerce} onRefresh={refreshCounts} />
+            ))}
+          </div>
         ) : (
           <Card>
-            <CardContent className="text-center py-8">
-              <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commerce</h3>
-              <p className="text-gray-600 mb-4">Commencez par ajouter votre premier
-commerce</p>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
+            <CardContent className="text-center py-8 sm:py-12">
+              <Store className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4 sm:mb-6" />
+              <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2 sm:mb-3">Aucun commerce</h3>
+              <p className="text-gray-600 mb-4 sm:mb-6">Commencez par ajouter votre premier commerce</p>
+              <Button 
+                onClick={() => setIsDialogOpen(true)}
+                className="h-12 sm:h-10 w-full sm:w-auto"
+              >
+                <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
                 Ajouter un commerce
               </Button>
             </CardContent>

@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store, Receipt } from "lucide-react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import Image from "next/image"
@@ -78,6 +78,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Mobile Sidebar */}
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent side="left" className="p-0 w-64">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Gosholo Partner</SheetTitle>
+          </SheetHeader>
           <SidebarContent onClose={onClose} />
         </SheetContent>
       </Sheet>

@@ -412,8 +412,8 @@ export default function BoostsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Boosts & Abonnements</h1>
-          <p className="text-primary/70">Améliorez la visibilité de vos offres et événements</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Boosts & Abonnements</h1>
+          <p className="text-primary/70 text-sm sm:text-base">Améliorez la visibilité de vos offres et événements</p>
         </div>
 
         {/* Section 1: Ton Abonnement */}
@@ -426,23 +426,23 @@ export default function BoostsPage() {
             <CardDescription>Passez au niveau supérieur avec gosholo Plus</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Gosholo Base */}
-              <div className={`p-6 border-2 rounded-lg ${!subscription?.is_subscribed ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'}`}>
+              <div className={`p-4 sm:p-6 border-2 rounded-lg ${!subscription?.is_subscribed ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'}`}>
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center space-x-2">
-                    <h3 className="text-xl font-bold">Gosholo Base</h3>
+                    <h3 className="text-lg sm:text-xl font-bold">Gosholo Base</h3>
                     {!subscription?.is_subscribed && <Badge className="bg-brand-primary">Actuel</Badge>}
                   </div>
-                  <div className="text-3xl font-bold text-brand-primary">0$</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-brand-primary">0$</div>
                   <p className="text-sm text-gray-600">Plan gratuit</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
                       Création d'offres et événements
                     </li>
                     <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
                       Boosts à la carte disponibles
                     </li>
                   </ul>
@@ -450,33 +450,33 @@ export default function BoostsPage() {
               </div>
 
               {/* Gosholo PLUS */}
-              <div className={`p-6 border-2 rounded-lg ${subscription?.is_subscribed ? 'border-brand-accent bg-brand-accent/5' : 'border-gray-200'}`}>
+              <div className={`p-4 sm:p-6 border-2 rounded-lg ${subscription?.is_subscribed ? 'border-brand-accent bg-brand-accent/5' : 'border-gray-200'}`}>
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center space-x-2">
                     <Crown className="h-5 w-5 text-brand-accent" />
-                    <h3 className="text-xl font-bold">Gosholo PLUS</h3>
+                    <h3 className="text-lg sm:text-xl font-bold">Gosholo PLUS</h3>
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">Actuel</Badge>}
                   </div>
-                  <div className="text-3xl font-bold text-brand-accent">8$/mois</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8$/mois</div>
                   <p className="text-sm text-gray-600">Plan premium</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                       1 boost Vedette mensuel
                     </li>
                     <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                       1 boost Visibilité mensuel
                     </li>
                     <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2" />
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
                       Fonctionnalités Pro
                     </li>
                   </ul>
                   {!subscription?.is_subscribed && (
                     <Button 
                       onClick={purchaseSubscription}
-                      className="w-full bg-brand-accent hover:bg-brand-accent/90"
+                      className="w-full bg-brand-accent hover:bg-brand-accent/90 h-12 sm:h-10"
                     >
                       Passer au PLUS
                     </Button>
@@ -488,44 +488,44 @@ export default function BoostsPage() {
         </Card>
 
         {/* Boost Credits Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-brand-light/20 rounded-full">
-                  <Sparkles className="h-6 w-6 text-brand-primary" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="p-2 sm:p-3 bg-brand-light/20 rounded-full flex-shrink-0">
+                  <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-600">Crédits Vedette</p>
-                  <p className="text-2xl font-bold">{boostCredits?.available_en_vedette || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{boostCredits?.available_en_vedette || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-brand-secondary/20 rounded-full">
-                  <TrendingUp className="h-6 w-6 text-brand-secondary" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="p-2 sm:p-3 bg-brand-secondary/20 rounded-full flex-shrink-0">
+                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-brand-secondary" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-600">Crédits Visibilité</p>
-                  <p className="text-2xl font-bold">{boostCredits?.available_visibilite || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{boostCredits?.available_visibilite || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-brand-light/20 rounded-full">
-                  <Zap className="h-6 w-6 text-brand-primary" />
+          <Card className="sm:col-span-2 lg:col-span-1">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center space-x-3 sm:space-x-4">
+                <div className="p-2 sm:p-3 bg-brand-light/20 rounded-full flex-shrink-0">
+                  <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm text-gray-600">Contenu Boosté</p>
-                  <p className="text-2xl font-bold">{stats?.boostedContent || 0}/{stats?.totalContent || 0}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats?.boostedContent || 0}/{stats?.totalContent || 0}</p>
                 </div>
               </div>
             </CardContent>
@@ -544,42 +544,42 @@ export default function BoostsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Vedette */}
-              <div className="p-6 border rounded-lg space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="p-4 sm:p-6 border rounded-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-brand-light/20 rounded-full">
-                      <Sparkles className="h-6 w-6 text-brand-primary" />
+                    <div className="p-2 bg-brand-light/20 rounded-full flex-shrink-0">
+                      <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">Vedette</h3>
+                      <h3 className="text-base sm:text-lg font-semibold">Vedette</h3>
                       <Badge variant="secondary">72h</Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-brand-primary">5$</div>
+                  <div className="text-center sm:text-right">
+                    <div className="text-xl sm:text-2xl font-bold text-brand-primary">5$</div>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">Mettez votre contenu en avant avec un badge spécial</p>
                   <ul className="space-y-2 text-sm">
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
                       Badge "En Vedette" visible
                     </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
                       Apparition prioritaire dans les recherches
                     </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
                       Mise en avant sur la carte
                     </li>
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('en_vedette')}
-                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80"
+                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80 h-12 sm:h-10"
                   >
                     Acheter 5$
                   </Button>
@@ -587,40 +587,40 @@ export default function BoostsPage() {
               </div>
               
               {/* Visibilité */}
-              <div className="p-6 border rounded-lg space-y-4">
-                <div className="flex items-center justify-between">
+              <div className="p-4 sm:p-6 border rounded-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-brand-secondary/20 rounded-full">
-                      <TrendingUp className="h-6 w-6 text-brand-secondary" />
+                    <div className="p-2 bg-brand-secondary/20 rounded-full flex-shrink-0">
+                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-brand-secondary" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold">Visibilité</h3>
+                      <h3 className="text-base sm:text-lg font-semibold">Visibilité</h3>
                       <Badge variant="secondary">72h</Badge>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-brand-secondary">5$</div>
+                  <div className="text-center sm:text-right">
+                    <div className="text-xl sm:text-2xl font-bold text-brand-secondary">5$</div>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">Commerce plus visible sur la carte Mapbox</p>
                   <ul className="space-y-2 text-sm">
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
                       Plus visible sur la carte
                     </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
                       Augmente le trafic
                     </li>
-                    <li className="flex items-center">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
                       Portée géographique élargie
                     </li>
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('visibilite')}
-                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80"
+                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80 h-12 sm:h-10"
                   >
                     Acheter 5$
                   </Button>
@@ -644,7 +644,7 @@ export default function BoostsPage() {
                 <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun contenu</h3>
                 <p className="text-gray-600 mb-4">Créez des offres ou événements pour utiliser les boosts</p>
-                <Button variant="outline">
+                <Button variant="outline" className="h-12 sm:h-10">
                   <ArrowRight className="h-4 w-4 mr-2" />
                   Aller aux commerces
                 </Button>
@@ -652,19 +652,19 @@ export default function BoostsPage() {
             ) : (
               <div className="space-y-4">
                 {userContent.map((content) => (
-                  <div key={content.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
+                  <div key={content.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4 sm:gap-0">
+                    <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
                       {content.type === 'offer' ? (
-                        <Tag className="h-5 w-5 text-blue-500" />
+                        <Tag className="h-5 w-5 text-blue-500 flex-shrink-0" />
                       ) : (
-                        <Calendar className="h-5 w-5 text-green-500" />
+                        <Calendar className="h-5 w-5 text-green-500 flex-shrink-0" />
                       )}
-                      <div>
-                        <h4 className="font-medium">{content.title}</h4>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-medium text-sm sm:text-base">{content.title}</h4>
                         <p className="text-sm text-gray-600">{content.commerce_name}</p>
                         {content.boosted && (
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant="secondary">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
+                            <Badge variant="secondary" className="w-fit">
                               {content.boost_type === 'en_vedette' ? (
                                 <><Sparkles className="h-3 w-3 mr-1" />Vedette</>
                               ) : (
@@ -678,13 +678,14 @@ export default function BoostsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
                       {content.boosted ? (
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleRemoveBoost(content.id, content.type)}
                           disabled={isApplyingBoost === content.id}
+                          className="h-12 sm:h-8 w-full sm:w-auto"
                         >
                           Retirer le boost
                         </Button>
@@ -695,6 +696,7 @@ export default function BoostsPage() {
                             size="sm"
                             onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
                             disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
+                            className="h-12 sm:h-8 w-full sm:w-auto"
                           >
                             <Sparkles className="h-4 w-4 mr-1" />
                             Vedette ({boostCredits?.available_en_vedette || 0})
@@ -704,6 +706,7 @@ export default function BoostsPage() {
                             size="sm"
                             onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
                             disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
+                            className="h-12 sm:h-8 w-full sm:w-auto"
                           >
                             <TrendingUp className="h-4 w-4 mr-1" />
                             Visibilité ({boostCredits?.available_visibilite || 0})
