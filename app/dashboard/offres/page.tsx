@@ -367,7 +367,7 @@ const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsPr
         size="sm"
         onClick={() => onFilterChange('inactive')}
       >
-        Expirées ({inactiveCount})
+        Terminés ({inactiveCount})
       </Button>
     </div>
   )
@@ -656,10 +656,10 @@ function OffresPageContent() {
             <Button 
               className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={!counts.canCreateContent}
-              title={!counts.canCreateContent ? 'Limite de contenu atteinte. Passez au plan Pro pour créer plus de contenu.' : ''}
+              title={!counts.canCreateContent ? 'Limite de contenu atteinte. Passez au plan Plus pour créer plus de contenu.' : ''}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Créer une offre
+              Ajouter une offre
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -693,7 +693,7 @@ function OffresPageContent() {
                 onClick={() => router.push('/dashboard/boosts')}
               >
                 <Crown className="h-4 w-4 mr-1" />
-                Passer au Pro
+                Passer au Plus
               </Button>
             </div>
           </AlertDescription>

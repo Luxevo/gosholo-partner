@@ -491,7 +491,7 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
         <>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl text-primary">
-              {isEditMode ? "Modifier le commerce" : "Créer un nouveau commerce"}
+              {isEditMode ? "Modifier le commerce" : "Ajouter un nouveau commerce"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

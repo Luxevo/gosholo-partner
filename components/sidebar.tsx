@@ -25,7 +25,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap },
     { name: "Historique de paiement", href: "/dashboard/historique-paiement", icon: Receipt },
     { name: "Profil & compte", href: "/dashboard/profil", icon: User },
-    { name: "Support", href: "/dashboard/support", icon: HelpCircle },
+    { name: "Assistance", href: "/dashboard/support", icon: HelpCircle },
   ]
 
   return (

@@ -35,7 +35,7 @@ export default function Dashboard() {
       {/* Welcome Message */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-[#005266] mb-1">
-          Bienvenue, {getUserDisplayName()} !
+          Tableau de bord
         </h1>
         <p className="text-gray-600">
           Voici un aperçu de l'activité de vos commerces
@@ -55,9 +55,9 @@ export default function Dashboard() {
             </DialogTrigger>
             <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
-                <DialogTitle>Créer un nouveau commerce</DialogTitle>
+                <DialogTitle>Créez le profil de votre entreprise</DialogTitle>
                 <DialogDescription>
-                  Remplissez les informations pour créer un nouveau commerce.
+                Entrez les informations de votre entreprise pour la rendre visible sur la carte gosholo et commencez à publier vos offres et événements.
                 </DialogDescription>
               </DialogHeader>
               <CommerceCreationFlow 

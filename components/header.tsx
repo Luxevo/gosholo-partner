@@ -25,7 +25,22 @@ interface HeaderProps {
 export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
-  const { counts } = useDashboard();
+  const { counts, userProfile } = useDashboard();
+
+  const getUserDisplayName = () => {
+    if (!userProfile) return "Partenaire";
+
+    if (userProfile.first_name && userProfile.last_name) {
+      return `${userProfile.first_name} ${userProfile.last_name}`;
+    } else if (userProfile.first_name) {
+      return userProfile.first_name;
+    } else if (userProfile.last_name) {
+      return userProfile.last_name;
+    } else {
+      // Fallback to email or generic name
+      return userProfile.email.split('@')[0] || "Partenaire";
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -61,8 +76,8 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
           
           {/* Title - responsive and truncates on mobile */}
           <h1 className="text-lg font-semibold text-brand-primary truncate">
-            <span className="hidden sm:inline">Tableau de bord entreprise</span>
-            <span className="sm:hidden">Dashboard</span>
+            <span className="hidden sm:inline">Bienvenue, {getUserDisplayName()} !</span>
+            <span className="sm:hidden">Bienvenue, {getUserDisplayName()} !</span>
           </h1>
         </div>
 
@@ -131,9 +146,9 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                 ) : (
                   <Star className="h-4 w-4 text-gray-500" />
                 )}
-                <span className="text-sm font-medium text-blue-700">
-                  {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Pro' : 'Gratuit'}
-                </span>
+                                 <span className="text-sm font-medium text-blue-700">
+                   {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Plus' : 'Gratuit'}
+                 </span>
               </div>
             </Link>
           </div>
@@ -151,9 +166,9 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Utilisateur</p>
+                  <p className="text-sm font-medium leading-none">{getUserDisplayName()}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    user@example.com
+                    {userProfile?.email || "user@example.com"}
                   </p>
                 </div>
               </DropdownMenuLabel>

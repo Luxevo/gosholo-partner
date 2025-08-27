@@ -156,10 +156,10 @@ function RegisterForm() {
           </div>
           <div className="space-y-1">
             <h1 className="text-lg font-bold text-brand-primary">
-              Rejoignez gosholo entreprise
+            Crée ton compte pour accéder à ta plateforme entreprise Gosholo
             </h1>
             <p className="text-brand-primary/70 text-xs">
-              Créez votre compte commerçant et boostez votre visibilité
+            Ces informations servent uniquement à créer votre accès personnel au tableau de bord. Elles ne seront pas visibles sur votre profil ni dans l’application
             </p>
           </div>
         </div>

@@ -413,7 +413,7 @@ export default function BoostsPage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Boosts & Abonnements</h1>
-          <p className="text-primary/70 text-sm sm:text-base">Améliorez la visibilité de vos offres et événements</p>
+          <p className="text-primary/70 text-sm sm:text-base">Faites rayonner votre entreprise et gagnez en visibilité.</p>
         </div>
 
         {/* Section 1: Ton Abonnement */}
@@ -421,7 +421,7 @@ export default function BoostsPage() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Crown className="h-5 w-5" />
-              <span>Ton Abonnement</span>
+              <span>Votre Abonnement</span>
             </CardTitle>
             <CardDescription>Passez au niveau supérieur avec gosholo Plus</CardDescription>
           </CardHeader>
@@ -540,7 +540,7 @@ export default function BoostsPage() {
               <span>Boosts à la Carte</span>
             </CardTitle>
             <CardDescription>
-              Boostez votre contenu pour 72 heures - 5$ par boost
+            Gagnez en visibilité et attirez plus de clients.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -633,9 +633,9 @@ export default function BoostsPage() {
         {/* Content List */}
         <Card>
           <CardHeader>
-            <CardTitle>Votre Contenu</CardTitle>
+            <CardTitle>Votre contenu en cours</CardTitle>
             <CardDescription>
-              Appliquez des boosts à vos offres et événements
+            Retrouvez ici vos offres et événements actifs, prêts à être boostés en un clic
             </CardDescription>
           </CardHeader>
           <CardContent>

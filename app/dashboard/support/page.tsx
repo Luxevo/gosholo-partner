@@ -25,8 +25,8 @@ export default function SupportPage() {
     <div>
       <div className="p-4 lg:p-6 max-w-xl mx-auto space-y-6 sm:space-y-8">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-1">Support</h1>
-          <p className="text-primary/70 text-sm lg:text-base mb-4">Contactez-nous rapidement ou consultez la FAQ</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-1">Assistance</h1>
+          <p className="text-primary/70 text-sm lg:text-base mb-4">Retrouvez ici toutes les réponses à vos questions et contactez-nous au besoin.</p>
         </div>
         <Card className="bg-white border border-primary/20">
           <CardHeader>
