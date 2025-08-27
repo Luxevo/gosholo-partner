@@ -1,223 +1,278 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, User, Mail, Lock, Phone, ArrowRight, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import React, { useState, Suspense } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  ArrowRight,
+  CheckCircle,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     password: "",
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [acceptTerms, setAcceptTerms] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+    const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = "Le prénom est requis"
-    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis"
-    if (!formData.email.trim()) newErrors.email = "L'email est requis"
-    if (!formData.password) newErrors.password = "Le mot de passe est requis"
-    if (formData.password.length < 6) newErrors.password = "Le mot de passe doit contenir au moins 6 caractères"
+    if (!formData.firstName.trim())
+      newErrors.firstName = "Le prénom est requis";
+    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
+    if (!formData.email.trim()) newErrors.email = "L'email est requis";
+    if (!formData.password) newErrors.password = "Le mot de passe est requis";
+    if (formData.password.length < 6)
+      newErrors.password =
+        "Le mot de passe doit contenir au moins 6 caractères";
 
-    if (!acceptTerms) newErrors.terms = "Vous devez accepter les conditions d'utilisation"
+    if (!acceptTerms)
+      newErrors.terms = "Vous devez accepter les conditions d'utilisation";
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-    setIsLoading(true)
-    setErrors({})
-    const supabase = createClient()
-
-
+    e.preventDefault();
+    if (!validateForm()) return;
+    setIsLoading(true);
+    setErrors({});
+    const supabase = createClient();
 
     // Create user account with metadata
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          phone: formData.phone,
-        }
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp(
+      {
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+          },
+        },
       }
-    })
+    );
 
     if (signUpError) {
-      setIsLoading(false)
-      setErrors({ email: signUpError.message || "Erreur lors de la création du compte" })
-      return
+      setIsLoading(false);
+      setErrors({
+        email: signUpError.message || "Erreur lors de la création du compte",
+      });
+      return;
     }
 
     if (!signUpData.user) {
-      setIsLoading(false)
-      setErrors({ email: "Aucun utilisateur créé. Vérifiez votre email pour confirmer votre compte." })
-      return
+      setIsLoading(false);
+      setErrors({
+        email:
+          "Aucun utilisateur créé. Vérifiez votre email pour confirmer votre compte.",
+      });
+      return;
     }
 
-    setIsLoading(false)
-    setIsSuccess(true)
-  }
+    setIsLoading(false);
+    setIsSuccess(true);
+  };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }))
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
-  }
+  };
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-brand-primary/20">
-          <CardContent className="text-center p-8 space-y-4">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
-            </div>
-            <h2 className="text-xl font-bold text-brand-primary">Inscription réussie !</h2>
-            <p className="text-brand-primary/70">
-              Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.
-            </p>
-            <Button asChild className="w-full bg-brand-primary hover:bg-brand-primary/90">
-              <Link href="/login">
-                Se connecter
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
+        <div className="w-full max-w-md space-y-6 animate-in fade-in-50 duration-300">
+          <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
+            <CardContent className="text-center p-8 space-y-4">
+              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+              <h2 className="text-xl font-bold text-brand-primary">
+                Inscription réussie !
+              </h2>
+              <p className="text-brand-primary/70">
+                Votre compte a été créé avec succès. Vous pouvez maintenant vous
+                connecter.
+              </p>
+              <Button
+                asChild
+                className="w-full bg-brand-primary hover:bg-brand-primary/90"
+              >
+                <Link href="/login">
+                  Se connecter
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 py-8 px-4">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Logo et titre */}
-        <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">G</span>
+    <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
+      <div className="w-full max-w-2xl space-y-4 animate-in fade-in-50 duration-300 pt-6">
+        {/* Logo Section */}
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <div className="relative w-56 h-20 overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Gosholo Logo"
+              fill
+              className="object-cover scale-[1.8]"
+            />
           </div>
-          <h1 className="text-2xl font-bold text-brand-primary">Rejoignez Gosholo Partner</h1>
-          <p className="text-brand-primary/70">Créez votre compte commerçant et boostez votre visibilité</p>
+          <div className="space-y-1">
+            <h1 className="text-lg font-bold text-brand-primary">
+              Rejoignez gosholo entreprise
+            </h1>
+            <p className="text-brand-primary/70 text-xs">
+              Créez votre compte commerçant et boostez votre visibilité
+            </p>
+          </div>
         </div>
 
-        {/* Avantages */}
-        <Card className="border-brand-primary/20 bg-brand-primary/5">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-brand-primary mb-3">Pourquoi choisir Gosholo ?</h3>
-            <ul className="space-y-2 text-sm text-brand-primary/80">
-              <li className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
-                Augmentez votre visibilité locale
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
-                Créez des offres et événements facilement
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
-                Boostez vos contenus pour plus d'impact
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-brand-secondary mr-2" />
-                Tableau de bord complet et intuitif
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-
         {/* Formulaire d'inscription */}
-        <Card className="border-brand-primary/20">
-          <CardHeader>
-            <CardTitle className="text-xl text-brand-primary">Créer votre compte</CardTitle>
-            <CardDescription>Remplissez les informations ci-dessous pour créer votre compte commerçant</CardDescription>
+        <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
+          <CardHeader className="space-y-2 pb-6">
+            <CardTitle className="text-xl font-semibold text-brand-primary text-center">
+              Créer votre compte
+            </CardTitle>
+            <CardDescription className="text-center text-brand-primary/70 text-sm">
+              Remplissez les informations ci-dessous pour créer votre compte
+              commerçant
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Informations personnelles */}
-              <div className="space-y-4">
-                <h3 className="font-medium text-brand-primary">Informations personnelles</h3>
+              <div className="space-y-3">
+                <h3 className="font-medium text-brand-primary text-sm">
+                  Informations personnelles
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-brand-primary">
+                    <Label
+                      htmlFor="firstName"
+                      className="text-brand-primary font-medium text-sm"
+                    >
                       Prénom *
                     </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <div className="relative group">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="firstName"
                         placeholder="Jean"
                         value={formData.firstName}
-                        onChange={(e) => handleInputChange("firstName", e.target.value)}
-                        className="pl-10 border-brand-primary/20 focus:border-brand-primary"
+                        onChange={(e) =>
+                          handleInputChange("firstName", e.target.value)
+                        }
+                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        required
                       />
                     </div>
-                    {errors.firstName && <p className="text-sm text-red-600">{errors.firstName}</p>}
+                    {errors.firstName && (
+                      <p className="text-sm text-red-600">{errors.firstName}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-brand-primary">
+                    <Label
+                      htmlFor="lastName"
+                      className="text-brand-primary font-medium text-sm"
+                    >
                       Nom *
                     </Label>
                     <Input
                       id="lastName"
                       placeholder="Dupont"
                       value={formData.lastName}
-                      onChange={(e) => handleInputChange("lastName", e.target.value)}
-                      className="border-brand-primary/20 focus:border-brand-primary"
+                      onChange={(e) =>
+                        handleInputChange("lastName", e.target.value)
+                      }
+                      className="h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                      required
                     />
-                    {errors.lastName && <p className="text-sm text-red-600">{errors.lastName}</p>}
+                    {errors.lastName && (
+                      <p className="text-sm text-red-600">{errors.lastName}</p>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-brand-primary">
+                    <Label
+                      htmlFor="email"
+                      className="text-brand-primary font-medium text-sm"
+                    >
                       Email *
                     </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="email"
                         type="email"
                         placeholder="jean@exemple.com"
                         value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        className="pl-10 border-brand-primary/20 focus:border-brand-primary"
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
+                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        required
                       />
                     </div>
-                    {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
+                    {errors.email && (
+                      <p className="text-sm text-red-600">{errors.email}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-brand-primary">
+                    <Label
+                      htmlFor="phone"
+                      className="text-brand-primary font-medium text-sm"
+                    >
                       Téléphone
                     </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <div className="relative group">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="phone"
                         type="tel"
                         placeholder="012 234-6789"
                         value={formData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        className="pl-10 border-brand-primary/20 focus:border-brand-primary"
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
+                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -225,38 +280,48 @@ export default function RegisterPage() {
               </div>
 
               {/* Mot de passe */}
-              <div className="space-y-4">
-                <h3 className="font-medium text-brand-primary">Sécurité</h3>
+              <div className="space-y-3">
+                <h3 className="font-medium text-brand-primary text-sm">
+                  Sécurité
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-brand-primary">
+                    <Label
+                      htmlFor="password"
+                      className="text-brand-primary font-medium text-sm"
+                    >
                       Mot de passe *
                     </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Minimum 6 caractères"
                         value={formData.password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
-                        className="pl-10 pr-10 border-brand-primary/20 focus:border-brand-primary"
+                        onChange={(e) =>
+                          handleInputChange("password", e.target.value)
+                        }
+                        className="pl-10 pr-12 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        required
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        className="absolute right-1 top-1/2 transform -translate-y-1/2 h-9 w-9 hover:bg-brand-primary/10 rounded-md transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-brand-primary/50" />
+                          <EyeOff className="h-4 w-4 text-brand-primary/60" />
                         ) : (
-                          <Eye className="h-4 w-4 text-brand-primary/50" />
+                          <Eye className="h-4 w-4 text-brand-primary/60" />
                         )}
                       </Button>
                     </div>
-                    {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
+                    {errors.password && (
+                      <p className="text-sm text-red-600">{errors.password}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -266,37 +331,89 @@ export default function RegisterPage() {
                 <Checkbox
                   id="acceptTerms"
                   checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(Boolean(checked))}
+                  onCheckedChange={(checked) =>
+                    setAcceptTerms(Boolean(checked))
+                  }
                 />
-                <Label htmlFor="acceptTerms" className="text-sm text-brand-primary/80">
+                <Label
+                  htmlFor="acceptTerms"
+                  className="text-sm text-brand-primary/80"
+                >
                   J'accepte les{" "}
-                  <Link href="/terms" className="underline hover:text-brand-primary">
+                  <Link
+                    href="/terms"
+                    className="underline hover:text-brand-primary"
+                  >
                     conditions d'utilisation
                   </Link>{" "}
                   *
                 </Label>
               </div>
-              {errors.terms && <p className="text-sm text-red-600">{errors.terms}</p>}
+              {errors.terms && (
+                <p className="text-sm text-red-600">{errors.terms}</p>
+              )}
 
               {/* Bouton submit */}
               <Button
                 type="submit"
-                className="w-full bg-brand-primary hover:bg-brand-primary/90"
+                className="w-full h-11 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg disabled:opacity-50"
                 disabled={isLoading}
               >
-                {isLoading ? "Chargement..." : "Créer mon compte"}
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Chargement...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2">
+                    <span>Créer mon compte</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-brand-primary/80">
-          Vous avez déjà un compte ?{" "}
-          <Link href="/login" className="underline hover:text-brand-primary">
-            Connectez-vous
-          </Link>
-        </p>
+        <div className="text-center space-y-3">
+          <p className="text-sm text-brand-primary/70">
+            Vous avez déjà un compte ?{" "}
+            <Link
+              href="/login"
+              className="text-brand-primary hover:text-brand-primary/80 font-semibold underline underline-offset-4 transition-colors"
+            >
+              Connectez-vous
+            </Link>
+          </p>
+
+          <div className="pt-3 border-t border-gray-100">
+            <p className="text-xs text-gray-500 leading-relaxed">
+              En créant un compte, vous acceptez nos{" "}
+              <Link href="#" className="text-brand-primary hover:underline">
+                conditions d'utilisation
+              </Link>{" "}
+              et notre{" "}
+              <Link href="#" className="text-brand-primary hover:underline">
+                politique de confidentialité
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Chargement...
+        </div>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
+  );
 }

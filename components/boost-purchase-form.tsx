@@ -1,90 +1,94 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
+import { useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   CardElement,
   useStripe,
-  useElements
-} from '@stripe/react-stripe-js'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, CreditCard, Check, X } from 'lucide-react'
+  useElements,
+} from "@stripe/react-stripe-js";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, CreditCard, Check, X } from "lucide-react";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 interface BoostPurchaseFormProps {
-  boostType: 'en_vedette' | 'visibilite'
-  onSuccess: () => void
-  onCancel: () => void
+  boostType: "en_vedette" | "visibilite";
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
-function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps) {
-  const stripe = useStripe()
-  const elements = useElements()
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+function CheckoutForm({
+  boostType,
+  onSuccess,
+  onCancel,
+}: BoostPurchaseFormProps) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
+    event.preventDefault();
 
     if (!stripe || !elements) {
-      return
+      return;
     }
 
-    setIsProcessing(true)
-    setError(null)
+    setIsProcessing(true);
+    setError(null);
 
     try {
       // Create payment intent
-      const response = await fetch('/api/stripe/create-payment-intent', {
-        method: 'POST',
+      const response = await fetch("/api/stripe/create-payment-intent", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ boostType }),
-      })
+      });
 
-      const { clientSecret, amount } = await response.json()
+      const { clientSecret, amount } = await response.json();
 
       if (!clientSecret) {
-        throw new Error('Failed to create payment intent')
+        throw new Error("Failed to create payment intent");
       }
 
       // Confirm payment
-      const cardElement = elements.getElement(CardElement)
+      const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
-        throw new Error('Card element not found')
+        throw new Error("Card element not found");
       }
 
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
+      const { error: stripeError, paymentIntent } =
+        await stripe.confirmCardPayment(clientSecret, {
           payment_method: {
             card: cardElement,
           },
-        }
-      )
+        });
 
       if (stripeError) {
-        setError(stripeError.message || 'Payment failed')
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        setSuccess(true)
+        setError(stripeError.message || "Payment failed");
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        setSuccess(true);
         setTimeout(() => {
-          onSuccess()
-        }, 2000)
+          onSuccess();
+        }, 2000);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
-  const boostLabel = boostType === 'en_vedette' ? 'En Vedette' : 'Visibilité'
+  const boostLabel = boostType === "en_vedette" ? "En Vedette" : "Visibilité";
 
   if (success) {
     return (
@@ -99,7 +103,7 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -117,10 +121,10 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
               options={{
                 style: {
                   base: {
-                    fontSize: '16px',
-                    color: '#424770',
-                    '::placeholder': {
-                      color: '#aab7c4',
+                    fontSize: "16px",
+                    color: "#424770",
+                    "::placeholder": {
+                      color: "#aab7c4",
                     },
                   },
                 },
@@ -149,7 +153,7 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
                   Traitement...
                 </>
               ) : (
-                'Payer $5'
+                "Payer $5"
               )}
             </Button>
             <Button
@@ -164,7 +168,7 @@ function CheckoutForm({ boostType, onSuccess, onCancel }: BoostPurchaseFormProps
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function BoostPurchaseForm(props: BoostPurchaseFormProps) {
@@ -172,5 +176,5 @@ export default function BoostPurchaseForm(props: BoostPurchaseFormProps) {
     <Elements stripe={stripePromise}>
       <CheckoutForm {...props} />
     </Elements>
-  )
+  );
 }

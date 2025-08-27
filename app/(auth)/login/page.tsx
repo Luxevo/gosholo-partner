@@ -1,73 +1,81 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import type React from "react";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 function LoginForm() {
-  const supabase = createClient()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const supabase = createClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
-  
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-  
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
     if (error || !data.session) {
-      setError("Email ou mot de passe incorrect.")
-      setIsLoading(false)
-      return
+      setError("Email ou mot de passe incorrect.");
+      setIsLoading(false);
+      return;
     }
 
     // Check if user has a profile
     const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', data.user.id)
-      .single()
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
 
     if (profileError || !profile) {
       // Create profile if it doesn't exist
       const { error: createProfileError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .insert({
           id: data.user.id,
           email: data.user.email!,
           first_name: data.user.user_metadata?.first_name || null,
           last_name: data.user.user_metadata?.last_name || null,
-          phone: data.user.user_metadata?.phone || null
-        })
+          phone: data.user.user_metadata?.phone || null,
+        });
 
       if (createProfileError) {
-        console.error('Error creating profile:', createProfileError)
+        console.error("Error creating profile:", createProfileError);
       }
     }
 
     // Redirect to the originally requested page or dashboard
-    const redirectTo = searchParams.get('redirectedFrom') || '/dashboard'
-    router.push(redirectTo)
-    setIsLoading(false)
-  }
-  
+    const redirectTo = searchParams.get("redirectedFrom") || "/dashboard";
+    router.push(redirectTo);
+    setIsLoading(false);
+  };
 
   return (
     <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
@@ -83,14 +91,20 @@ function LoginForm() {
             />
           </div>
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-brand-primary">Bienvenue chez Gosholo</h1>
-            <p className="text-brand-primary/70 text-xs">Connectez-vous à votre espace commerçant</p>
+            <h1 className="text-xl font-bold text-brand-primary">
+              Bienvenue chez gosholo
+            </h1>
+            <p className="text-brand-primary/70 text-xs">
+              Connectez-vous à votre espace commerçant
+            </p>
           </div>
         </div>
 
         <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
           <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-brand-primary text-center">Connexion</CardTitle>
+            <CardTitle className="text-xl font-semibold text-brand-primary text-center">
+              Connexion
+            </CardTitle>
             <CardDescription className="text-center text-brand-primary/70 text-sm">
               Entrez vos identifiants pour accéder à votre espace commerçant
             </CardDescription>
@@ -99,12 +113,17 @@ function LoginForm() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
                 <Alert className="border-red-200/50 bg-red-50/50 animate-in fade-in-50 slide-in-from-top-2 duration-300">
-                  <AlertDescription className="text-red-700 text-sm">{error}</AlertDescription>
+                  <AlertDescription className="text-red-700 text-sm">
+                    {error}
+                  </AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-brand-primary font-medium text-sm">
+                <Label
+                  htmlFor="email"
+                  className="text-brand-primary font-medium text-sm"
+                >
                   Adresse email
                 </Label>
                 <div className="relative group">
@@ -122,7 +141,10 @@ function LoginForm() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-brand-primary font-medium text-sm">
+                <Label
+                  htmlFor="password"
+                  className="text-brand-primary font-medium text-sm"
+                >
                   Mot de passe
                 </Label>
                 <div className="relative group">
@@ -161,9 +183,9 @@ function LoginForm() {
                 </Link>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg disabled:opacity-50" 
+              <Button
+                type="submit"
+                className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg disabled:opacity-50"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -192,7 +214,7 @@ function LoginForm() {
               Créer un compte
             </Link>
           </p>
-          
+
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
               En vous connectant, vous acceptez nos{" "}
@@ -208,13 +230,19 @@ function LoginForm() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Chargement...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          Chargement...
+        </div>
+      }
+    >
       <LoginForm />
     </Suspense>
-  )
+  );
 }
