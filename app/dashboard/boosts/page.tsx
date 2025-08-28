@@ -572,19 +572,19 @@ export default function BoostsPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600">Mettez votre contenu en avant avec un badge spécial</p>
+                  <p className="text-sm text-gray-600">Attirez tous les regards sur votre offre ou événement</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Badge "En Vedette" visible
+                      Badge Vedette pour vous démarquer
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Apparition prioritaire dans les recherches
+                      Placement prioritaire dans la liste des offres/événements
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Mise en avant sur la carte
+                      Apparition en haut des résultats de recherche
                     </li>
                   </ul>
                   <Button 
@@ -613,19 +613,19 @@ export default function BoostsPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600">Commerce plus visible sur la carte Mapbox</p>
+                  <p className="text-sm text-gray-600">Faites briller votre commerce sur la carte interactive</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Plus visible sur la carte
+                      Placement prioritaire dans la carte gosholo
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Augmente le trafic
+                      Attirez l'attention des membres qui recherchent autour d'eux
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Portée géographique élargie
+                      Mettez votre commerce en avant là où ça compte vraiment
                     </li>
                   </ul>
                   <Button 

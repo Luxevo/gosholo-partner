@@ -10,8 +10,8 @@ import { DashboardLayout } from "@/components/dashboard-layout"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Gosholo Partner - Tableau de bord commerçants",
-  description: "Gérez vos commerces, offres, événements et boosts de visibilité avec Gosholo Partner",
+  title: "gosholo entreprise - Tableau de bord commerçants",
+  description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
   manifest: "/manifest.json",
   generator: 'v0.dev'
 }
