@@ -15,7 +15,8 @@ import {
   CheckCircle,
   Zap,
   Sparkles,
-  Plus
+  Plus,
+  Settings
 } from "lucide-react"
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -362,59 +363,59 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
 
   return (
     <>
-      <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-          <div className="flex items-center space-x-3">
-            {commerce.image_url && (
-              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                <img
-                  src={commerce.image_url}
-                  alt={commerce.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-            <span className="text-lg sm:text-xl font-semibold">{commerce.name}</span>
-          </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleManageCommerce}
-              className="h-12 sm:h-8 w-full sm:w-auto"
-            >
-              Gérer ce commerce
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-12 w-full sm:h-8 sm:w-8 p-0 hover:bg-red-50 text-red-600"
-              onClick={handleDeleteCommerce}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sm:hidden ml-2">Supprimer le commerce</span>
-            </Button>
-          </div>
-        </CardTitle>
+      <Card className="mb-4 sm:mb-6">
+      <CardHeader className="pb-3 sm:pb-6">
+                 <CardTitle className="flex flex-row sm:flex-row items-center sm:items-center justify-between gap-3 sm:gap-0">
+           <div className="flex items-center space-x-2 sm:space-x-3">
+             {commerce.image_url && (
+               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                 <img
+                   src={commerce.image_url}
+                   alt={commerce.name}
+                   className="w-full h-full object-cover"
+                 />
+               </div>
+             )}
+             <span className="text-base sm:text-xl font-semibold">{commerce.name}</span>
+           </div>
+           <div className="flex flex-row items-center gap-2">
+             <Button 
+               variant="outline" 
+               size="sm" 
+               onClick={handleManageCommerce}
+               className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3"
+             >
+               <Edit className="h-4 w-4 sm:hidden" />
+               <span className="hidden sm:inline">Gérer ce commerce</span>
+             </Button>
+             <Button 
+               variant="ghost" 
+               size="sm" 
+               className="h-8 w-8 sm:h-8 sm:w-8 p-0 hover:bg-red-50 text-red-600"
+               onClick={handleDeleteCommerce}
+             >
+               <Trash2 className="h-4 w-4" />
+             </Button>
+           </div>
+         </CardTitle>
         <CardDescription className="text-sm sm:text-base">
           {commerce.address}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6">
+      <CardContent className="space-y-3 sm:space-y-6">
         {/* Offers Section */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3 sm:mb-4 flex items-center text-base sm:text-lg">
+          <h4 className="font-medium text-gray-900 mb-2 sm:mb-4 flex items-center text-sm sm:text-lg">
             <Tag className="h-4 w-4 sm:h-5 sm:w-5 mr-2" style={{ color: 'rgb(0,82,102)' }} />
             Offres actives
           </h4>
           {activeOffers.length > 0 ? (
             activeOffers.map((offer: any) => (
-              <div key={offer.id} className="border rounded-lg p-3 sm:p-4 mb-3 sm:mb-4" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                  <div className="flex items-start sm:items-center space-x-3 flex-1">
+              <div key={offer.id} className="border rounded-lg p-2 sm:p-4 mb-2 sm:mb-4" style={{ backgroundColor: 'rgba(0,82,102,0.05)', borderColor: 'rgba(0,82,102,0.2)' }}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                  <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1">
                     {offer.image_url && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
                           src={offer.image_url}
                           alt={offer.title}
@@ -434,21 +435,21 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-1">
+                  <div className="flex items-center gap-1 sm:gap-1">
                     <button 
-                      className="px-3 py-2 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleBoostOffer(offer)}
                     >
                       Boost
                     </button>
                     <button 
-                      className="p-2 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleEditOffer(offer)}
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button 
-                      className="p-2 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="p-1 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleDeleteOffer(offer)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -458,13 +459,13 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
               </div>
             ))
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">Aucune offre en cours</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-6">
+              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">Aucune offre en cours</p>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleCreateOffer}
-                className="h-12 sm:h-8 w-full sm:w-auto"
+                className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Créer une offre
@@ -475,17 +476,17 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
 
         {/* Events Section */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-3 sm:mb-4 flex items-center text-base sm:text-lg">
+          <h4 className="font-medium text-gray-900 mb-2 sm:mb-4 flex items-center text-sm sm:text-lg">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-orange-600" />
             Événements à venir
           </h4>
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event: any) => (
-              <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                  <div className="flex items-start sm:items-center space-x-3 flex-1">
+              <div key={event.id} className="bg-orange-50 border border-orange-200 rounded-lg p-2 sm:p-4 mb-2 sm:mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                  <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1">
                     {event.image_url && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
                           src={event.image_url}
                           alt={event.title}
@@ -505,21 +506,21 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-1">
+                  <div className="flex items-center gap-1 sm:gap-1">
                     <button 
-                      className="px-3 py-2 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleBoostEvent(event)}
                     >
                       Boost
                     </button>
                     <button 
-                      className="p-2 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleEditEvent(event)}
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button 
-                      className="p-2 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[44px] sm:min-h-[32px]"
+                      className="p-1 sm:p-1 text-red-600 bg-red-50 hover:bg-red-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleDeleteEvent(event)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -529,13 +530,13 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
               </div>
             ))
           ) : (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 sm:p-6">
-              <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-4">Aucun événement à venir</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-6">
+              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">Aucun événement à venir</p>
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleCreateEvent}
-                className="h-12 sm:h-8 w-full sm:w-auto"
+                className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Créer un événement

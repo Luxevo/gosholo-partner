@@ -631,6 +631,26 @@ npm run lint         # Code linting
 
 ## 🔧 Recent Major Changes
 
+### Header Component Enhancements (January 2025)
+- **Mobile optimization**: Improved mobile header with combined boost credits display
+- **Subscription plan indicator**: Visual indicator showing current plan (crown for Pro, star for Free)
+- **Boost credits display**: Combined Vedette and Visibilité credits in single container on mobile
+- **Color scheme updates**: 
+  - Free plan: Neutral gray colors (`bg-gray-50`, `text-gray-700`)
+  - Pro plan: Orange brand colors (`bg-orange-50`, `text-orange-700`)
+  - Boost credits: Custom blue colors (`rgb(222,243,248)` background, `rgb(70,130,180)` text)
+- **Icon consistency**: Using `Sparkles` for Vedette and `TrendingUp` for Visibilité (matching boost page)
+- **Responsive design**: Optimized spacing and text sizes for mobile devices
+- **Hover effects**: Enhanced interactive feedback for better UX
+
+### Commerce Card Mobile Optimization (January 2025)
+- **Compact mobile layout**: Reduced spacing and padding for mobile devices
+- **Icon-only buttons**: Mobile buttons show only icons (Edit and Trash2) for space efficiency
+- **Horizontal button layout**: Buttons aligned horizontally at same height as commerce title
+- **Responsive sizing**: Smaller images and text on mobile while preserving desktop layout
+- **Better touch targets**: Optimized button sizes for mobile interaction
+- **Improved spacing**: Reduced margins and padding specifically for mobile view
+
 ### Unified Dashboard Implementation
 - **Primary system**: Commerce-centric unified dashboard at `/dashboard`
 - **Integrated management**: All operations happen from main dashboard
@@ -697,9 +717,9 @@ For questions about implementation details, contact the development team. Regula
 - Event date management and status updates
 
 **Last Updated**: January 27, 2025
-**Version**: 2.3
+**Version**: 2.4
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)
-**Major Changes**: Unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages
+**Major Changes**: Header mobile optimization with subscription plan indicators and combined boost credits display, commerce card mobile optimization with icon-only buttons and compact layout, unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages
 
-**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Recommended to remove legacy pages for cleaner architecture.
+**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Header and commerce cards optimized for mobile experience with improved visual hierarchy and space efficiency. Recommended to remove legacy pages for cleaner architecture.
