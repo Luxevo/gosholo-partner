@@ -329,7 +329,7 @@ export default function ProfilPage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Mon Profil</h1>
-          <p className="text-primary/70 text-sm sm:text-base">Gérez votre compte et vos commerces Gosholo Partner</p>
+          <p className="text-primary/70 text-sm sm:text-base">Gérez votre compte et vos commerces</p>
         </div>
 
         {/* Current Plan and Account Info - Side by Side */}
@@ -346,7 +346,7 @@ export default function ProfilPage() {
                   )}
                   <div>
                     <CardTitle className="text-lg sm:text-xl">
-                      Plan {subscription?.plan_type === 'pro' ? 'Pro' : 'Gratuit'}
+                      Plan {subscription?.plan_type === 'pro' ? 'Plus' : 'Gratuit'}
                     </CardTitle>
                     <CardDescription className="text-sm">
                       {subscription?.plan_type === 'pro' 
@@ -360,7 +360,7 @@ export default function ProfilPage() {
                   variant={subscription?.plan_type === 'pro' ? "default" : "secondary"}
                   className={subscription?.plan_type === 'pro' ? "bg-yellow-500" : ""}
                 >
-                  {subscription?.plan_type === 'pro' ? 'PRO' : 'GRATUIT'}
+                  {subscription?.plan_type === 'pro' ? 'Plus' : 'GRATUIT'}
                 </Badge>
               </div>
             </CardHeader>

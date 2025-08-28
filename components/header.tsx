@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {  Settings, LogOut, User, Menu, Zap, Crown, Star } from "lucide-react"
+import {  Settings, LogOut, User, Menu, Zap, Crown, Star, Sparkles, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useState, useEffect } from "react"
@@ -60,95 +60,117 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   return (
     <header className="bg-white border-b border-brand-primary/20 px-4 lg:px-6 py-4">
       <div className="flex items-center justify-between">
-        {/* Left side - Menu button and title */}
-        <div className="flex items-center space-x-3 min-w-0 flex-1">
-          {/* Mobile Menu Button */}
-          {showMobileMenu && onMenuClick && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onMenuClick} 
-              className="lg:hidden flex-shrink-0 h-10 w-10"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
-          
-          {/* Title - responsive and truncates on mobile */}
-          <h1 className="text-lg font-semibold text-brand-primary truncate">
-            <span className="hidden sm:inline">Bienvenue, {getUserDisplayName()} !</span>
-            <span className="sm:hidden">Bienvenue, {getUserDisplayName()} !</span>
-          </h1>
-        </div>
+                 {/* Left side - Menu button and title */}
+         <div className="flex items-center space-x-2 min-w-0 flex-1">
+           {/* Mobile Menu Button */}
+           {showMobileMenu && onMenuClick && (
+             <Button 
+               variant="ghost" 
+               size="icon" 
+               onClick={onMenuClick} 
+               className="lg:hidden flex-shrink-0 h-10 w-10"
+             >
+               <Menu className="h-5 w-5" />
+             </Button>
+           )}
+           
+           {/* Title - responsive and truncates on mobile */}
+           <h1 className="text-lg font-semibold text-brand-primary truncate">
+             <span className="hidden sm:inline">Bienvenue, {getUserDisplayName()} !</span>
+             <span className="sm:hidden text-sm">Bienvenue, {getUserDisplayName()} !</span>
+           </h1>
+         </div>
 
-        {/* Right side - Boost credits and user menu */}
-        <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-          {/* Mobile: Compact boost display */}
-          <div className="sm:hidden flex items-center space-x-1">
-            <Link href="/dashboard/boosts">
-              <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
-                   style={{ backgroundColor: 'rgba(178, 253, 157, 0.2)', borderColor: 'rgba(178, 253, 157, 0.5)' }} 
-                   onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.3)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.7)' }} 
-                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.2)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.5)' }}>
-                <Crown className="h-4 w-4 text-green-700" />
-                <span className="text-sm font-medium text-green-700">
-                  {counts.isLoading ? '...' : counts.boostCreditsVedette}
-                </span>
-              </div>
-            </Link>
-            
-            <Link href="/dashboard/boosts">
-              <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer min-h-[44px]">
-                <Zap className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-600">
-                  {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
-                </span>
-              </div>
-            </Link>
-          </div>
+                 {/* Right side - Boost credits and user menu */}
+         <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+           {/* Mobile: Simplified boost display */}
+           <div className="sm:hidden flex items-center space-x-2">
+             {/* Combined boost credits */}
+             <Link href="/dashboard/boosts">
+               <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
+                    style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
+                 <div className="flex items-center space-x-1">
+                   <Sparkles className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
+                   <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                     {counts.isLoading ? '...' : counts.boostCreditsVedette}
+                   </span>
+                 </div>
+                 <div className="flex items-center space-x-1 ml-1">
+                   <TrendingUp className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
+                   <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                     {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
+                   </span>
+                 </div>
+               </div>
+             </Link>
+             
+             {/* Subscription plan indicator */}
+             <div className={`flex items-center px-2 py-1.5 rounded-lg border min-h-[44px] ${
+               counts.subscriptionPlan === 'pro' 
+                 ? 'bg-orange-50 border-orange-200' 
+                 : 'bg-gray-50 border-gray-200'
+             }`}>
+               {counts.subscriptionPlan === 'pro' ? (
+                 <Crown className="h-4 w-4 text-orange-600" />
+               ) : (
+                 <Star className="h-4 w-4 text-gray-500" />
+               )}
+             </div>
+           </div>
 
-          {/* Desktop: Full boost credits display */}
-          <div className="hidden sm:flex items-center space-x-2">
-            {/* Boost Credits - Vedette */}
-            <Link href="/dashboard/boosts">
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
-                   style={{ backgroundColor: 'rgba(178, 253, 157, 0.2)', borderColor: 'rgba(178, 253, 157, 0.5)' }} 
-                   onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.3)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.7)' }} 
-                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(178, 253, 157, 0.2)'; e.currentTarget.style.borderColor = 'rgba(178, 253, 157, 0.5)' }}>
-                <Crown className="h-4 w-4 text-green-700" />
-                <div className="flex items-center space-x-1 text-sm">
-                  <span className="text-green-700/80">Vedette:</span>
-                  <span className="font-medium text-green-700">
-                    {counts.isLoading ? '...' : counts.boostCreditsVedette}
-                  </span>
-                </div>
-              </div>
-            </Link>
+                                                                                                                                                                                       {/* Desktop: Full boost credits display */}
+               <div className="hidden sm:flex items-center space-x-2">
+                 {/* Boost Credits - Vedette */}
+                 <Link href="/dashboard/boosts">
+                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
+                        style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
+                     <Sparkles className="h-4 w-4" style={{ color: 'rgb(70,130,180)' }} />
+                     <div className="flex items-center space-x-1 text-sm">
+                       <span style={{ color: 'rgb(70,130,180)' }}>Vedette:</span>
+                       <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                         {counts.isLoading ? '...' : counts.boostCreditsVedette}
+                       </span>
+                     </div>
+                   </div>
+                 </Link>
 
-            {/* Boost Credits - Visibilité */}
-            <Link href="/dashboard/boosts">
-              <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer min-h-[44px]">
-                <Zap className="h-4 w-4 text-blue-600" />
-                <div className="flex items-center space-x-1 text-sm">
-                  <span className="text-blue-600/80">Visibilité:</span>
-                  <span className="font-medium text-blue-600">
-                    {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
-                  </span>
-                </div>
-              </div>
-            </Link>
+                 {/* Boost Credits - Visibilité */}
+                 <Link href="/dashboard/boosts">
+                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
+                        style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
+                     <TrendingUp className="h-4 w-4" style={{ color: 'rgb(70,130,180)' }} />
+                     <div className="flex items-center space-x-1 text-sm">
+                       <span style={{ color: 'rgb(70,130,180)' }}>Visibilité:</span>
+                       <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                         {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
+                       </span>
+                     </div>
+                   </div>
+                 </Link>
 
             {/* Subscription Plan */}
             <Link href="/dashboard/boosts">
-              <div className="flex items-center space-x-2 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors cursor-pointer min-h-[44px]">
+              <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] ${
+                counts.subscriptionPlan === 'pro' 
+                  ? 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300' 
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+              }`}>
                 {counts.subscriptionPlan === 'pro' ? (
-                  <Crown className="h-4 w-4 text-yellow-600" />
+                  <Crown className="h-4 w-4 text-orange-600" />
                 ) : (
                   <Star className="h-4 w-4 text-gray-500" />
                 )}
-                                 <span className="text-sm font-medium text-blue-700">
-                   {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Plus' : 'Gratuit'}
-                 </span>
+                <span className={`text-sm font-medium ${
+                  counts.subscriptionPlan === 'pro' ? 'text-orange-700' : 'text-gray-700'
+                }`}>
+                  {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Plus' : 'Gratuit'}
+                </span>
               </div>
             </Link>
           </div>

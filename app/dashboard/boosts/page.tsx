@@ -439,11 +439,15 @@ export default function BoostsPage() {
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
-                      Création d'offres et événements
+                      Maximum 1 offre ou 1 événement actif à la fois
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
-                      Boosts à la carte disponibles
+                      Accès à vos statistiques en temps réel
+                    </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
+                      Votre entreprise affichée sur la carte interactive gosholo
                     </li>
                   </ul>
                 </div>
@@ -458,20 +462,26 @@ export default function BoostsPage() {
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">Actuel</Badge>}
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8$/mois</div>
-                  <p className="text-sm text-gray-600">Plan premium</p>
+                  <p className="text-sm text-gray-600">Passez à la vitesse supérieure</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      1 boost Vedette mensuel
+                      Jusqu'à 5 offres ou 5 événements actifs en même temps
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      1 boost Visibilité mensuel
+                      Tout ce que l'offre gosholo Base inclut
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      Fonctionnalités Pro
+                      1 Boost Vedette par mois (mettez en avant une offre ou un événement pendant 72h)
                     </li>
+                    <li className="flex items-center">
+                      <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
+                      1 Boost Visibilité par mois (mettez votre commerce en avant sur la carte interactive)
+                    </li>
+                    <p className="text-sm text-gray-600">Les Boost inclus avec l'abonnement se renouvellent chaque mois mais ne s'accumulent pas. Utilisez-les avant la fin du mois.
+</p>
                   </ul>
                   {!subscription?.is_subscribed && (
                     <Button 
@@ -599,7 +609,7 @@ export default function BoostsPage() {
                     </div>
                   </div>
                   <div className="text-center sm:text-right">
-                    <div className="text-xl sm:text-2xl font-bold text-brand-secondary">5$</div>
+                    <div className="text-xl sm:text-2xl font-bold text-brand-primary">5$</div>
                   </div>
                 </div>
                 <div className="space-y-3">
