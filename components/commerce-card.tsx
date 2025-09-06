@@ -40,7 +40,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const [itemToDelete, setItemToDelete] = useState<{type: 'offer' | 'event', item: any} | null>(null)
   const [isManageCommerceDialogOpen, setIsManageCommerceDialogOpen] = useState(false)
   const [isBoostModalOpen, setIsBoostModalOpen] = useState(false)
-  const [boostingItem, setBoostingItem] = useState<{type: 'offer' | 'event', item: any} | null>(null)
+  const [boostingItem, setBoostingItem] = useState<{type: 'offer' | 'event' | 'commerce', item: any} | null>(null)
   const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
   const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
   const [isDeleteCommerceConfirmOpen, setIsDeleteCommerceConfirmOpen] = useState(false)
@@ -76,6 +76,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
 
   const handleBoostEvent = (event: any) => {
     setBoostingItem({ type: 'event', item: event })
+    setIsBoostModalOpen(true)
+  }
+
+  const handleBoostCommerce = (commerce: any) => {
+    setBoostingItem({ type: 'commerce', item: commerce })
     setIsBoostModalOpen(true)
   }
 
@@ -381,6 +386,15 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
              <Button 
                variant="outline" 
                size="sm" 
+               onClick={() => handleBoostCommerce(commerce)}
+               className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+             >
+               <Zap className="h-4 w-4 sm:hidden" />
+               <span className="hidden sm:inline">Boost ce commerce</span>
+             </Button>
+             <Button 
+               variant="outline" 
+               size="sm" 
                onClick={handleManageCommerce}
                className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3"
              >
@@ -633,39 +647,72 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
      <Dialog open={isBoostModalOpen} onOpenChange={setIsBoostModalOpen}>
        <DialogContent className="sm:max-w-md">
          <DialogHeader>
-           <DialogTitle>Booster votre {boostingItem?.type === 'offer' ? 'offre' : 'événement'}</DialogTitle>
+           <DialogTitle>Booster votre {boostingItem?.type === 'offer' ? 'offre' : boostingItem?.type === 'event' ? 'événement' : 'commerce'}</DialogTitle>
            <DialogDescription>
-             Choisissez le type de boost pour augmenter la visibilité de "{boostingItem?.item?.title}" pendant 72 heures.
+             {boostingItem?.type === 'commerce' 
+               ? `Boostez la visibilité de "${boostingItem?.item?.name}" sur la carte pendant 72 heures.`
+               : `Choisissez le type de boost pour augmenter la visibilité de "${boostingItem?.item?.title}" pendant 72 heures.`
+             }
            </DialogDescription>
          </DialogHeader>
          <div>
-           {/* En Vedette Boost */}
-           <div className="border rounded-lg p-4">
-             <div className="flex items-center gap-3 mb-3">
-               <div className="p-2 bg-orange-100 rounded-full">
-                 <Sparkles className="h-5 w-5 text-orange-600" />
+           {boostingItem?.type === 'commerce' ? (
+             /* Visibilité Boost for Commerce */
+             <div className="border rounded-lg p-4">
+               <div className="flex items-center gap-3 mb-3">
+                 <div className="p-2 bg-blue-100 rounded-full">
+                   <Zap className="h-5 w-5 text-blue-600" />
+                 </div>
+                 <div>
+                   <h4 className="font-medium text-blue-800">Visibilité</h4>
+                   <p className="text-xs text-blue-600">72h de portée élargie</p>
+                 </div>
                </div>
-               <div>
-                 <h4 className="font-medium text-orange-800">En Vedette</h4>
-                 <p className="text-xs text-orange-600">72h de visibilité premium</p>
-               </div>
+               <ul className="text-xs text-blue-700 space-y-1 mb-3">
+                 <li>• Plus visible sur la carte</li>
+                 <li>• Augmente le trafic</li>
+                 <li>• Portée géographique élargie</li>
+               </ul>
+               <Button
+                 onClick={() => handleApplyBoost('visibilite')}
+                 className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                 size="sm"
+               >
+                 {boostCredits?.available_visibilite ? 
+                   `Utiliser crédit (${boostCredits.available_visibilite} dispo)` : 
+                   "Acheter 5$"
+                 }
+               </Button>
              </div>
-             <ul className="text-xs text-orange-700 space-y-1 mb-3">
-               <li>• Badge "En Vedette" visible</li>
-               <li>• Priorité dans les recherches</li>
-               <li>• Mise en avant sur la carte</li>
-             </ul>
-             <Button
-               onClick={() => handleApplyBoost('en_vedette')}
-               className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm"
-               size="sm"
-             >
-               {boostCredits?.available_en_vedette ? 
-                 `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
-                 "Acheter 5$"
-               }
-             </Button>
-           </div>
+           ) : (
+             /* En Vedette Boost for Offers/Events */
+             <div className="border rounded-lg p-4">
+               <div className="flex items-center gap-3 mb-3">
+                 <div className="p-2 bg-orange-100 rounded-full">
+                   <Sparkles className="h-5 w-5 text-orange-600" />
+                 </div>
+                 <div>
+                   <h4 className="font-medium text-orange-800">En Vedette</h4>
+                   <p className="text-xs text-orange-600">72h de visibilité premium</p>
+                 </div>
+               </div>
+               <ul className="text-xs text-orange-700 space-y-1 mb-3">
+                 <li>• Badge "En Vedette" visible</li>
+                 <li>• Priorité dans les recherches</li>
+                 <li>• Mise en avant sur la carte</li>
+               </ul>
+               <Button
+                 onClick={() => handleApplyBoost('en_vedette')}
+                 className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                 size="sm"
+               >
+                 {boostCredits?.available_en_vedette ? 
+                   `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
+                   "Acheter 5$"
+                 }
+               </Button>
+             </div>
+           )}
          </div>
        </DialogContent>
      </Dialog>
