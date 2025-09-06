@@ -33,7 +33,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 interface UserContent {
   id: string
   title: string
-  type: 'offer' | 'event'
+  type: 'offer' | 'event' | 'commerce'
   commerce_name: string
   boosted: boolean
   boost_type?: 'en_vedette' | 'visibilite'
@@ -141,7 +141,7 @@ export default function BoostsPage() {
         // Get user's commerces
         const { data: commercesData } = await supabase
           .from('commerces')
-          .select('id, name')
+          .select('id, name, boost_type, boosted, boosted_at')
           .eq('user_id', user.id)
 
         const commerceIds = commercesData?.map(c => c.id) || []
@@ -200,6 +200,24 @@ export default function BoostsPage() {
           }
         }
 
+        // Process commerces
+        if (commercesData) {
+          commercesData.forEach(commerce => {
+            const isBoosted = commerce.boosted && !isBoostExpired(commerce.boosted_at)
+            if (isBoosted) boostedCount++
+            allContent.push({
+              id: commerce.id,
+              title: commerce.name,
+              type: 'commerce',
+              commerce_name: commerce.name,
+              boosted: isBoosted,
+              boost_type: isBoosted ? commerce.boost_type : undefined,
+              boosted_at: commerce.boosted_at,
+              remaining_time: isBoosted ? formatBoostRemainingTime(commerce.boosted_at) : undefined
+            })
+          })
+        }
+
         setUserContent(allContent)
         setStats({
           availableEnVedette: boostCreditsData?.available_en_vedette || 0,
@@ -218,7 +236,7 @@ export default function BoostsPage() {
     loadData()
   }, [])
 
-  const handleApplyBoost = async (contentId: string, contentType: 'offer' | 'event', boostType: 'en_vedette' | 'visibilite') => {
+  const handleApplyBoost = async (contentId: string, contentType: 'offer' | 'event' | 'commerce', boostType: 'en_vedette' | 'visibilite') => {
     const availableCredits = boostType === 'en_vedette' 
       ? boostCredits?.available_en_vedette || 0
       : boostCredits?.available_visibilite || 0
@@ -271,7 +289,7 @@ export default function BoostsPage() {
     }
   }
 
-  const handleRemoveBoost = async (contentId: string, contentType: 'offer' | 'event') => {
+  const handleRemoveBoost = async (contentId: string, contentType: 'offer' | 'event' | 'commerce') => {
     setIsApplyingBoost(contentId)
 
     try {
@@ -645,7 +663,7 @@ export default function BoostsPage() {
           <CardHeader>
             <CardTitle>Votre contenu en cours</CardTitle>
             <CardDescription>
-            Retrouvez ici vos offres et événements actifs, prêts à être boostés en un clic
+            Retrouvez ici vos offres, événements et commerces actifs, prêts à être boostés en un clic
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -653,7 +671,7 @@ export default function BoostsPage() {
               <div className="text-center py-8">
                 <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun contenu</h3>
-                <p className="text-gray-600 mb-4">Créez des offres ou événements pour utiliser les boosts</p>
+                <p className="text-gray-600 mb-4">Créez des offres, événements ou commerces pour utiliser les boosts</p>
                 <Button variant="outline" className="h-12 sm:h-10">
                   <ArrowRight className="h-4 w-4 mr-2" />
                   Aller aux commerces
@@ -666,12 +684,21 @@ export default function BoostsPage() {
                     <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
                       {content.type === 'offer' ? (
                         <Tag className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                      ) : (
+                      ) : content.type === 'event' ? (
                         <Calendar className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      ) : (
+                        <TrendingUp className="h-5 w-5 text-purple-500 flex-shrink-0" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-sm sm:text-base">{content.title}</h4>
-                        <p className="text-sm text-gray-600">{content.commerce_name}</p>
+                        <div className="mb-1">
+                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            {content.type === 'offer' ? 'Offre' : content.type === 'event' ? 'Événement' : 'Commerce'}
+                          </span>
+                          <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
+                        </div>
+                        {content.type !== 'commerce' && (
+                          <p className="text-sm text-gray-600">{content.commerce_name}</p>
+                        )}
                         {content.boosted && (
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
                             <Badge variant="secondary" className="w-fit">
@@ -689,7 +716,7 @@ export default function BoostsPage() {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
-                      {content.boosted ? (
+                      {content.boosted && content.type !== 'commerce' ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -699,29 +726,32 @@ export default function BoostsPage() {
                         >
                           Retirer le boost
                         </Button>
+                      ) : content.boosted && content.type === 'commerce' ? (
+                        <div className="flex items-center justify-center h-12 sm:h-8 px-4 text-sm text-gray-500 bg-gray-50 rounded-md border">
+                          Boost actif - Expire automatiquement
+                        </div>
+                      ) : content.type === 'commerce' ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
+                          disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
+                          className="h-12 sm:h-8 w-full sm:w-auto"
+                        >
+                          <TrendingUp className="h-4 w-4 mr-1" />
+                          Visibilité ({boostCredits?.available_visibilite || 0})
+                        </Button>
                       ) : (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
-                            disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
-                            className="h-12 sm:h-8 w-full sm:w-auto"
-                          >
-                            <Sparkles className="h-4 w-4 mr-1" />
-                            Vedette ({boostCredits?.available_en_vedette || 0})
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
-                            disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
-                            className="h-12 sm:h-8 w-full sm:w-auto"
-                          >
-                            <TrendingUp className="h-4 w-4 mr-1" />
-                            Visibilité ({boostCredits?.available_visibilite || 0})
-                          </Button>
-                        </>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
+                          disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
+                          className="h-12 sm:h-8 w-full sm:w-auto"
+                        >
+                          <Sparkles className="h-4 w-4 mr-1" />
+                          Vedette ({boostCredits?.available_en_vedette || 0})
+                        </Button>
                       )}
                     </div>
                   </div>
