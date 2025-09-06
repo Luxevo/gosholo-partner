@@ -107,7 +107,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
       if (!user) return
 
       // Check if content is already boosted
-      const tableName = boostingItem.type === 'offer' ? 'offers' : 'events'
+      const tableName = boostingItem.type === 'offer' ? 'offers' : boostingItem.type === 'event' ? 'events' : 'commerces'
       const { data: existingContent } = await supabase
         .from(tableName)
         .select('boosted')
@@ -153,11 +153,14 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
 
       toast({
         title: "Boost appliqué !",
-        description: `Votre ${boostingItem.type === 'offer' ? 'offre' : 'événement'} est maintenant boosté pour 72 heures.`,
+        description: `Votre ${boostingItem.type === 'offer' ? 'offre' : boostingItem.type === 'event' ? 'événement' : 'commerce'} est maintenant boosté pour 72 heures.`,
       })
 
       setIsBoostModalOpen(false)
       setBoostingItem(null)
+      
+      // Refresh the dashboard to show updated data
+      onRefresh()
 
     } catch (error) {
       console.error('Error applying boost:', error)

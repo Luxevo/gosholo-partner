@@ -53,6 +53,9 @@ export type Database = {
       commerces: {
         Row: {
           address: string
+          boost_type: Database["public"]["Enums"]["boost_type_enum"] | null
+          boosted: boolean | null
+          boosted_at: string | null
           category: Database["public"]["Enums"]["commerce_category_enum"] | null
           created_at: string | null
           description: string | null
@@ -74,6 +77,9 @@ export type Database = {
         }
         Insert: {
           address: string
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
+          boosted?: boolean | null
+          boosted_at?: string | null
           category?:
             | Database["public"]["Enums"]["commerce_category_enum"]
             | null
@@ -97,6 +103,9 @@ export type Database = {
         }
         Update: {
           address?: string
+          boost_type?: Database["public"]["Enums"]["boost_type_enum"] | null
+          boosted?: boolean | null
+          boosted_at?: string | null
           category?:
             | Database["public"]["Enums"]["commerce_category_enum"]
             | null
@@ -195,6 +204,30 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           uses_commerce_location?: boolean
+        }
+        Relationships: []
+      }
+      mobile_user_profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          updated_at?: string | null
+          username?: string
         }
         Relationships: []
       }
@@ -366,6 +399,93 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorite_commerces: {
+        Row: {
+          commerce_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          commerce_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          commerce_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_commerces_commerce_id_fkey"
+            columns: ["commerce_id"]
+            isOneToOne: false
+            referencedRelation: "commerces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorite_events: {
+        Row: {
+          created_at: string | null
+          event_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_events_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_favorite_offers: {
+        Row: {
+          created_at: string | null
+          id: string
+          offer_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          offer_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          offer_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_offers_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -380,7 +500,13 @@ export type Database = {
         Returns: undefined
       }
       use_boost_credits: {
-        Args: { credits_to_use: number; user_uuid: string }
+        Args:
+          | {
+              boost_type_param: Database["public"]["Enums"]["boost_type_enum"]
+              credits_to_use?: number
+              user_uuid: string
+            }
+          | { credits_to_use: number; user_uuid: string }
         Returns: boolean
       }
       user_has_credits: {
