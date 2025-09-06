@@ -39,6 +39,9 @@ interface Commerce {
   status: string
   created_at: string | null
   updated_at: string | null
+  boosted?: boolean
+  boost_type?: 'en_vedette' | 'visibilite'
+  boosted_at?: string | null
   offers?: Offer[]
   events?: Event[]
 }

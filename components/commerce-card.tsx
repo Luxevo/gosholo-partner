@@ -15,7 +15,8 @@ import {
   Zap,
   Sparkles,
   Plus,
-  Settings
+  Settings,
+  TrendingUp
 } from "lucide-react"
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -23,6 +24,8 @@ import EventCreationFlow from "@/components/event-creation-flow"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
+import { formatBoostRemainingTime, isBoostExpired } from "@/lib/boost-utils"
+import { useDashboard } from "@/contexts/dashboard-context"
 
 interface CommerceCardProps {
   commerce: any
@@ -32,6 +35,7 @@ interface CommerceCardProps {
 const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const { toast } = useToast()
   const router = useRouter()
+  const { counts } = useDashboard()
   const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<any>(null)
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false)
@@ -189,7 +193,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     return { label: 'Active', variant: 'default' as const }
   }
 
-  const getEventStatus = (event: any) => {
+  const getEventStatus = () => {
     return { label: 'À venir', variant: 'default' as const }
   }
 
@@ -380,18 +384,33 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  />
                </div>
              )}
-             <span className="text-base sm:text-xl font-semibold">{commerce.name}</span>
+             <div className="flex flex-col">
+               <span className="text-base sm:text-xl font-semibold">{commerce.name}</span>
+               {commerce.boosted && commerce.boost_type && !isBoostExpired(commerce.boosted_at) && (
+                 <div className="flex items-center gap-3 mt-2">
+                   <Badge className="w-fit text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1 shadow-md">
+                     <TrendingUp className="h-4 w-4 mr-2" style={{ color: 'white' }} />
+                     Visibilité Boost
+                   </Badge>
+                   <span className="text-sm font-medium text-blue-600">
+                     {formatBoostRemainingTime(commerce.boosted_at)}
+                   </span>
+                 </div>
+               )}
+             </div>
            </div>
            <div className="flex flex-row items-center gap-2">
-             <Button 
-               variant="outline" 
-               size="sm" 
-               onClick={() => handleBoostCommerce(commerce)}
-               className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
-             >
-               <Zap className="h-4 w-4 sm:hidden" />
-               <span className="hidden sm:inline">Boost ce commerce</span>
-             </Button>
+             {!(commerce.boosted && commerce.boost_type && !isBoostExpired(commerce.boosted_at)) && (
+               <Button 
+                 variant="outline" 
+                 size="sm" 
+                 onClick={() => handleBoostCommerce(commerce)}
+                 className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+               >
+                 <Zap className="h-4 w-4 sm:hidden" />
+                 <span className="hidden sm:inline">Boost ce commerce</span>
+               </Button>
+             )}
              <Button 
                variant="outline" 
                size="sm" 
@@ -478,10 +497,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleCreateOffer}
+                disabled={!counts.canCreateContent}
                 className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Créer une offre
+                {counts.canCreateContent ? 'Créer une offre' : 'Limite atteinte'}
               </Button>
             </div>
           )}
@@ -510,8 +530,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                     <div className="flex-1 min-w-0">
                       <h5 className="font-medium text-gray-900 text-sm sm:text-base mb-1">{event.title}</h5>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <Badge variant={getEventStatus(event).variant} className="text-xs w-fit">
-                          {getEventStatus(event).label}
+                        <Badge variant={getEventStatus().variant} className="text-xs w-fit">
+                          {getEventStatus().label}
                         </Badge>
                         <span className="text-xs text-gray-500">
                           {new Date(event.created_at).toLocaleDateString('fr-FR')}
@@ -549,10 +569,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleCreateEvent}
+                disabled={!counts.canCreateContent}
                 className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Créer un événement
+                {counts.canCreateContent ? 'Créer un événement' : 'Limite atteinte'}
               </Button>
             </div>
           )}
