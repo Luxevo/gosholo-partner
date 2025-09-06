@@ -681,7 +681,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="mb-4">
             {/* En Vedette Boost */}
             <div className="bg-white rounded-lg p-4 border border-orange-200">
               <div className="flex items-center gap-3 mb-3">
@@ -706,35 +706,6 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               >
                 {boostCredits?.available_en_vedette ? 
                   `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
-                  "Acheter 5$"
-                }
-              </Button>
-            </div>
-
-            {/* Visibilité Boost */}
-            <div className="bg-white rounded-lg p-4 border border-orange-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-blue-800">Visibilité</h4>
-                  <p className="text-xs text-blue-600">72h de portée élargie</p>
-                </div>
-              </div>
-              <ul className="text-xs text-blue-700 space-y-1 mb-3">
-                <li>• Plus visible sur la carte</li>
-                <li>• Augmente le trafic</li>
-                <li>• Portée géographique élargie</li>
-              </ul>
-              <Button
-                onClick={() => handleApplyBoost('visibilite')}
-                disabled={isLoading}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2"
-                size="sm"
-              >
-                {boostCredits?.available_visibilite ? 
-                  `Utiliser crédit (${boostCredits.available_visibilite} dispo)` : 
                   "Acheter 5$"
                 }
               </Button>

@@ -82,6 +82,20 @@ export async function expireOldBoosts(): Promise<void> {
       console.error('Error expiring event boosts:', eventsError)
     }
     
+    // Expire old commerces
+    const { error: commercesError } = await supabase
+      .from('commerces')
+      .update({ 
+        boosted: false,
+        boost_type: null 
+      })
+      .eq('boosted', true)
+      .lt('boosted_at', cutoffTime)
+    
+    if (commercesError) {
+      console.error('Error expiring commerce boosts:', commercesError)
+    }
+    
     console.log('Boost expiry cleanup completed')
   } catch (error) {
     console.error('Error during boost expiry cleanup:', error)
@@ -93,7 +107,7 @@ export async function expireOldBoosts(): Promise<void> {
  */
 export async function applyBoost(
   contentId: string,
-  contentType: 'offer' | 'event',
+  contentType: 'offer' | 'event' | 'commerce',
   boostType: 'en_vedette' | 'visibilite',
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -120,8 +134,9 @@ export async function applyBoost(
     }
     
     // Check if content is already boosted
+    const tableName = contentType === 'offer' ? 'offers' : contentType === 'event' ? 'events' : 'commerces'
     const { data: existingContent, error: checkError } = await supabase
-      .from(contentType === 'offer' ? 'offers' : 'events')
+      .from(tableName)
       .select('boosted')
       .eq('id', contentId)
       .single()
@@ -136,7 +151,7 @@ export async function applyBoost(
     
     // Apply boost to content
     const { error: updateError } = await supabase
-      .from(contentType === 'offer' ? 'offers' : 'events')
+      .from(tableName)
       .update({ 
         boosted: true,
         boost_type: boostType,
@@ -164,7 +179,7 @@ export async function applyBoost(
     if (creditUpdateError) {
       // Rollback the boost if credit update fails
       await supabase
-        .from(contentType === 'offer' ? 'offers' : 'events')
+        .from(tableName)
         .update({ 
           boosted: false,
           boost_type: null,
@@ -190,13 +205,14 @@ export async function applyBoost(
  */
 export async function removeBoost(
   contentId: string,
-  contentType: 'offer' | 'event'
+  contentType: 'offer' | 'event' | 'commerce'
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = createClient()
   
   try {
+    const tableName = contentType === 'offer' ? 'offers' : contentType === 'event' ? 'events' : 'commerces'
     const { error: updateError } = await supabase
-      .from(contentType === 'offer' ? 'offers' : 'events')
+      .from(tableName)
       .update({ 
         boosted: false,
         boost_type: null,

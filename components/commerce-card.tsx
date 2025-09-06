@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { 
   Tag, 
   Calendar, 
-  TrendingUp, 
   Edit,
   Trash2,
   CheckCircle,
@@ -639,7 +638,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
              Choisissez le type de boost pour augmenter la visibilité de "{boostingItem?.item?.title}" pendant 72 heures.
            </DialogDescription>
          </DialogHeader>
-         <div className="space-y-4">
+         <div>
            {/* En Vedette Boost */}
            <div className="border rounded-lg p-4">
              <div className="flex items-center gap-3 mb-3">
@@ -663,34 +662,6 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
              >
                {boostCredits?.available_en_vedette ? 
                  `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
-                 "Acheter 5$"
-               }
-             </Button>
-           </div>
-
-           {/* Visibilité Boost */}
-           <div className="border rounded-lg p-4">
-             <div className="flex items-center gap-3 mb-3">
-               <div className="p-2 bg-blue-100 rounded-full">
-                 <TrendingUp className="h-5 w-5 text-blue-600" />
-               </div>
-               <div>
-                 <h4 className="font-medium text-blue-800">Visibilité</h4>
-                 <p className="text-xs text-blue-600">72h de portée élargie</p>
-               </div>
-             </div>
-             <ul className="text-xs text-blue-700 space-y-1 mb-3">
-               <li>• Plus visible sur la carte</li>
-               <li>• Augmente le trafic</li>
-               <li>• Portée géographique élargie</li>
-             </ul>
-             <Button
-               onClick={() => handleApplyBoost('visibilite')}
-               className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
-               size="sm"
-             >
-               {boostCredits?.available_visibilite ? 
-                 `Utiliser crédit (${boostCredits.available_visibilite} dispo)` : 
                  "Acheter 5$"
                }
              </Button>
