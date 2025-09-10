@@ -83,26 +83,28 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
 
                  {/* Right side - Boost credits and user menu */}
          <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-           {/* Mobile: Simplified boost display */}
-           <div className="sm:hidden flex items-center space-x-2">
-             {/* Combined boost credits */}
+             {/* Mobile: Clean boost display */}
+           <div className="sm:hidden flex items-center space-x-1">
+             {/* Vedette boost - Green */}
+             <Link href="/dashboard/boosts">
+               <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] bg-brand-light/20 border-brand-primary/30 hover:bg-brand-light/30 hover:border-brand-primary/50">
+                 <Sparkles className="h-3 w-3 text-brand-primary" />
+                 <span className="text-xs font-medium text-brand-primary">
+                   {counts.isLoading ? '...' : counts.boostCreditsVedette}
+                 </span>
+               </div>
+             </Link>
+             
+             {/* Visibilité boost - Blue */}
              <Link href="/dashboard/boosts">
                <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
                     style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
                     onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
                     onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
-                 <div className="flex items-center space-x-1">
-                   <Sparkles className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
-                   <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
-                     {counts.isLoading ? '...' : counts.boostCreditsVedette}
-                   </span>
-                 </div>
-                 <div className="flex items-center space-x-1 ml-1">
-                   <TrendingUp className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
-                   <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
-                     {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
-                   </span>
-                 </div>
+                 <TrendingUp className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
+                 <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                   {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
+                 </span>
                </div>
              </Link>
              
@@ -124,14 +126,11 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                <div className="hidden sm:flex items-center space-x-2">
                  {/* Boost Credits - Vedette */}
                  <Link href="/dashboard/boosts">
-                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
-                        style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
-                     <Sparkles className="h-4 w-4" style={{ color: 'rgb(70,130,180)' }} />
+                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] bg-brand-light/20 border-brand-primary/30 hover:bg-brand-light/30 hover:border-brand-primary/50">
+                     <Sparkles className="h-4 w-4 text-brand-primary" />
                      <div className="flex items-center space-x-1 text-sm">
-                       <span style={{ color: 'rgb(70,130,180)' }}>Vedette:</span>
-                       <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>
+                       <span className="text-brand-primary">Vedette:</span>
+                       <span className="font-medium text-brand-primary">
                          {counts.isLoading ? '...' : counts.boostCreditsVedette}
                        </span>
                      </div>

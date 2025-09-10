@@ -1,18 +1,80 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
  } from "@/components/ui/dialog"
-import { Store, Plus } from "lucide-react"
+import { Store, Plus, Zap, X } from "lucide-react"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
 import CommerceCard from "@/components/commerce-card"
+import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
   const { userProfile, commerces, isLoading, refreshCounts } = useDashboard()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [showBoostPopup, setShowBoostPopup] = useState(false)
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false)
+  const router = useRouter()
+
+  // Afficher le popup de bienvenue si l'utilisateur n'a pas de commerce
+  useEffect(() => {
+    if (!isLoading && commerces.length === 0) {
+      // Toujours afficher le popup s'il n'y a pas de commerce
+      setShowWelcomePopup(true)
+      // S'assurer que le popup de boost est fermé
+      setShowBoostPopup(false)
+    }
+  }, [commerces.length, isLoading])
+
+  // Afficher le popup de boost après la création du premier commerce
+  useEffect(() => {
+    if (!isLoading && commerces.length === 1) {
+      // Vérifier si l'utilisateur vient de créer un commerce
+      const justCreatedCommerce = localStorage.getItem('justCreatedCommerce')
+      const hasSeenBoostPopup = localStorage.getItem('hasSeenBoostPopup')
+      
+      if (justCreatedCommerce && !hasSeenBoostPopup) {
+        // Fermer le popup de bienvenue et afficher le popup de boost
+        setShowWelcomePopup(false)
+        setShowBoostPopup(true)
+        // Nettoyer le flag
+        localStorage.removeItem('justCreatedCommerce')
+      }
+    }
+  }, [commerces.length, isLoading])
+
+  const handleWelcomePopupClose = () => {
+    setShowWelcomePopup(false)
+    // Ne pas sauvegarder dans localStorage - le popup réapparaîtra au prochain rafraîchissement
+  }
+
+  const handleCreateCommerce = () => {
+    setShowWelcomePopup(false)
+    setIsDialogOpen(true)
+  }
+
+  const handleCommerceCreated = () => {
+    // Fermer le dialog de création
+    setIsDialogOpen(false)
+    // Rafraîchir les données
+    refreshCounts()
+    // Marquer qu'on vient de créer un commerce pour déclencher le popup de boost
+    localStorage.setItem('justCreatedCommerce', 'true')
+  }
+
+  const handleBoostPopupClose = () => {
+    setShowBoostPopup(false)
+    localStorage.setItem('hasSeenBoostPopup', 'true')
+  }
+
+  const handleGoToBoosts = () => {
+    setShowBoostPopup(false)
+    localStorage.setItem('hasSeenBoostPopup', 'true')
+    router.push('/dashboard/boosts')
+  }
+
 
   // Get user's display name
   const getUserDisplayName = () => {
@@ -65,6 +127,7 @@ export default function Dashboard() {
                   setIsDialogOpen(false)
                   refreshCounts()
                 }}
+                onSuccess={handleCommerceCreated}
               />
             </DialogContent>
           </Dialog>
@@ -97,6 +160,81 @@ export default function Dashboard() {
           </Card>
         )}
       </div>
+
+      {/* Popup de bienvenue si l'utilisateur n'a pas de commerce */}
+      <Dialog open={showWelcomePopup} onOpenChange={setShowWelcomePopup}>
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-brand-primary">
+              Soyez visible dès aujourd'hui
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-primary/10 rounded-full mb-4">
+                <Store className="h-8 w-8 text-brand-primary" />
+              </div>
+              <p className="text-gray-600 text-base leading-relaxed">
+                C'est gratuit ! Ajoutez une entreprise à votre compte pour apparaître sur la carte gosholo et commencer à attirer des clients avec vos offres et événements.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button 
+                onClick={handleCreateCommerce}
+                className="flex-1 bg-brand-primary hover:bg-brand-primary/90 h-12 sm:h-10"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Ajouter une entreprise
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleWelcomePopupClose}
+                className="h-12 sm:h-10"
+              >
+                Plus tard
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Popup de boost après création du premier commerce */}
+      <Dialog open={showBoostPopup} onOpenChange={setShowBoostPopup}>
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-brand-primary">
+              Faites briller votre commerce
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-4">
+                <Zap className="h-8 w-8 text-brand-accent" />
+              </div>
+              <p className="text-gray-600 text-base leading-relaxed">
+                Vous êtes présentement sur le plan gratuit.<br />
+                Passez au niveau supérieur et découvrez nos boosts et abonnements pour gagner en visibilité et attirer encore plus de clients.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button 
+                onClick={handleGoToBoosts}
+                className="flex-1 bg-brand-accent hover:bg-brand-accent/90 h-12 sm:h-10"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Voir les boosts et abonnements
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleBoostPopupClose}
+                className="h-12 sm:h-10"
+              >
+                Plus tard
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
