@@ -38,6 +38,7 @@ interface Commerce {
 
 interface CommerceCreationFlowProps {
   onCancel?: () => void
+  onSuccess?: () => void
   commerce?: Commerce // For editing existing commerce
 }
 
@@ -57,7 +58,7 @@ const COMMERCE_CATEGORIES = [
   { value: "Autre", label: "Autre" }
 ]
 
-export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCreationFlowProps) {
+export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: CommerceCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const [isLoading, setIsLoading] = useState(false)
@@ -249,6 +250,11 @@ export default function CommerceCreationFlow({ onCancel, commerce }: CommerceCre
       
       // Refresh dashboard counts
       refreshCounts()
+      
+      // Call onSuccess callback if provided (for new commerce creation)
+      if (!isEditMode && onSuccess) {
+        onSuccess()
+      }
       
       // Reset form and close
       if (!isEditMode) {

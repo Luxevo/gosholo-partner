@@ -306,6 +306,10 @@ subscription_plan_enum: "free" | "pro"
 - **Consistent Design**: Uniform card layouts for offers and events
 - **Full CRUD Operations**: Create, read, update, delete for both offers and events
 - **Edit Functionality**: Edit buttons for both offers and events in commerce cards
+- **Welcome Popup System**: Automatic popup for users with no commerce
+- **Boost Popup System**: Post-commerce creation popup encouraging boost usage
+- **Popup State Management**: Local state management for popup visibility
+- **Commerce Creation Tracking**: Integration with localStorage for popup triggers
 
 ### Profile Page (`app/dashboard/profil/page.tsx`)
 - **Comprehensive User Management**: Complete profile and commerce management in one place
@@ -335,6 +339,9 @@ subscription_plan_enum: "free" | "pro"
 - Global state management for dashboard counts
 - Real-time data fetching from Supabase
 - Loading states and error handling
+- **Popup Management**: Global popup state management for welcome and boost popups
+- **Commerce Creation Tracking**: Tracks when first commerce is created to trigger boost popup
+- **localStorage Integration**: Manages popup visibility flags and user preferences
 
 ### Commerce Creation Flow (`components/commerce-creation-flow.tsx`)
 - **3-step creation process**: Form → Preview → Confirmation
@@ -344,6 +351,8 @@ subscription_plan_enum: "free" | "pro"
 - **Confirmation step**: Final confirmation with visibility information
 - **Success notifications**: Toast messages for successful operations
 - **Error handling**: User-friendly error messages
+- **Popup Integration**: Triggers boost popup after first commerce creation
+- **onSuccess Callback**: Communicates successful creation to parent components
 
 ### Commerce Management Flow (`components/commerce-management-flow.tsx`)
 - **Edit mode**: Direct editing of existing commerce details
@@ -642,6 +651,8 @@ npm run lint         # Code linting
 - **Icon consistency**: Using `Sparkles` for Vedette and `TrendingUp` for Visibilité (matching boost page)
 - **Responsive design**: Optimized spacing and text sizes for mobile devices
 - **Hover effects**: Enhanced interactive feedback for better UX
+- **Vedette Boost Styling**: Green color scheme for "Vedette" boost display matching boost page styling
+- **Mobile Display Separation**: Distinct color-coded elements for Vedette, Visibilité, and Subscription Plan on mobile
 
 ### Commerce Card Mobile Optimization (January 2025)
 - **Compact mobile layout**: Reduced spacing and padding for mobile devices
@@ -695,6 +706,40 @@ npm run lint         # Code linting
 - **Integrated workflows**: Same modal components used across dashboard and profile
 - **Delete styling**: Consistent red warning boxes and "Supprimer définitivement" buttons
 
+### Popup System Implementation (January 2025)
+- **Welcome Popup**: Automatic popup for users with no commerce encouraging business creation
+  - **Trigger**: Appears when `commerces.length === 0` and `!isLoading`
+  - **Persistence**: Reappears on page refresh until commerce is created
+  - **Content**: "Soyez visible dès aujourd'hui" with encouraging message about free business listing
+  - **Actions**: "Ajouter une entreprise" (opens commerce creation) or "Plus tard"
+  - **Styling**: Brand colors with Store icon and professional design
+
+- **Boost Popup**: Post-commerce creation popup encouraging boost usage
+  - **Trigger**: Appears after first commerce creation (`commerces.length === 1` and `justCreatedCommerce` flag)
+  - **Persistence**: Only shows once per user (stored in localStorage as `hasSeenBoostPopup`)
+  - **Content**: "Faites briller votre commerce" with upgrade messaging
+  - **Actions**: "Voir les boosts et abonnements" (navigates to boosts page) or "Plus tard"
+  - **Styling**: Brand accent colors with Zap icon and compelling design
+
+- **Popup State Management**: 
+  - **Local State**: `showWelcomePopup` and `showBoostPopup` in dashboard component
+  - **localStorage Integration**: `justCreatedCommerce` and `hasSeenBoostPopup` flags
+  - **Inter-popup Logic**: Welcome popup closes when boost popup opens
+  - **Commerce Creation Integration**: `handleCommerceCreated` sets trigger flag
+
+- **Popup UI Components**:
+  - **Dialog Structure**: Using shadcn/ui Dialog component with proper accessibility
+  - **Responsive Design**: Mobile-optimized with `w-[95vw]` and proper button layouts
+  - **Icon Integration**: Store icon for welcome, Zap icon for boost popup
+  - **Button Layout**: Primary action button with secondary "Plus tard" option
+  - **Close Handling**: Single close button (removed duplicate X buttons)
+
+- **Integration Points**:
+  - **Dashboard Component**: Main popup logic and state management
+  - **Commerce Creation Flow**: Triggers boost popup via `onSuccess` callback
+  - **Navigation**: Boost popup includes direct navigation to boosts page
+  - **Data Refresh**: Automatic data refresh after commerce creation
+
 ### Database Schema Updates
 - **Events table**: Added start_date and end_date fields
 - **Events table**: Added is_active field for status management
@@ -717,9 +762,9 @@ For questions about implementation details, contact the development team. Regula
 - Event date management and status updates
 
 **Last Updated**: January 27, 2025
-**Version**: 2.4
+**Version**: 2.5
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)
-**Major Changes**: Header mobile optimization with subscription plan indicators and combined boost credits display, commerce card mobile optimization with icon-only buttons and compact layout, unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages
+**Major Changes**: Header mobile optimization with subscription plan indicators and combined boost credits display, commerce card mobile optimization with icon-only buttons and compact layout, unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages, comprehensive popup system implementation with welcome and boost popups, enhanced boost purchase confirmation with improved styling and duration, Vedette boost styling with green color scheme matching boost page
 
-**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Header and commerce cards optimized for mobile experience with improved visual hierarchy and space efficiency. Recommended to remove legacy pages for cleaner architecture.
+**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Header and commerce cards optimized for mobile experience with improved visual hierarchy and space efficiency. Comprehensive popup system implemented with welcome popup for new users and boost popup after first commerce creation. Enhanced user onboarding flow with encouraging messaging and clear call-to-actions. Recommended to remove legacy pages for cleaner architecture.

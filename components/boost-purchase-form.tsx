@@ -77,9 +77,10 @@ function CheckoutForm({
         setError(stripeError.message || "Payment failed");
       } else if (paymentIntent && paymentIntent.status === "succeeded") {
         setSuccess(true);
+        // Afficher la confirmation plus longtemps pour que l'utilisateur puisse bien la voir
         setTimeout(() => {
           onSuccess();
-        }, 2000);
+        }, 3000); // 3 secondes
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -92,15 +93,30 @@ function CheckoutForm({
 
   if (success) {
     return (
-      <Card className="border-brand-light bg-brand-light/10">
-        <CardContent className="p-6 text-center">
-          <Check className="h-12 w-12 text-brand-primary mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-brand-primary mb-2">
-            Paiement réussi !
-          </h3>
-          <p className="text-brand-primary/80">
-            Votre boost {boostLabel} a été ajouté à votre compte.
-          </p>
+      <Card className="border-green-500 bg-green-50 shadow-lg">
+        <CardContent className="p-8 text-center">
+          <div className="mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <Check className="h-8 w-8 text-green-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-green-800 mb-3">
+              🎉 Paiement réussi !
+            </h3>
+            <p className="text-lg text-green-700 mb-4">
+              Votre boost <strong>{boostLabel}</strong> a été ajouté à votre compte.
+            </p>
+            <div className="bg-white p-4 rounded-lg border border-green-200 mb-4">
+              <p className="text-sm text-green-600 font-medium">
+                ✅ 1 crédit {boostLabel} disponible
+              </p>
+              <p className="text-xs text-green-500 mt-1">
+                Vous pouvez maintenant l'utiliser sur vos offres, événements ou commerces
+              </p>
+            </div>
+            <p className="text-sm text-green-600">
+              Cette fenêtre se fermera automatiquement dans quelques secondes...
+            </p>
+          </div>
         </CardContent>
       </Card>
     );
