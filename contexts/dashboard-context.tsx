@@ -89,7 +89,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     subscriptionPlan: 'free',
     isLoading: true,
     totalContent: 0,
-    contentLimit: 1,
+    contentLimit: 2,
     canCreateContent: true
   })
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -231,7 +231,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
       // Calculate content limits
       const totalContent = offersCount + eventsCount
-      const contentLimit = subscriptionPlan === 'pro' ? 5 : 1
+      const contentLimit = subscriptionPlan === 'pro' ? 10 : 2
       const canCreateContent = totalContent < contentLimit
 
       setCounts({
@@ -259,7 +259,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         subscriptionPlan: 'free',
         isLoading: false,
         totalContent: prev.offers + prev.events,
-        contentLimit: 1,
+        contentLimit: 2,
         canCreateContent: (prev.offers + prev.events) < 1
       }))
       setIsLoading(false)
