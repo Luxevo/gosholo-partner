@@ -311,8 +311,8 @@ if (error) {
 - **API routes**: Middleware skips API routes to avoid interference with webhooks
 
 ### Content Limits Enforcement
-- Free users: 1 total content (offer OR event)
-- Pro users: 5 total content (mix of offers and events)
+- Free users: 2 total content (mix of offers and events)
+- Pro users: 10 total content (mix of offers and events)
 - Limits enforced at multiple levels: frontend, API, and database RLS
 - Use `check_content_limit()` function before allowing content creation
 

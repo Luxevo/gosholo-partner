@@ -177,12 +177,15 @@ export default function ProfilPage() {
   }, [])
 
   const planLimits = {
-    free: { content: 1, boosts: 0 },
-    pro: { content: 5, boosts: 1 }
+    free: { content: 2, boosts: 0 },
+    pro: { content: 10, boosts: 1 }
   }
 
   const currentLimit = planLimits[subscription?.plan_type || 'free']
   const usagePercentage = stats ? (stats.totalContent / currentLimit.content) * 100 : 0
+  
+  // Debug logging
+  console.log('Debug - Plan:', subscription?.plan_type, 'Stats:', stats, 'CurrentLimit:', currentLimit, 'UsagePercentage:', usagePercentage)
 
   const handleProfileUpdated = () => {
     setIsProfileEditOpen(false)
@@ -366,14 +369,17 @@ export default function ProfilPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Usage Stats */}
-              <div className="space-y-3">
+              <div className="space-y-3 border border-red-500 p-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Contenu utilisé</span>
                   <span className="text-sm text-primary/70">
                     {stats?.totalContent || 0} / {currentLimit.content}
                   </span>
                 </div>
-                <Progress value={Math.min(usagePercentage, 100)} className="h-2" />
+                <div className="bg-yellow-200 p-1">
+                  <Progress value={Math.min(usagePercentage, 100)} className="h-3 bg-gray-200" />
+                  <p className="text-xs">Progress: {usagePercentage.toFixed(1)}%</p>
+                </div>
                 
                 {usagePercentage >= 100 && (
                   <Alert>

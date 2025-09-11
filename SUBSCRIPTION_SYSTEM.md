@@ -7,13 +7,13 @@ The Gosholo Partner platform implements a two-tier subscription system with boos
 ## 🎯 Subscription Plans
 
 ### Free Plan
-- **Content Limit**: 1 total content (1 offer OR 1 event, not both)
+- **Content Limit**: 2 total content (mix of offers and events)
 - **Boost Credits**: 0 per month
 - **Features**: Basic commerce profile, basic content creation
 - **Cost**: Free forever
 
 ### Pro Plan  
-- **Content Limit**: 5 total content (mix of offers and events)
+- **Content Limit**: 10 total content (mix of offers and events)
 - **Boost Credits**: 1 per month (auto-refilled)
 - **Features**: Enhanced visibility, priority support, boost capabilities
 - **Cost**: [To be defined]
@@ -108,8 +108,8 @@ check_content_limit(user_uuid UUID, content_type TEXT) RETURNS BOOLEAN
 1. Get user's current subscription plan
 2. Count existing content (offers + events combined)
 3. Apply plan limits:
-   - **Free**: Total content < 1
-   - **Pro**: Total content < 5
+   - **Free**: Total content < 2
+   - **Pro**: Total content < 10
 4. Return true if user can create more content
 
 ### Monthly Credit Refill
@@ -268,11 +268,11 @@ const handleCreateContent = async () => {
 ```typescript
 const planMessages = {
   free: {
-    limitReached: "Plan gratuit: 1 contenu maximum atteint. Passez au plan Pro pour créer jusqu'à 5 contenus!",
+    limitReached: "Plan gratuit: 2 contenus maximum atteints. Passez au plan Pro pour créer jusqu'à 10 contenus!",
     upgradePrompt: "Débloquez plus de contenu avec le plan Pro"
   },
   pro: {
-    limitReached: "Plan Pro: 5 contenus maximum atteints. Supprimez du contenu existant ou contactez le support.",
+    limitReached: "Plan Pro: 10 contenus maximum atteints. Supprimez du contenu existant ou contactez le support.",
     upgradePrompt: "Vous utilisez déjà le plan Pro"
   }
 }

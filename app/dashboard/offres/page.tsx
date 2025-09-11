@@ -675,30 +675,32 @@ function OffresPageContent() {
       </div>
 
       {/* Content Limit Banner */}
-      {counts.subscriptionPlan === 'free' && (
-        <Alert className={`border-l-4 ${counts.canCreateContent ? 'border-l-blue-500 bg-blue-50' : 'border-l-amber-500 bg-amber-50'}`}>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <span className="font-medium">Plan Gratuit:</span> {counts.totalContent}/{counts.contentLimit} contenu utilisé
-                {!counts.canCreateContent && (
-                  <span className="text-amber-700 ml-2">- Limite atteinte!</span>
-                )}
-              </div>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
-                onClick={() => router.push('/dashboard/boosts')}
-              >
-                <Crown className="h-4 w-4 mr-1" />
-                Passer au Plus
-              </Button>
+      <Alert className={`border-l-4 ${counts.canCreateContent ? 'border-l-blue-500 bg-blue-50' : 'border-l-amber-500 bg-amber-50'}`}>
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <span className="font-medium">
+                {counts.subscriptionPlan === 'pro' ? 'Plan Plus:' : 'Plan Gratuit:'}
+              </span> {counts.totalContent}/{counts.contentLimit} contenu utilisé
+              {!counts.canCreateContent && (
+                <span className="text-amber-700 ml-2">- Limite atteinte!</span>
+              )}
+            </div>
+              {counts.subscriptionPlan === 'free' && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white"
+                  onClick={() => router.push('/dashboard/boosts')}
+                >
+                  <Crown className="h-4 w-4 mr-1" />
+                  Passer au Plus
+                </Button>
+              )}
             </div>
           </AlertDescription>
         </Alert>
-      )}
 
       {/* Filters and View Toggle */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
