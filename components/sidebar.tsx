@@ -26,7 +26,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: t('navigation.offers', locale), href: "/dashboard/offres", icon: Tag },
     { name: t('navigation.events', locale), href: "/dashboard/evenements", icon: Calendar },
     { name: t('navigation.boosts', locale), href: "/dashboard/boosts", icon: Zap },
-    { name: "Historique de paiement", href: "/dashboard/historique-paiement", icon: Receipt },
+    { name: t('paymentHistory.title', locale), href: "/dashboard/historique-paiement", icon: Receipt },
     { name: t('navigation.profile', locale), href: "/dashboard/profil", icon: User },
     { name: t('navigation.support', locale), href: "/dashboard/support", icon: HelpCircle },
   ]

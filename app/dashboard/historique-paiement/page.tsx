@@ -21,6 +21,8 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 
 interface Transaction {
   id: string
@@ -42,13 +44,13 @@ interface SubscriptionTransaction {
 }
 
 
-const BOOST_LABELS = {
-  en_vedette: "En Vedette",
-  visibilite: "Visibilité"
+const getBoostLabel = (boostType: 'en_vedette' | 'visibilite', locale: string) => {
+  return boostType === 'en_vedette' ? t('boosts.vedette', locale) : t('boosts.visibility', locale)
 }
 
 
 export default function PaymentHistoryPage() {
+  const { locale } = useLanguage()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [subscriptions, setSubscriptions] = useState<SubscriptionTransaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -68,7 +70,7 @@ export default function PaymentHistoryPage() {
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError || !user) {
-        setError("Utilisateur non authentifié")
+        setError(t('paymentHistory.userNotAuthenticated', locale))
         return
       }
 
@@ -81,7 +83,7 @@ export default function PaymentHistoryPage() {
 
       if (boostError) {
         console.error('Error fetching boost transactions:', boostError)
-        setError("Erreur lors du chargement des transactions boost")
+        setError(t('paymentHistory.errorLoadingBoosts', locale))
         return
       }
 
@@ -105,7 +107,7 @@ export default function PaymentHistoryPage() {
 
     } catch (error) {
       console.error('Unexpected error:', error)
-      setError("Erreur inattendue lors du chargement")
+      setError(t('paymentHistory.error', locale))
     } finally {
       setIsLoading(false)
     }
@@ -119,7 +121,11 @@ export default function PaymentHistoryPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "d MMMM yyyy 'à' HH:mm", { locale: fr })
+    if (locale === 'en') {
+      return format(new Date(dateString), "MMMM d, yyyy 'at' HH:mm")
+    } else {
+      return format(new Date(dateString), "d MMMM yyyy 'à' HH:mm", { locale: fr })
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -130,14 +136,14 @@ export default function PaymentHistoryPage() {
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Réussi
+            {t('paymentHistory.succeeded', locale)}
           </Badge>
         )
       case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
             <Clock className="h-3 w-3 mr-1" />
-            En cours
+            {t('paymentHistory.pending', locale)}
           </Badge>
         )
       case 'failed':
@@ -145,7 +151,7 @@ export default function PaymentHistoryPage() {
         return (
           <Badge className="bg-red-100 text-red-800 border-red-200">
             <XCircle className="h-3 w-3 mr-1" />
-            Échoué
+            {t('paymentHistory.failed', locale)}
           </Badge>
         )
       default:
@@ -170,7 +176,7 @@ export default function PaymentHistoryPage() {
       } else {
         const errorData = await response.json()
         console.error('Failed to create portal session:', errorData)
-        alert(`Erreur: ${errorData.error}${errorData.details ? '\n' + errorData.details : ''}`)
+        alert(`${t('paymentHistory.error', locale)}: ${errorData.error}${errorData.details ? '\n' + errorData.details : ''}`)
       }
     } catch (error) {
       console.error('Error opening customer portal:', error)
@@ -195,7 +201,7 @@ export default function PaymentHistoryPage() {
           const receiptContent = `
             <html>
               <head>
-                <title>Détails de Transaction - Gosholo Partner</title>
+                <title>${t('paymentHistory.transactionDetails', locale)} - Gosholo Partner</title>
                 <style>
                   body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
                   .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #016167; padding-bottom: 20px; }
@@ -208,39 +214,39 @@ export default function PaymentHistoryPage() {
               <body>
                 <div class="header">
                   <h1>Gosholo Partner</h1>
-                  <h2>Détails de Transaction</h2>
+                  <h2>${t('paymentHistory.transactionDetails', locale)}</h2>
                 </div>
                 <div class="amount">${new Intl.NumberFormat('fr-CA', {
                   style: 'currency',
                   currency: details.currency?.toUpperCase() || 'CAD',
                 }).format(details.amount / 100)}</div>
                 <div class="detail-row">
-                  <span class="label">ID de Transaction:</span>
+                  <span class="label">${t('paymentHistory.transactionId', locale)}:</span>
                   <span>${details.payment_intent_id}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="label">Date:</span>
+                  <span class="label">${t('paymentHistory.date', locale)}:</span>
                   <span>${new Date(details.created * 1000).toLocaleDateString('fr-FR', { 
                     year: 'numeric', month: 'long', day: 'numeric', 
                     hour: '2-digit', minute: '2-digit' 
                   })}</span>
                 </div>
                 <div class="detail-row">
-                  <span class="label">Statut:</span>
-                  <span class="status">${details.status === 'succeeded' ? 'Réussi' : details.status}</span>
+                  <span class="label">${t('paymentHistory.status', locale)}:</span>
+                  <span class="status">${details.status === 'succeeded' ? t('paymentHistory.succeeded', locale) : details.status}</span>
                 </div>
                 ${details.card_brand ? `
                 <div class="detail-row">
-                  <span class="label">Carte:</span>
+                  <span class="label">${t('paymentHistory.card', locale)}:</span>
                   <span>${details.card_brand.toUpperCase()} •••• ${details.card_last4}</span>
                 </div>
                 ` : ''}
                 <div class="detail-row">
-                  <span class="label">Monnaie:</span>
+                  <span class="label">${t('paymentHistory.currency', locale)}:</span>
                   <span>${details.currency.toUpperCase()}</span>
                 </div>
                 <div style="margin-top: 40px; text-align: center; color: #666; font-size: 12px;">
-                  Généré le ${new Date().toLocaleDateString('fr-FR')}
+                  ${t('paymentHistory.generatedOn', locale)} ${new Date().toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')}
                 </div>
               </body>
             </html>
@@ -251,15 +257,15 @@ export default function PaymentHistoryPage() {
             newWindow.document.close()
           }
         } else {
-          alert('Reçu non disponible pour cette transaction')
+          alert(t('paymentHistory.receiptNotAvailable', locale))
         }
       } else {
         const errorData = await response.json()
-        alert(errorData.error || 'Reçu non disponible')
+        alert(errorData.error || t('paymentHistory.receiptNotAvailable', locale))
       }
     } catch (error) {
       console.error('Error fetching receipt:', error)
-      alert('Erreur lors de la récupération du reçu')
+      alert(t('paymentHistory.receiptError', locale))
     }
   }
 
@@ -273,9 +279,9 @@ export default function PaymentHistoryPage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-primary">Historique de paiement</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('paymentHistory.title', locale)}</h1>
             <p className="text-muted-foreground text-sm lg:text-base">
-              Consultez vos achats de boosts et abonnements
+              {t('paymentHistory.subtitle', locale)}
             </p>
           </div>
           
@@ -288,12 +294,12 @@ export default function PaymentHistoryPage() {
               className="h-12 sm:h-8 w-full sm:w-auto"
             >
               <Settings className="h-4 w-4 mr-2" />
-              {isLoadingPortal ? 'Chargement...' : 'Gérer mes cartes'}
+              {isLoadingPortal ? t('paymentHistory.loading', locale) : t('paymentHistory.manageCards', locale)}
             </Button>
             
             <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
               <Receipt className="h-4 w-4" />
-              <span>{allTransactions.length} transaction{allTransactions.length !== 1 ? 's' : ''}</span>
+              <span>{allTransactions.length} {allTransactions.length !== 1 ? t('paymentHistory.transactions', locale) : t('paymentHistory.transaction', locale)}</span>
             </div>
           </div>
         </div>
@@ -304,7 +310,7 @@ export default function PaymentHistoryPage() {
             <CardContent className="flex items-center justify-center py-8 sm:py-12">
               <div className="text-center space-y-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
-                <p className="text-muted-foreground">Chargement des transactions...</p>
+                <p className="text-muted-foreground">{t('paymentHistory.loadingTransactions', locale)}</p>
               </div>
             </CardContent>
           </Card>
@@ -325,15 +331,15 @@ export default function PaymentHistoryPage() {
               <div className="text-center space-y-4">
                 <Receipt className="h-12 w-12 text-muted-foreground mx-auto" />
                 <div>
-                  <h3 className="text-lg font-semibold">Aucune transaction</h3>
+                  <h3 className="text-lg font-semibold">{t('paymentHistory.noTransactionsTitle', locale)}</h3>
                   <p className="text-muted-foreground">
-                    Vos achats de boosts et abonnements apparaîtront ici
+                    {t('paymentHistory.noTransactionsDesc', locale)}
                   </p>
                 </div>
                 <Button asChild className="h-12 sm:h-10 w-full sm:w-auto">
                   <a href="/dashboard/boosts">
                     <Zap className="h-4 w-4 mr-2" />
-                    Acheter des boosts
+                    {t('paymentHistory.buyBoosts', locale)}
                   </a>
                 </Button>
               </div>
@@ -370,8 +376,8 @@ export default function PaymentHistoryPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base mb-1">
                             {isBoost 
-                              ? `Boost ${BOOST_LABELS[boostTransaction!.boost_type]}`
-                              : `Abonnement ${subscriptionTransaction!.plan_type.toUpperCase()}`
+                              ? `Boost ${getBoostLabel(boostTransaction!.boost_type, locale)}`
+                              : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
                             }
                           </h3>
                           <p className="text-sm text-muted-foreground mb-1">
@@ -405,7 +411,7 @@ export default function PaymentHistoryPage() {
                             className="w-full h-10"
                           >
                             <Receipt className="h-4 w-4 mr-2" />
-                            Voir le reçu
+{t('paymentHistory.viewReceipt', locale)}
                           </Button>
                           <p className="text-xs text-muted-foreground break-all">
                             ID: {boostTransaction!.stripe_payment_intent_id}
@@ -433,8 +439,8 @@ export default function PaymentHistoryPage() {
                           <div className="space-y-1">
                             <h3 className="font-semibold text-lg">
                               {isBoost 
-                                ? `Boost ${BOOST_LABELS[boostTransaction!.boost_type]}`
-                                : `Abonnement ${subscriptionTransaction!.plan_type.toUpperCase()}`
+                                ? `Boost ${getBoostLabel(boostTransaction!.boost_type, locale)}`
+                                : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
                               }
                             </h3>
                             <p className="text-sm text-muted-foreground flex items-center gap-2">
@@ -467,7 +473,7 @@ export default function PaymentHistoryPage() {
                                 size="sm"
                               >
                                 <Receipt className="h-3 w-3 mr-1" />
-                                Reçu
+{t('paymentHistory.receipt', locale)}
                               </Button>
                             )}
                           </div>
@@ -478,7 +484,7 @@ export default function PaymentHistoryPage() {
                       {isBoost && boostTransaction!.stripe_payment_intent_id && (
                         <div className="mt-4 pt-4 border-t border-gray-100">
                           <p className="text-xs text-muted-foreground">
-                            ID de transaction: {boostTransaction!.stripe_payment_intent_id}
+{t('paymentHistory.transactionId', locale)}: {boostTransaction!.stripe_payment_intent_id}
                           </p>
                         </div>
                       )}
@@ -494,8 +500,8 @@ export default function PaymentHistoryPage() {
         {!isLoading && !error && allTransactions.length > 0 && (
           <Card className="bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 sticky bottom-4 z-10 shadow-lg border-2">
             <CardHeader>
-              <CardTitle className="text-lg">Résumé</CardTitle>
-              <CardDescription>Statistiques de vos paiements</CardDescription>
+              <CardTitle className="text-lg">{t('paymentHistory.summary', locale)}</CardTitle>
+              <CardDescription>{t('paymentHistory.paymentStats', locale)}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -503,13 +509,13 @@ export default function PaymentHistoryPage() {
                   <div className="text-xl sm:text-2xl font-bold text-brand-primary">
                     {transactions.length}
                   </div>
-                  <div className="text-sm text-muted-foreground">Boosts achetés</div>
+                  <div className="text-sm text-muted-foreground">{t('paymentHistory.boostsPurchased', locale)}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-brand-accent">
                     {subscriptions.length}
                   </div>
-                  <div className="text-sm text-muted-foreground">Abonnements</div>
+                  <div className="text-sm text-muted-foreground">{t('paymentHistory.subscriptions', locale)}</div>
                 </div>
                 <div className="text-center sm:col-span-2 lg:col-span-1">
                   <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -518,7 +524,7 @@ export default function PaymentHistoryPage() {
                       subscriptions.reduce((sum, s) => sum + s.amount, 0)
                     )}
                   </div>
-                  <div className="text-sm text-muted-foreground">Total dépensé</div>
+                  <div className="text-sm text-muted-foreground">{t('paymentHistory.totalSpent', locale)}</div>
                 </div>
               </div>
             </CardContent>

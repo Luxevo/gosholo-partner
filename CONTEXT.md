@@ -638,6 +638,73 @@ npm run lint         # Code linting
 - Performance monitoring
 - Toast notification tracking
 
+## 🌍 Internationalization System (January 2025)
+
+### Bilingual Support Implementation
+The application now features **comprehensive bilingual support** (French/English) with dynamic language switching:
+
+#### **Core Translation Infrastructure**
+- **Translation System**: Centralized translation management in `lib/category-translations.ts`
+- **Language Context**: React Context provider (`contexts/language-context.tsx`) for global language state
+- **Language Selector**: Toggle component (`components/language-selector.tsx`) for switching languages
+- **Persistent Storage**: Language preference stored in `localStorage`
+- **Translation Function**: `t(key, locale)` function for accessing translations throughout the app
+
+#### **Translation Coverage Status**
+✅ **Completed Components (15/15 - 100%):**
+- **Main Dashboard** (`app/dashboard/page.tsx`): Headers, welcome messages, commerce cards, boost popups
+- **Commerce Creation Flow** (`components/commerce-creation-flow.tsx`): Complete 3-step wizard with validation messages, preview/confirmation steps
+- **Commerce Cards** (`components/commerce-card.tsx`): Action buttons, status badges, modal dialogs, category labels
+- **Offer Creation Flow** (`components/offer-creation-flow.tsx`): Complete 3-step flow with validation and confirmation
+- **Event Creation Flow** (`components/event-creation-flow.tsx`): Complete 3-step flow matching offers
+- **Offers Page** (`app/dashboard/offres/page.tsx`): All filters, labels, empty states, modal content
+- **Events Page** (`app/dashboard/evenements/page.tsx`): All filters, labels, empty states, modal content
+- **Boosts & Subscriptions** (`app/dashboard/boosts/page.tsx`): Complete page including subscription plans, boost features, promo codes
+- **Boost Purchase Form** (`components/boost-purchase-form.tsx`): Payment form, success messages, validation
+- **Header** (`components/header.tsx`): Navigation labels, profile dropdown
+- **Sidebar** (`components/sidebar.tsx`): Navigation menu items
+- **Profile Page** (`app/dashboard/profil/page.tsx`): Complete profile management, all modal dialogs, commerce management
+- **Payment History Page** (`app/dashboard/historique-paiement/page.tsx`): Transaction history, receipt generation, status messages
+- **Support Page** (`app/dashboard/support/page.tsx`): Contact form, support information, placeholders
+- **Category System**: Business category labels translated throughout entire application
+
+🎯 **Project Status: COMPLETED**
+All major dashboard components are now fully bilingual with instant language switching.
+
+#### **Translation Key Structure**
+```typescript
+// Organized by feature/component
+TRANSLATIONS = {
+  fr: {
+    navigation: { /* menu items */ },
+    dashboard: { /* main dashboard */ },
+    commerce: { /* business management */ },
+    offers: { /* offer creation/management */ },
+    events: { /* event creation/management */ },
+    boostsPage: { /* subscription & boost system */ },
+    validation: { /* form validation messages */ },
+    placeholders: { /* input placeholders */ },
+    // ... 20+ categories with 500+ translation keys
+  },
+  en: { /* complete English translations */ }
+}
+```
+
+#### **Key Features**
+- **Dynamic Language Switching**: Instant UI updates without page refresh
+- **Form Validation**: Bilingual error messages and field validation
+- **Date Formatting**: Locale-aware date display throughout the app
+- **Modal Dialogs**: All confirmation dialogs and forms translated
+- **Status Messages**: Success/error notifications in both languages
+- **Comprehensive Coverage**: 500+ translation keys covering all user-facing text
+
+#### **Technical Implementation**
+- **Context Pattern**: `useLanguage()` hook provides `locale` and `setLocale`
+- **Translation Function**: `t(key, locale)` with dot notation for nested keys
+- **Type Safety**: TypeScript interfaces ensure translation key consistency
+- **Performance**: Efficient key lookup with minimal runtime overhead
+- **Fallback System**: Graceful degradation if translation keys are missing
+
 ## 🔧 Recent Major Changes
 
 ### Header Component Enhancements (January 2025)
@@ -762,9 +829,9 @@ For questions about implementation details, contact the development team. Regula
 - Event date management and status updates
 
 **Last Updated**: January 27, 2025
-**Version**: 2.5
+**Version**: 3.0
 **Framework**: Next.js 15
 **Database**: Supabase (PostgreSQL)
-**Major Changes**: Header mobile optimization with subscription plan indicators and combined boost credits display, commerce card mobile optimization with icon-only buttons and compact layout, unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages, comprehensive popup system implementation with welcome and boost popups, enhanced boost purchase confirmation with improved styling and duration, Vedette boost styling with green color scheme matching boost page
+**Major Changes**: Header mobile optimization with subscription plan indicators and combined boost credits display, commerce card mobile optimization with icon-only buttons and compact layout, unified dashboard implementation, legacy pages with delete functionality, integrated commerce management, full CRUD operations, event management improvements, 3-step event creation flow, enhanced profile page with complete commerce management, side-by-side layout implementation, responsive commerce grid display, consistent delete styling across all pages, comprehensive popup system implementation with welcome and boost popups, enhanced boost purchase confirmation with improved styling and duration, Vedette boost styling with green color scheme matching boost page, **COMPLETE internationalization system implementation with 500+ translation keys**
 
-**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Header and commerce cards optimized for mobile experience with improved visual hierarchy and space efficiency. Comprehensive popup system implemented with welcome popup for new users and boost popup after first commerce creation. Enhanced user onboarding flow with encouraging messaging and clear call-to-actions. Recommended to remove legacy pages for cleaner architecture.
+**Current Status**: Dual content management system (unified dashboard + legacy pages). Legacy pages have been updated with delete functionality matching profile page styling. Header and commerce cards optimized for mobile experience with improved visual hierarchy and space efficiency. Comprehensive popup system implemented with welcome popup for new users and boost popup after first commerce creation. Enhanced user onboarding flow with encouraging messaging and clear call-to-actions. **COMPLETE bilingual support (French/English) implemented across ALL major components (15/15 - 100%)** including dynamic language switching, form validation, date formatting, modal dialogs, payment processing, and category systems. Production-ready internationalization system. Recommended to remove legacy pages for cleaner architecture.

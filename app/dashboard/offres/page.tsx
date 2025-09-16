@@ -14,6 +14,8 @@ import OfferCreationFlow from "@/components/offer-creation-flow"
 import { checkAndDeactivateOffers, getDaysRemaining, getOfferStatus } from "@/lib/offer-utils"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 
 // Types
 interface Offer {
@@ -56,14 +58,14 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const getTypeLabel = (type: string) => {
+const getTypeLabel = (type: string, locale: string) => {
   switch (type) {
     case "in_store":
-      return "En magasin"
+      return t('offersPage.inStore', locale)
     case "online":
-      return "En ligne"
+      return t('offersPage.online', locale)
     case "both":
-      return "Les deux"
+      return t('offersPage.both', locale)
     default:
       return type
   }
@@ -75,12 +77,13 @@ interface CustomerOfferCardProps {
   commerce: Commerce | undefined
   onEdit: (offer: Offer) => void
   onDelete: (offer: Offer) => void
+  locale: string
 }
 
-const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferCardProps) => {
+const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: CustomerOfferCardProps) => {
   // Calculate time remaining
   const getTimeRemaining = () => {
-    if (!offer.end_date) return "Non défini"
+    if (!offer.end_date) return t('offersPage.notDefined', locale)
     const endDate = new Date(offer.end_date)
     const now = new Date()
     const diffTime = endDate.getTime() - now.getTime()
@@ -88,9 +91,9 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferC
     
     if (diffDays <= 1) {
       const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
-      return diffHours > 0 ? `Se termine dans ${diffHours}h` : "Expiré"
+      return diffHours > 0 ? `${t('offersPage.endsIn', locale)} ${diffHours}${t('offersPage.endsHours', locale)}` : t('offersPage.expired', locale)
     }
-    return `Se termine dans ${diffDays}j`
+    return `${t('offersPage.endsIn', locale)} ${diffDays}${t('offersPage.endsDays', locale)}`
   }
 
   // Extract discount percentage from title if present
@@ -114,7 +117,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferC
             <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
               <div className="text-white text-center">
                 <Store className="h-12 w-12 mx-auto mb-2 opacity-80" />
-                <p className="text-sm opacity-80">Image de l'offre</p>
+                <p className="text-sm opacity-80">{t('offersPage.offerImage', locale)}</p>
               </div>
             </div>
           )}
@@ -138,7 +141,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferC
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
             <div className="flex justify-between items-center text-sm">
               <span>
-                {offer.condition || "Conditions disponibles"} • {commerce?.category || "Restaurant"}
+                {offer.condition || t('offersPage.conditionsAvailable', locale)} • {commerce?.category || t('placeholders.restaurant', locale)}
               </span>
               <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
                 {getTimeRemaining()}
@@ -153,20 +156,20 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete }: CustomerOfferC
             {offer.title}
           </h3>
           <div className="flex items-center text-sm opacity-90 mb-1">
-            <span>{commerce?.category || "Restaurant"}</span>
+            <span>{commerce?.category || t('placeholders.restaurant', locale)}</span>
             <span className="mx-2">•</span>
-            <span>{commerce?.name || "Commerce"}</span>
+            <span>{commerce?.name || t('placeholders.commerce', locale)}</span>
           </div>
           <div className="flex items-center text-sm opacity-90 mb-3">
             <MapPin className="h-3 w-3 mr-1" />
             <span className="text-xs">
-              {offer.custom_location || commerce?.name || "Emplacement du commerce"}
+              {offer.custom_location || commerce?.name || t('offersPage.commerceLocation', locale)}
             </span>
           </div>
 
           {/* Action Button */}
           <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
-            Réclamer l'offre
+            {t('offersPage.claimOffer', locale)}
           </button>
         </div>
       </div>
@@ -201,9 +204,10 @@ interface OfferCardProps {
   offer: Offer
   onEdit: (offer: Offer) => void
   onDelete: (offer: Offer) => void
+  locale: string
 }
 
-const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
+const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
   const status = getOfferStatus(offer.is_active, offer.created_at || '')
   const daysRemaining = getDaysRemaining(offer.created_at || '')
   
@@ -250,7 +254,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
                 className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                <span className="sm:hidden">Supprimer</span>
+                <span className="sm:hidden">{t('buttons.delete', locale)}</span>
               </Button>
             </div>
           </div>
@@ -263,25 +267,25 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">Type:</span>
-              <span>{getTypeLabel(offer.offer_type)}</span>
+              <span className="font-medium">{t('offersPage.type', locale)}:</span>
+              <span>{getTypeLabel(offer.offer_type, locale)}</span>
             </div>
             
             {offer.condition && (
               <div className="flex items-start gap-2 text-sm">
                 <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <span className="font-medium">Condition:</span>
+                <span className="font-medium">{t('offersPage.condition', locale)}:</span>
                 <span className="text-muted-foreground">{offer.condition}</span>
               </div>
             )}
             
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <span className="font-medium">Localisation:</span>
+              <span className="font-medium">{t('offersPage.location', locale)}:</span>
               <span>
                 {offer.uses_commerce_location 
-                  ? "Emplacement du commerce" 
-                  : offer.custom_location || "Non spécifié"
+                  ? t('offersPage.commerceLocation', locale) 
+                  : offer.custom_location || t('offersPage.notSpecified', locale)
                 }
               </span>
             </div>
@@ -291,16 +295,16 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">Créée le:</span>
+              <span className="font-medium">{t('offersPage.createdOn', locale)}:</span>
               <span>{offer.created_at ? formatDate(offer.created_at) : "N/A"}</span>
             </div>
             
             {offer.is_active && daysRemaining !== null && (
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Jours restants:</span>
+                <span className="font-medium">{t('offersPage.daysRemaining', locale)}:</span>
                 <span className={daysRemaining <= 7 ? "text-brand-accent font-medium" : ""}>
-                  {daysRemaining} jours
+                  {daysRemaining} {t('offersPage.days', locale)}
                 </span>
               </div>
             )}
@@ -308,7 +312,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             {offer.updated_at && offer.updated_at !== offer.created_at && (
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Modifiée le:</span>
+                <span className="font-medium">{t('offersPage.modifiedOn', locale)}:</span>
                 <span className="text-brand-secondary font-medium">{formatDate(offer.updated_at)}</span>
               </div>
             )}
@@ -316,7 +320,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             {offer.start_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Début:</span>
+                <span className="font-medium">{t('offersPage.startDate', locale)}:</span>
                 <span className="text-brand-primary font-medium">{formatDate(offer.start_date)}</span>
               </div>
             )}
@@ -324,7 +328,7 @@ const OfferCard = ({ offer, onEdit, onDelete }: OfferCardProps) => {
             {offer.end_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Fin:</span>
+                <span className="font-medium">{t('offersPage.endDate', locale)}:</span>
                 <span className="text-brand-accent font-medium">{formatDate(offer.end_date)}</span>
               </div>
             )}
@@ -340,9 +344,10 @@ interface FilterButtonsProps {
   filterActive: FilterType
   onFilterChange: (filter: FilterType) => void
   offers: Offer[]
+  locale: string
 }
 
-const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsProps) => {
+const FilterButtons = ({ filterActive, onFilterChange, offers, locale }: FilterButtonsProps) => {
   const activeCount = offers.filter(o => o.is_active).length
   const inactiveCount = offers.filter(o => !o.is_active).length
   
@@ -353,21 +358,21 @@ const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsPr
         size="sm"
         onClick={() => onFilterChange('all')}
       >
-        Toutes ({offers.length})
+        {t('offersPage.allOffers', locale)} ({offers.length})
       </Button>
       <Button
         variant={filterActive === 'active' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('active')}
       >
-        Actives ({activeCount})
+        {t('offersPage.activeOffers', locale)} ({activeCount})
       </Button>
       <Button
         variant={filterActive === 'inactive' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('inactive')}
       >
-        Terminés ({inactiveCount})
+        {t('offersPage.finishedOffers', locale)} ({inactiveCount})
       </Button>
     </div>
   )
@@ -377,9 +382,10 @@ const FilterButtons = ({ filterActive, onFilterChange, offers }: FilterButtonsPr
 interface ViewToggleProps {
   viewType: ViewType
   onViewChange: (view: ViewType) => void
+  locale: string
 }
 
-const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
+const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
   return (
     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
       <Button
@@ -389,7 +395,7 @@ const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <List className="h-4 w-4" />
-        Gestion
+        {t('offersPage.management', locale)}
       </Button>
       <Button
         variant={viewType === 'customer' ? 'default' : 'ghost'}
@@ -398,7 +404,7 @@ const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <LayoutGrid className="h-4 w-4" />
-        Aperçu client
+        {t('offersPage.customerPreview', locale)}
       </Button>
     </div>
   )
@@ -409,19 +415,20 @@ interface CommerceFilterProps {
   commerces: Commerce[]
   selectedCommerce: string
   onCommerceChange: (commerceId: string) => void
+  locale: string
 }
 
-const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: CommerceFilterProps) => {
+const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange, locale }: CommerceFilterProps) => {
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">Commerce:</span>
+      <span className="text-sm font-medium">{t('offersPage.commerce', locale)}:</span>
       <Select value={selectedCommerce} onValueChange={onCommerceChange}>
         <SelectTrigger className="w-48">
-          <SelectValue placeholder="Tous les commerces" />
+          <SelectValue placeholder={t('offersPage.allCommerces', locale)} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Tous les commerces</SelectItem>
+          <SelectItem value="all">{t('offersPage.allCommerces', locale)}</SelectItem>
           {commerces.map((commerce) => (
             <SelectItem key={commerce.id} value={commerce.id}>
               {commerce.name}
@@ -434,24 +441,24 @@ const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: Comme
 }
 
 // Loading Component
-const LoadingSpinner = () => (
+const LoadingSpinner = ({ locale }: { locale: string }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-      <p className="text-muted-foreground">Chargement des offres...</p>
+      <p className="text-muted-foreground">{t('offersPage.loadingOffers', locale)}</p>
     </div>
   </div>
 )
 
 // Empty State Component
-const EmptyState = () => (
+const EmptyState = ({ locale }: { locale: string }) => (
   <div className="text-center py-12">
     <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
       <Tag className="h-12 w-12 text-muted-foreground" />
     </div>
-    <h3 className="text-lg font-semibold text-primary mb-2">Aucune offre trouvée</h3>
+    <h3 className="text-lg font-semibold text-primary mb-2">{t('offersPage.noOffersFound', locale)}</h3>
     <p className="text-muted-foreground mb-4">
-      Commencez par créer votre première offre pour attirer plus de clients.
+      {t('offersPage.createFirstOffer', locale)}
     </p>
   </div>
 )
@@ -462,6 +469,7 @@ function OffresPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { counts, refreshCounts } = useDashboard()
+  const { locale } = useLanguage()
   
   // State
   const [offers, setOffers] = useState<Offer[]>([])
@@ -645,9 +653,9 @@ function OffresPageContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary">Offres</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('offersPage.title', locale)}</h1>
           <p className="text-muted-foreground text-sm lg:text-base">
-            Gérez vos offres et promotions
+            {t('offersPage.subtitle', locale)}
           </p>
         </div>
         
@@ -656,17 +664,17 @@ function OffresPageContent() {
             <Button 
               className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={!counts.canCreateContent}
-              title={!counts.canCreateContent ? 'Limite de contenu atteinte. Passez au plan Plus pour créer plus de contenu.' : ''}
+              title={!counts.canCreateContent ? t('offersPage.contentLimitReached', locale) : ''}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter une offre
+              {t('offersPage.addOffer', locale)}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Créer une nouvelle offre</DialogTitle>
+              <DialogTitle>{t('offersPage.createNewOffer', locale)}</DialogTitle>
               <DialogDescription>
-                Remplissez les informations pour créer une nouvelle offre.
+                {t('offersPage.createNewOfferDesc', locale)}
               </DialogDescription>
             </DialogHeader>
             <OfferCreationFlow onCancel={handleOfferCreated} />
@@ -681,10 +689,10 @@ function OffresPageContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <span className="font-medium">
-                {counts.subscriptionPlan === 'pro' ? 'Plan Plus:' : 'Plan Gratuit:'}
-              </span> {counts.totalContent}/{counts.contentLimit} contenu utilisé
+                {counts.subscriptionPlan === 'pro' ? t('offersPage.proPlan', locale) : t('offersPage.freePlan', locale)}
+              </span> {counts.totalContent}/{counts.contentLimit} {t('offersPage.contentUsed', locale)}
               {!counts.canCreateContent && (
-                <span className="text-amber-700 ml-2">- Limite atteinte!</span>
+                <span className="text-amber-700 ml-2">- {t('offersPage.limitReached', locale)}</span>
               )}
             </div>
               {counts.subscriptionPlan === 'free' && (
@@ -695,7 +703,7 @@ function OffresPageContent() {
                   onClick={() => router.push('/dashboard/boosts')}
                 >
                   <Crown className="h-4 w-4 mr-1" />
-                  Passer au Plus
+                  {t('offersPage.upgradeToPro', locale)}
                 </Button>
               )}
             </div>
@@ -709,26 +717,29 @@ function OffresPageContent() {
             filterActive={filterActive}
             onFilterChange={handleFilterChange}
             offers={offers}
+            locale={locale}
           />
           <CommerceFilter
             commerces={commerces}
             selectedCommerce={selectedCommerce}
             onCommerceChange={handleCommerceChange}
+            locale={locale}
           />
         </div>
         
         <ViewToggle
           viewType={viewType}
           onViewChange={setViewType}
+          locale={locale}
         />
       </div>
 
       {/* Content */}
       <div className="space-y-4">
         {isLoadingOffers ? (
-          <LoadingSpinner />
+          <LoadingSpinner locale={locale} />
         ) : filteredOffers.length === 0 ? (
-          <EmptyState />
+          <EmptyState locale={locale} />
         ) : (
           viewType === 'admin' ? (
             <div className="grid gap-4">
@@ -738,6 +749,7 @@ function OffresPageContent() {
                   offer={offer} 
                   onEdit={handleEditOffer}
                   onDelete={handleDeleteOffer}
+                  locale={locale}
                 />
               ))}
             </div>
@@ -750,10 +762,9 @@ function OffresPageContent() {
                     <LayoutGrid className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="text-blue-800">
-                    <div className="font-medium mb-1">👀 Aperçu de l'expérience utilisateur</div>
+                    <div className="font-medium mb-1">{t('offersPage.userExperiencePreview', locale)}</div>
                     <p className="text-sm">
-                      Voici exactement comment vos offres apparaissent aux utilisateurs dans l'application Gosholo. 
-                      Les petites icônes d'édition en haut à droite vous permettent de modifier vos offres directement depuis cette vue.
+                      {t('offersPage.userExperienceDesc', locale)}
                     </p>
                   </div>
                 </div>
@@ -769,6 +780,7 @@ function OffresPageContent() {
                       commerce={commerce}
                       onEdit={handleEditOffer}
                       onDelete={handleDeleteOffer}
+                      locale={locale}
                     />
                   )
                 })}
@@ -782,9 +794,9 @@ function OffresPageContent() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Modifier l'offre</DialogTitle>
+            <DialogTitle>{t('offersPage.editOffer', locale)}</DialogTitle>
             <DialogDescription>
-              Modifiez les informations de votre offre.
+              {t('offersPage.editOfferDesc', locale)}
             </DialogDescription>
           </DialogHeader>
           {editingOffer && (
@@ -800,19 +812,19 @@ function OffresPageContent() {
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Supprimer l'offre</DialogTitle>
+            <DialogTitle>{t('offersPage.deleteOffer', locale)}</DialogTitle>
             <DialogDescription>
-              Êtes-vous sûr de vouloir supprimer cette offre ? Cette action est irréversible.
+              {t('offersPage.deleteOfferDesc', locale)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {itemToDelete && (
               <div className="bg-brand-accent/10 p-4 rounded-lg border border-brand-accent/30">
                 <h4 className="font-medium text-brand-accent mb-2">
-                  Offre à supprimer : {itemToDelete.title}
+                  {t('offersPage.offerToDelete', locale)} {itemToDelete.title}
                 </h4>
                 <p className="text-sm text-red-700">
-                  Cette action supprimera définitivement cette offre de votre compte.
+                  {t('offersPage.deleteOfferWarning', locale)}
                 </p>
               </div>
             )}
@@ -824,14 +836,14 @@ function OffresPageContent() {
                   setItemToDelete(null)
                 }}
               >
-                Annuler
+                {t('buttons.cancel', locale)}
               </Button>
               <Button 
                 variant="destructive" 
                 onClick={confirmDelete}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Supprimer définitivement
+                {t('offersPage.deletePermanently', locale)}
               </Button>
             </div>
           </div>
@@ -843,7 +855,7 @@ function OffresPageContent() {
 
 export default function OffresPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-12">Chargement...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center py-12">Loading...</div>}>
       <OffresPageContent />
     </Suspense>
   )

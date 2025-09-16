@@ -81,13 +81,13 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
   const validateForm = () => {
     const errors = []
-    if (!form.name.trim()) errors.push('Nom du commerce requis')
-    if (!form.postal_code.trim()) errors.push('Code postal requis')
+    if (!form.name.trim()) errors.push(t('validation.commerceNameRequired', locale))
+    if (!form.postal_code.trim()) errors.push(t('validation.postalCodeRequired', locale))
     if (form.postal_code.trim() && !validateCanadianPostalCode(form.postal_code)) {
-      errors.push('Code postal invalide (format: H2X 1Y4)')
+      errors.push(t('validation.invalidPostalCode', locale))
     }
-    if (!form.address.trim()) errors.push('Adresse complète requise')
-    if (!form.category) errors.push('Catégorie requise')
+    if (!form.address.trim()) errors.push(t('validation.addressRequired', locale))
+    if (!form.category) errors.push(t('validation.categoryRequired', locale))
     
     // Validate social media URLs
     const socialValidation = validateSocialMediaLinks({
@@ -286,7 +286,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             {t('buttons.confirmCreation', locale)}
           </h2>
           <p className="text-muted-foreground">
-            Êtes-vous sûr de vouloir créer ce commerce ?
+            {t('commerce.confirmCreateDesc', locale)}
           </p>
         </div>
 
@@ -299,11 +299,11 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {form.name}
                 </CardTitle>
                 <CardDescription className="mt-1 text-sm text-muted-foreground">
-                  {form.description || "Aucune description"}
+                  {form.description || t('commerce.noDescription', locale)}
                 </CardDescription>
               </div>
               <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                Prêt à créer
+                {t('commerce.readyToCreate', locale)}
               </Badge>
             </div>
           </CardHeader>
@@ -325,26 +325,26 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Catégorie:</span>
+                <span className="font-medium">{t('commerce.categoryLabel', locale)}</span>
                 <span>{COMMERCE_CATEGORIES.find(c => c.value === form.category)?.label || form.category}</span>
               </div>
               
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Adresse:</span>
+                <span className="font-medium">{t('commerce.addressLabel', locale)}</span>
                 <span>{form.address}</span>
               </div>
 
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <div className="space-y-2 text-sm text-blue-800">
                   <div>
-                    <span className="font-medium">Votre commerce sera maintenant créé !</span>
+                    <span className="font-medium">{t('commerce.businessWillBeCreated', locale)}</span>
                   </div>
                   <p>
-                    Vous pourrez ensuite créer des offres et des événements pour ce commerce.
+                    {t('commerce.canCreateOffersEvents', locale)}
                   </p>
                   <p>
-                    Vous pourrez le modifier ou le supprimer à tout moment depuis votre tableau de bord.
+                    {t('commerce.canModifyDelete', locale)}
                   </p>
                 </div>
               </div>
@@ -375,10 +375,10 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       <div className="space-y-6">
         <div className="text-center mb-6">
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Prévisualisation de votre commerce
+            {t('commerce.previewTitle', locale)}
           </h2>
           <p className="text-muted-foreground">
-            Vérifiez que toutes les informations sont correctes avant de créer
+            {t('commerce.previewDesc', locale)}
           </p>
         </div>
 
@@ -391,11 +391,11 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {form.name}
                 </CardTitle>
                 <CardDescription className="mt-1 text-sm text-muted-foreground">
-                  {form.description || "Aucune description"}
+                  {form.description || t('commerce.noDescription', locale)}
                 </CardDescription>
               </div>
               <Badge variant="secondary" className="text-xs">
-                Prévisualisation
+                {t('commerce.preview', locale)}
               </Badge>
             </div>
           </CardHeader>
@@ -419,13 +419,13 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
                   <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Catégorie:</span>
+                  <span className="font-medium">{t('commerce.categoryLabel', locale)}</span>
                   <span>{COMMERCE_CATEGORIES.find(c => c.value === form.category)?.label || form.category}</span>
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Adresse:</span>
+                  <span className="font-medium">{t('commerce.addressLabel', locale)}</span>
                   <span>{form.address}</span>
                 </div>
               </div>
@@ -498,7 +498,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {t('commerce.name', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="Ex: Boulangerie du Centre"
+                  placeholder={t('commerce.namePlaceholder', locale)}
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   required
@@ -510,7 +510,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {t('commerce.description', locale)}
                 </label>
                 <Textarea
-                  placeholder="Décrivez votre commerce, vos spécialités..."
+                  placeholder={t('commerce.descriptionPlaceholder', locale)}
                   value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                   rows={3}
@@ -519,7 +519,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Image du commerce
+                  {t('commerce.image', locale)}
                 </label>
                 <ImageUpload
                   bucket="gosholo-partner"
@@ -536,10 +536,10 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Code postal * <span className="text-red-500">*</span>
+                  {t('commerce.postalCode', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="Ex: H2X 1Y4 (QC), M5V 3A8 (ON), V6B 1A1 (BC)"
+                  placeholder={t('commerce.postalCodePlaceholder', locale)}
                   value={form.postal_code}
                   onChange={e => handlePostalCodeChange(e.target.value)}
                   required
@@ -560,13 +560,13 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {t('commerce.address', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Input
-                  placeholder="Ex: 123 Rue Saint-Paul Est"
+                  placeholder={t('commerce.addressPlaceholder', locale)}
                   value={form.address}
                   onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Adresse exacte de votre commerce (numéro, rue, etc.)
+                  {t('commerce.exactAddress', locale)}
                 </p>
               </div>
 
@@ -590,7 +590,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               {/* Contact Information */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-primary">Informations de contact</h3>
+                <h3 className="text-sm font-medium text-primary">{t('commerce.contactInfo', locale)}</h3>
                 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
@@ -600,7 +600,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="email"
-                      placeholder="contact@commerce.com"
+                      placeholder={t('commerce.emailPlaceholder', locale)}
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                       className="pl-10"
@@ -616,7 +616,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="tel"
-                      placeholder="(514) 123-4567"
+                      placeholder={t('commerce.phonePlaceholder', locale)}
                       value={form.phone}
                       onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                       className="pl-10"
@@ -632,7 +632,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Globe className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="url"
-                      placeholder="https://www.commerce.com"
+                      placeholder={t('commerce.websitePlaceholder', locale)}
                       value={form.website}
                       onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
                       className="pl-10"
@@ -648,7 +648,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Facebook className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="url"
-                      placeholder="facebook.com/moncommerce ou https://facebook.com/moncommerce"
+                      placeholder={t('commerce.facebookPlaceholder', locale)}
                       value={form.facebook_url}
                       onChange={e => setForm(f => ({ ...f, facebook_url: e.target.value }))}
                       className="pl-10"
@@ -664,7 +664,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Instagram className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="url"
-                      placeholder="instagram.com/moncommerce ou @moncommerce"
+                      placeholder={t('commerce.instagramPlaceholder', locale)}
                       value={form.instagram_url}
                       onChange={e => setForm(f => ({ ...f, instagram_url: e.target.value }))}
                       className="pl-10"
@@ -680,7 +680,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                     <Linkedin className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
                     <Input
                       type="url"
-                      placeholder="linkedin.com/company/moncommerce"
+                      placeholder={t('commerce.linkedinPlaceholder', locale)}
                       value={form.linkedin_url}
                       onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))}
                       className="pl-10"

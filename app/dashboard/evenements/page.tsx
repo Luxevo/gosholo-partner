@@ -13,6 +13,8 @@ import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 
 // Types
 interface Event {
@@ -60,14 +62,15 @@ interface CustomerEventCardProps {
   commerce: Commerce | undefined
   onEdit: (event: Event) => void
   onDelete: (event: Event) => void
+  locale: string
 }
 
-const CustomerEventCard = ({ event, commerce, onEdit, onDelete }: CustomerEventCardProps) => {
+const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: CustomerEventCardProps) => {
   // Format dates for event display
   const formatEventDate = (dateString: string) => {
-    if (!dateString) return "Date non définie"
+    if (!dateString) return t('eventsPage.dateNotDefined', locale)
     const date = new Date(dateString)
-    return date.toLocaleDateString('fr-FR', {
+    return date.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
       weekday: 'short',
       month: 'short',
       day: 'numeric'
@@ -85,7 +88,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete }: CustomerEventC
   }
 
   const getEventTimeRange = () => {
-    if (!event.start_date || !event.end_date) return "Horaire à définir"
+    if (!event.start_date || !event.end_date) return t('eventsPage.scheduleToDefine', locale)
     return `${formatEventTime(event.start_date)}-${formatEventTime(event.end_date)}`
   }
 
@@ -164,7 +167,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete }: CustomerEventC
               {event.title}
             </h3>
             <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
-              {event.condition || "Entrée libre"}
+              {event.condition || t('eventsPage.freeEntry', locale)}
             </span>
           </div>
 
@@ -173,7 +176,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete }: CustomerEventC
             <div className="flex items-center text-sm text-gray-600">
               <MapPin className="h-3 w-3 mr-1" />
               <span className="truncate">
-                {event.custom_location || commerce?.name || "Lieu à confirmer"}
+                {event.custom_location || commerce?.name || t('eventsPage.venueToConfirm', locale)}
               </span>
             </div>
           </div>
@@ -230,9 +233,10 @@ interface EventCardProps {
   event: Event
   onEdit: (event: Event) => void
   onDelete: (event: Event) => void
+  locale: string
 }
 
-const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
+const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -276,7 +280,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
                 className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                <span className="sm:hidden">Supprimer</span>
+                <span className="sm:hidden">{t('buttons.delete', locale)}</span>
               </Button>
             </div>
           </div>
@@ -290,18 +294,18 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             {event.condition && (
               <div className="flex items-start gap-2 text-sm">
                 <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <span className="font-medium">Conditions:</span>
+                <span className="font-medium">{t('eventsPage.condition', locale)}:</span>
                 <span className="text-muted-foreground">{event.condition}</span>
               </div>
             )}
             
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <span className="font-medium">Localisation:</span>
+              <span className="font-medium">{t('eventsPage.location', locale)}:</span>
               <span>
                 {event.uses_commerce_location 
-                  ? "Emplacement du commerce" 
-                  : event.custom_location || "Non spécifié"
+                  ? t('eventsPage.commerceLocation', locale) 
+                  : event.custom_location || t('eventsPage.notSpecified', locale)
                 }
               </span>
             </div>
@@ -311,14 +315,14 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">Créé le:</span>
+              <span className="font-medium">{t('eventsPage.createdOn', locale)}:</span>
               <span>{event.created_at ? formatDate(event.created_at) : "N/A"}</span>
             </div>
             
             {event.updated_at && event.updated_at !== event.created_at && (
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Modifié le:</span>
+                <span className="font-medium">{t('eventsPage.modifiedOn', locale)}:</span>
                 <span className="text-blue-600 font-medium">{formatDate(event.updated_at)}</span>
               </div>
             )}
@@ -326,7 +330,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             {event.start_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Début:</span>
+                <span className="font-medium">{t('eventsPage.startDate', locale)}:</span>
                 <span className="text-green-600 font-medium">{formatDate(event.start_date)}</span>
               </div>
             )}
@@ -334,7 +338,7 @@ const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             {event.end_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">Fin:</span>
+                <span className="font-medium">{t('eventsPage.endDate', locale)}:</span>
                 <span className="text-red-600 font-medium">{formatDate(event.end_date)}</span>
               </div>
             )}
@@ -350,9 +354,10 @@ interface FilterButtonsProps {
   filterActive: FilterType
   onFilterChange: (filter: FilterType) => void
   events: Event[]
+  locale: string
 }
 
-const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsProps) => {
+const FilterButtons = ({ filterActive, onFilterChange, events, locale }: FilterButtonsProps) => {
   const activeCount = events.length // For now, all events are considered active
   const inactiveCount = 0 // No inactive events for now
   
@@ -363,21 +368,21 @@ const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsPr
         size="sm"
         onClick={() => onFilterChange('all')}
       >
-        Tous ({events.length})
+{t('eventsPage.allEvents', locale)} ({events.length})
       </Button>
       <Button
         variant={filterActive === 'active' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('active')}
       >
-        Actifs ({activeCount})
+{t('eventsPage.activeEvents', locale)} ({activeCount})
       </Button>
       <Button
         variant={filterActive === 'inactive' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('inactive')}
       >
-        Inactifs ({inactiveCount})
+{t('eventsPage.finishedEvents', locale)} ({inactiveCount})
       </Button>
     </div>
   )
@@ -387,9 +392,10 @@ const FilterButtons = ({ filterActive, onFilterChange, events }: FilterButtonsPr
 interface ViewToggleProps {
   viewType: ViewType
   onViewChange: (view: ViewType) => void
+  locale: string
 }
 
-const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
+const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
   return (
     <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
       <Button
@@ -399,7 +405,7 @@ const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <List className="h-4 w-4" />
-        Gestion
+        {t('eventsPage.management', locale)}
       </Button>
       <Button
         variant={viewType === 'customer' ? 'default' : 'ghost'}
@@ -408,7 +414,7 @@ const ViewToggle = ({ viewType, onViewChange }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <LayoutGrid className="h-4 w-4" />
-        Aperçu client
+        {t('eventsPage.customerPreview', locale)}
       </Button>
     </div>
   )
@@ -419,19 +425,20 @@ interface CommerceFilterProps {
   commerces: Commerce[]
   selectedCommerce: string
   onCommerceChange: (commerceId: string) => void
+  locale: string
 }
 
-const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: CommerceFilterProps) => {
+const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange, locale }: CommerceFilterProps) => {
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">Commerce:</span>
+      <span className="text-sm font-medium">{t('eventsPage.commerce', locale)}:</span>
       <Select value={selectedCommerce} onValueChange={onCommerceChange}>
         <SelectTrigger className="w-48">
-          <SelectValue placeholder="Tous les commerces" />
+          <SelectValue placeholder={t('eventsPage.allCommerces', locale)} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Tous les commerces</SelectItem>
+          <SelectItem value="all">{t('eventsPage.allCommerces', locale)}</SelectItem>
           {commerces.map((commerce) => (
             <SelectItem key={commerce.id} value={commerce.id}>
               {commerce.name}
@@ -444,24 +451,24 @@ const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange }: Comme
 }
 
 // Loading Component
-const LoadingSpinner = () => (
+const LoadingSpinner = ({ locale }: { locale: string }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-      <p className="text-muted-foreground">Chargement des événements...</p>
+      <p className="text-muted-foreground">{t('eventsPage.loadingEvents', locale)}</p>
     </div>
   </div>
 )
 
 // Empty State Component
-const EmptyState = () => (
+const EmptyState = ({ locale }: { locale: string }) => (
   <div className="text-center py-12">
     <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
       <Calendar className="h-12 w-12 text-muted-foreground" />
     </div>
-    <h3 className="text-lg font-semibold text-primary mb-2">Aucun événement trouvé</h3>
+    <h3 className="text-lg font-semibold text-primary mb-2">{t('eventsPage.noEventsFound', locale)}</h3>
     <p className="text-muted-foreground mb-4">
-      Commencez par créer votre premier événement pour attirer plus de clients.
+      {t('eventsPage.createFirstEvent', locale)}
     </p>
   </div>
 )
@@ -472,6 +479,7 @@ function EvenementsPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { counts, refreshCounts } = useDashboard()
+  const { locale } = useLanguage()
   
   // State
   const [events, setEvents] = useState<Event[]>([])
@@ -649,9 +657,9 @@ function EvenementsPageContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary">Événements</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('eventsPage.title', locale)}</h1>
           <p className="text-muted-foreground text-sm lg:text-base">
-            Gérez vos événements et ateliers
+            {t('eventsPage.subtitle', locale)}
           </p>
         </div>
         
@@ -660,17 +668,17 @@ function EvenementsPageContent() {
             <Button 
               className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={!counts.canCreateContent}
-              title={!counts.canCreateContent ? 'Limite de contenu atteinte. Passez au plan Plus pour créer plus de contenu.' : ''}
+              title={!counts.canCreateContent ? t('eventsPage.contentLimitReached', locale) : ''}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter un événement
+              {t('eventsPage.addEvent', locale)}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Créer un nouvel événement</DialogTitle>
+              <DialogTitle>{t('eventsPage.createNewEvent', locale)}</DialogTitle>
               <DialogDescription>
-                Remplissez les informations pour créer un nouvel événement.
+                {t('eventsPage.createNewEventDesc', locale)}
               </DialogDescription>
             </DialogHeader>
             <EventCreationFlow onCancel={handleEventCreated} />
@@ -685,10 +693,10 @@ function EvenementsPageContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <span className="font-medium">
-                {counts.subscriptionPlan === 'pro' ? 'Plan Plus:' : 'Plan Gratuit:'}
-              </span> {counts.totalContent}/{counts.contentLimit} contenu utilisé
+                {counts.subscriptionPlan === 'pro' ? t('eventsPage.proPlan', locale) : t('eventsPage.freePlan', locale)}
+              </span> {counts.totalContent}/{counts.contentLimit} {t('eventsPage.contentUsed', locale)}
               {!counts.canCreateContent && (
-                <span className="text-amber-700 ml-2">- Limite atteinte!</span>
+                <span className="text-amber-700 ml-2">- {t('eventsPage.limitReached', locale)}</span>
               )}
             </div>
             {counts.subscriptionPlan === 'free' && (
@@ -699,7 +707,7 @@ function EvenementsPageContent() {
                 onClick={() => router.push('/dashboard/boosts')}
               >
                 <Crown className="h-4 w-4 mr-1" />
-                Passer au Plus
+                {t('eventsPage.upgradeToPro', locale)}
               </Button>
             )}
           </div>
@@ -713,26 +721,29 @@ function EvenementsPageContent() {
             filterActive={filterActive}
             onFilterChange={handleFilterChange}
             events={events}
+            locale={locale}
           />
           <CommerceFilter
             commerces={commerces}
             selectedCommerce={selectedCommerce}
             onCommerceChange={handleCommerceChange}
+            locale={locale}
           />
         </div>
         
         <ViewToggle
           viewType={viewType}
           onViewChange={setViewType}
+          locale={locale}
         />
       </div>
 
       {/* Content */}
       <div className="space-y-4">
         {isLoadingEvents ? (
-          <LoadingSpinner />
+          <LoadingSpinner locale={locale} />
         ) : filteredEvents.length === 0 ? (
-          <EmptyState />
+          <EmptyState locale={locale} />
         ) : (
           viewType === 'admin' ? (
             <div className="grid gap-4">
@@ -742,6 +753,7 @@ function EvenementsPageContent() {
                   event={event} 
                   onEdit={handleEditEvent}
                   onDelete={handleDeleteEvent}
+                  locale={locale}
                 />
               ))}
             </div>
@@ -773,6 +785,7 @@ function EvenementsPageContent() {
                       commerce={commerce}
                       onEdit={handleEditEvent}
                       onDelete={handleDeleteEvent}
+                      locale={locale}
                     />
                   )
                 })}

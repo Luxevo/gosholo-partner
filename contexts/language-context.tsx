@@ -19,11 +19,19 @@ interface LanguageProviderProps {
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [locale, setLocale] = useState<Locale>('fr')
 
-  // Load saved language preference from localStorage
+  // Load saved language preference from localStorage or detect system language for auth pages
   useEffect(() => {
     const savedLocale = localStorage.getItem('gosholo-locale') as Locale
     if (savedLocale && (savedLocale === 'fr' || savedLocale === 'en')) {
+      // Use saved preference if available
       setLocale(savedLocale)
+    } else {
+      // Detect system language for first-time users (especially useful for auth pages)
+      const systemLanguage = navigator.language || navigator.languages?.[0] || 'fr'
+      const detectedLocale = systemLanguage.startsWith('en') ? 'en' : 'fr'
+      setLocale(detectedLocale)
+      // Save the detected language as the initial preference
+      localStorage.setItem('gosholo-locale', detectedLocale)
     }
   }, [])
 

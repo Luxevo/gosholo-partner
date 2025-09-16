@@ -175,7 +175,7 @@ export default function BoostsPage() {
                 id: offer.id,
                 title: offer.title,
                 type: 'offer',
-                commerce_name: commerceMap[offer.commerce_id] || 'Commerce inconnu',
+                commerce_name: commerceMap[offer.commerce_id] || t('boostsPage.unknownBusiness', locale),
                 boosted: isBoosted,
                 boost_type: isBoosted ? offer.boost_type : undefined,
                 boosted_at: offer.boosted_at,
@@ -193,7 +193,7 @@ export default function BoostsPage() {
                 id: event.id,
                 title: event.title,
                 type: 'event',
-                commerce_name: commerceMap[event.commerce_id] || 'Commerce inconnu',
+                commerce_name: commerceMap[event.commerce_id] || t('boostsPage.unknownBusiness', locale),
                 boosted: isBoosted,
                 boost_type: isBoosted ? event.boost_type : undefined,
                 boosted_at: event.boosted_at,
@@ -263,7 +263,7 @@ export default function BoostsPage() {
                 boosted: true, 
                 boost_type: boostType, 
                 boosted_at: new Date().toISOString(),
-                remaining_time: '72h restantes'
+                remaining_time: `72h ${t('boostsPage.remainingTime', locale)}`
               }
             : content
         ))
@@ -282,7 +282,7 @@ export default function BoostsPage() {
         // Refresh header counts to update boost credits display
         refreshCounts()
       } else {
-        alert(result.error || 'Erreur lors de l\'application du boost')
+        alert(result.error || t('boostsPage.boostApplyError', locale))
       }
 
     } catch (error) {
@@ -316,7 +316,7 @@ export default function BoostsPage() {
           boostedContent: prev.boostedContent - 1
         } : null)
       } else {
-        alert(result.error || 'Erreur lors de la suppression du boost')
+        alert(result.error || t('boostsPage.boostRemoveError', locale))
       }
 
     } catch (error) {
@@ -357,7 +357,7 @@ export default function BoostsPage() {
       }
     } catch (error) {
       console.error('Error creating subscription:', error)
-      alert('Erreur lors de la création de l\'abonnement')
+      alert(t('boostsPage.subscriptionError', locale))
     }
   }
 
@@ -379,20 +379,20 @@ export default function BoostsPage() {
       if (isValid) {
         setCodeValidationResult({
           isValid: true,
-          message: "Code promo valide ! Vous obtenez 1 mois gratuit.",
+          message: t('boostsPage.validPromoCode', locale),
           discount: 0
         })
         setShowStripeForm(true)
       } else {
         setCodeValidationResult({
           isValid: false,
-          message: "Code promo invalide. Veuillez vérifier et réessayer."
+          message: t('boostsPage.invalidPromoCode', locale)
         })
       }
     } catch (error) {
       setCodeValidationResult({
         isValid: false,
-        message: "Erreur lors de la validation. Veuillez réessayer."
+        message: t('boostsPage.validationError', locale)
       })
     } finally {
       setIsValidatingCode(false)
@@ -433,8 +433,8 @@ export default function BoostsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{t('navigation.boosts', locale)}</h1>
-          <p className="text-primary/70 text-sm sm:text-base">Faites rayonner votre entreprise et gagnez en visibilité.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{t('boostsPage.title', locale)}</h1>
+          <p className="text-primary/70 text-sm sm:text-base">{t('boostsPage.subtitle', locale)}</p>
         </div>
 
         {/* Section 1: Ton Abonnement */}
@@ -442,9 +442,9 @@ export default function BoostsPage() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Crown className="h-5 w-5" />
-              <span>Votre Abonnement</span>
+              <span>{t('boostsPage.yourSubscription', locale)}</span>
             </CardTitle>
-            <CardDescription>Passez au niveau supérieur avec gosholo Plus</CardDescription>
+            <CardDescription>{t('boostsPage.upgradeWithPlus', locale)}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -452,23 +452,23 @@ export default function BoostsPage() {
               <div className={`p-4 sm:p-6 border-2 rounded-lg ${!subscription?.is_subscribed ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'}`}>
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center space-x-2">
-                    <h3 className="text-lg sm:text-xl font-bold">Gosholo Base</h3>
-                    {!subscription?.is_subscribed && <Badge className="bg-brand-primary">Actuel</Badge>}
+                    <h3 className="text-lg sm:text-xl font-bold">{t('boostsPage.gosholoBase', locale)}</h3>
+                    {!subscription?.is_subscribed && <Badge className="bg-brand-primary">{t('boostsPage.current', locale)}</Badge>}
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-brand-primary">0$</div>
-                  <p className="text-sm text-gray-600">Plan gratuit</p>
+                  <p className="text-sm text-gray-600">{t('boostsPage.freePlan', locale)}</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
-                      Maximum 1 offre ou 1 événement actif à la fois
+                      {t('boostsPage.maxOneContent', locale)}
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
-                      Accès à vos statistiques en temps réel
+                      {t('boostsPage.realtimeStats', locale)}
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 flex-shrink-0" />
-                      Votre entreprise affichée sur la carte interactive gosholo
+                      {t('boostsPage.businessOnMap', locale)}
                     </li>
                   </ul>
                 </div>
@@ -479,37 +479,36 @@ export default function BoostsPage() {
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center space-x-2">
                     <Crown className="h-5 w-5 text-brand-accent" />
-                    <h3 className="text-lg sm:text-xl font-bold">Gosholo PLUS</h3>
-                    {subscription?.is_subscribed && <Badge className="bg-brand-accent">Actuel</Badge>}
+                    <h3 className="text-lg sm:text-xl font-bold">{t('boostsPage.gosholoPLUS', locale)}</h3>
+                    {subscription?.is_subscribed && <Badge className="bg-brand-accent">{t('boostsPage.current', locale)}</Badge>}
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8$/mois</div>
-                  <p className="text-sm text-gray-600">Passez à la vitesse supérieure</p>
+                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8${t('boostsPage.perMonth', locale)}</div>
+                  <p className="text-sm text-gray-600">{t('boostsPage.upgradeSpeed', locale)}</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      Jusqu'à 5 offres ou 5 événements actifs en même temps
+                      {t('boostsPage.upTo5Content', locale)}
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      Tout ce que l'offre gosholo Base inclut
+                      {t('boostsPage.everythingInBase', locale)}
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      1 Boost Vedette par mois (mettez en avant une offre ou un événement pendant 72h)
+                      {t('boostsPage.monthlyVedette', locale)}
                     </li>
                     <li className="flex items-center">
                       <CheckCircle className="h-4 w-4 text-brand-accent mr-2 flex-shrink-0" />
-                      1 Boost Visibilité par mois (mettez votre commerce en avant sur la carte interactive)
+                      {t('boostsPage.monthlyVisibility', locale)}
                     </li>
-                    <p className="text-sm text-gray-600">Les Boost inclus avec l'abonnement se renouvellent chaque mois mais ne s'accumulent pas. Utilisez-les avant la fin du mois.
-</p>
+                    <p className="text-sm text-gray-600">{t('boostsPage.boostRenewal', locale)}</p>
                   </ul>
                   {!subscription?.is_subscribed && (
                     <Button 
                       onClick={purchaseSubscription}
                       className="w-full bg-brand-accent hover:bg-brand-accent/90 h-12 sm:h-10"
                     >
-                      Passer au PLUS
+{t('boostsPage.upgradeToPLUS', locale)}
                     </Button>
                   )}
                 </div>
@@ -555,7 +554,7 @@ export default function BoostsPage() {
                   <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-gray-600">Contenu Boosté</p>
+                  <p className="text-sm text-gray-600">{t('boostsPage.boostedContent', locale)}</p>
                   <p className="text-xl sm:text-2xl font-bold">{stats?.boostedContent || 0}/{stats?.totalContent || 0}</p>
                 </div>
               </div>
@@ -568,10 +567,10 @@ export default function BoostsPage() {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <CreditCard className="h-5 w-5" />
-              <span>Boosts à la Carte</span>
+              <span>{t('boostsPage.boostsALaCarte', locale)}</span>
             </CardTitle>
             <CardDescription>
-            Gagnez en visibilité et attirez plus de clients.
+            {t('boostsPage.gainVisibilityAttractClients', locale)}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -585,7 +584,7 @@ export default function BoostsPage() {
                     </div>
                     <div>
                       <h3 className="text-base sm:text-lg font-semibold">{t('boosts.vedette', locale)}</h3>
-                      <Badge variant="secondary">72h</Badge>
+                      <Badge variant="secondary">{t('boostsPage.duration72h', locale)}</Badge>
                     </div>
                   </div>
                   <div className="text-center sm:text-right">
@@ -593,26 +592,26 @@ export default function BoostsPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600">Attirez tous les regards sur votre offre ou événement</p>
+                  <p className="text-sm text-gray-600">{t('boostsPage.attractAllEyes', locale)}</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Badge Vedette pour vous démarquer
+                      {t('boostsPage.vedetteBadge', locale)}
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Placement prioritaire dans la liste des offres/événements
+                      {t('boostsPage.priorityPlacement', locale)}
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      Apparition en haut des résultats de recherche
+                      {t('boostsPage.topSearchResults', locale)}
                     </li>
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('en_vedette')}
                     className="w-full bg-brand-secondary hover:bg-brand-secondary/80 h-12 sm:h-10"
                   >
-                    Acheter 5$
+                    {t('boostsPage.buy5dollars', locale)}
                   </Button>
                 </div>
               </div>
@@ -626,7 +625,7 @@ export default function BoostsPage() {
                     </div>
                     <div>
                       <h3 className="text-base sm:text-lg font-semibold">{t('boosts.visibility', locale)}</h3>
-                      <Badge variant="secondary">72h</Badge>
+                      <Badge variant="secondary">{t('boostsPage.duration72h', locale)}</Badge>
                     </div>
                   </div>
                   <div className="text-center sm:text-right">
@@ -634,26 +633,26 @@ export default function BoostsPage() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <p className="text-sm text-gray-600">Faites briller votre commerce sur la carte interactive</p>
+                  <p className="text-sm text-gray-600">{t('boostsPage.shineOnMap', locale)}</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Placement prioritaire dans la carte gosholo
+                      {t('boostsPage.priorityOnMap', locale)}
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Attirez l'attention des membres qui recherchent autour d'eux
+                      {t('boostsPage.attractNearbyMembers', locale)}
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
-                      Mettez votre commerce en avant là où ça compte vraiment
+                      {t('boostsPage.highlightWhereCounts', locale)}
                     </li>
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('visibilite')}
                     className="w-full bg-brand-secondary hover:bg-brand-secondary/80 h-12 sm:h-10"
                   >
-                    Acheter 5$
+                    {t('boostsPage.buy5dollars', locale)}
                   </Button>
                 </div>
               </div>
@@ -664,20 +663,20 @@ export default function BoostsPage() {
         {/* Content List */}
         <Card>
           <CardHeader>
-            <CardTitle>Votre contenu en cours</CardTitle>
+            <CardTitle>{t('boostsPage.yourActiveContent', locale)}</CardTitle>
             <CardDescription>
-            Retrouvez ici vos offres, événements et commerces actifs, prêts à être boostés en un clic
+            {t('boostsPage.contentReadyToBoost', locale)}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {userContent.length === 0 ? (
               <div className="text-center py-8">
                 <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun contenu</h3>
-                <p className="text-gray-600 mb-4">Créez des offres, événements ou commerces pour utiliser les boosts</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('boostsPage.noContent', locale)}</h3>
+                <p className="text-gray-600 mb-4">{t('boostsPage.createContentToBoost', locale)}</p>
                 <Button variant="outline" className="h-12 sm:h-10">
                   <ArrowRight className="h-4 w-4 mr-2" />
-                  Aller aux commerces
+                  {t('boostsPage.goToBusinesses', locale)}
                 </Button>
               </div>
             ) : (
@@ -695,7 +694,7 @@ export default function BoostsPage() {
                       <div className="min-w-0 flex-1">
                         <div className="mb-1">
                           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            {content.type === 'offer' ? 'Offre' : content.type === 'event' ? 'Événement' : 'Commerce'}
+                            {content.type === 'offer' ? t('boostsPage.offer', locale) : content.type === 'event' ? t('boostsPage.event', locale) : t('boostsPage.business', locale)}
                           </span>
                           <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
                         </div>
@@ -727,11 +726,11 @@ export default function BoostsPage() {
                           disabled={isApplyingBoost === content.id}
                           className="h-12 sm:h-8 w-full sm:w-auto"
                         >
-                          Retirer le boost
+{t('boostsPage.removeBoost', locale)}
                         </Button>
                       ) : content.boosted && content.type === 'commerce' ? (
                         <div className="flex items-center justify-center h-12 sm:h-8 px-4 text-sm text-gray-500 bg-gray-50 rounded-md border">
-                          Boost actif - Expire automatiquement
+{t('boostsPage.boostActive', locale)}
                         </div>
                       ) : content.type === 'commerce' ? (
                         <Button
@@ -768,9 +767,9 @@ export default function BoostsPage() {
         {/* Code Promo Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Code Promo</CardTitle>
+            <CardTitle>{t('boostsPage.promoCode', locale)}</CardTitle>
             <CardDescription>
-              Vous avez un code promo ?
+              {t('boostsPage.havePromoCode', locale)}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -779,7 +778,7 @@ export default function BoostsPage() {
               <div className="flex space-x-2">
                 <Input
                   type="text"
-                  placeholder="Entrez votre code promo"
+                  placeholder={t('placeholders.enterPromoCode', locale)}
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
                   className="flex-1"
@@ -789,7 +788,7 @@ export default function BoostsPage() {
                   onClick={validatePromoCode}
                   disabled={!promoCode.trim() || isValidatingCode}
                 >
-                  {isValidatingCode ? "Validation..." : "Appliquer"}
+                  {isValidatingCode ? t('placeholders.validating', locale) : t('placeholders.apply', locale)}
                 </Button>
                 {promoCode && (
                   <Button 
@@ -822,10 +821,10 @@ export default function BoostsPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-green-800">
                       <CreditCard className="h-5 w-5" />
-                      <span>Paiement Sécurisé</span>
+                      <span>{t('boostsPage.securePayment', locale)}</span>
                     </CardTitle>
                                          <CardDescription className="text-green-700">
-                       1 mois gratuit grâce à votre code promo !
+                       {t('boostsPage.freeMonthThanks', locale)}
                      </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -833,7 +832,7 @@ export default function BoostsPage() {
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Numéro de carte
+                            {t('boostsPage.cardNumber', locale)}
                           </label>
                           <Input 
                             type="text" 
@@ -844,7 +843,7 @@ export default function BoostsPage() {
                         <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Date d'expiration
+                              {t('boostsPage.expirationDate', locale)}
                             </label>
                             <Input 
                               type="text" 
@@ -869,11 +868,11 @@ export default function BoostsPage() {
                                          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                        <div className="flex items-center space-x-2 text-sm text-blue-800">
                          <Check className="h-4 w-4" />
-                         <span>1 mois gratuit</span>
+                         <span>{t('boostsPage.freeMonth', locale)}</span>
                        </div>
                        <div className="flex items-center space-x-2 text-sm text-blue-800 mt-1">
                          <Check className="h-4 w-4" />
-                         <span>Puis tarif normal</span>
+                         <span>{t('boostsPage.thenNormalRate', locale)}</span>
                        </div>
                      </div>
 
@@ -883,13 +882,13 @@ export default function BoostsPage() {
                         className="flex-1 bg-green-600 hover:bg-green-700"
                       >
                         <CreditCard className="h-4 w-4 mr-2" />
-                        Payer en toute sécurité
+                        {t('boostsPage.paySecurely', locale)}
                       </Button>
                       <Button 
                         variant="outline"
                         onClick={() => setShowStripeForm(false)}
                       >
-                        Annuler
+                        {t('boostsPage.cancel', locale)}
                       </Button>
                     </div>
                   </CardContent>

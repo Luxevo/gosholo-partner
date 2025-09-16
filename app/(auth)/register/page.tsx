@@ -111,23 +111,23 @@ function RegisterForm() {
 
   if (isSuccess) {
     return (
-      <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
-        <div className="w-full max-w-md space-y-6 animate-in fade-in-50 duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 py-8 sm:py-4 overflow-auto">
+      <div className="w-full max-w-md space-y-4 sm:space-y-6 animate-in fade-in-50 duration-300">
           <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
-            <CardContent className="text-center p-8 space-y-4">
+            <CardContent className="text-center p-4 sm:p-8 space-y-3 sm:space-y-4">
               <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h2 className="text-xl font-bold text-brand-primary">
+              <h2 className="text-lg sm:text-xl font-bold text-brand-primary">
                 Inscription réussie !
               </h2>
-              <p className="text-brand-primary/70">
+              <p className="text-brand-primary/70 text-sm">
                 Votre compte a été créé avec succès. Vous pouvez maintenant vous
                 connecter.
               </p>
               <Button
                 asChild
-                className="w-full bg-brand-primary hover:bg-brand-primary/90"
+                className="w-full h-9 sm:h-11 bg-brand-primary hover:bg-brand-primary/90"
               >
                 <Link href="/login">
                   Se connecter
@@ -142,11 +142,11 @@ function RegisterForm() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
-      <div className="w-full max-w-2xl space-y-4 animate-in fade-in-50 duration-300 pt-6">
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 py-6 sm:py-4 overflow-auto">
+      <div className="w-full max-w-2xl space-y-3 sm:space-y-4 animate-in fade-in-50 duration-300 pt-2 sm:pt-6">
         {/* Logo Section */}
-        <div className="text-center space-y-2 flex flex-col items-center">
-          <div className="relative w-56 h-20 overflow-hidden">
+        <div className="text-center space-y-1 sm:space-y-2 flex flex-col items-center">
+          <div className="relative w-48 h-16 sm:w-64 sm:h-24 overflow-hidden transition-transform hover:scale-105 duration-300">
             <Image
               src="/logo.png"
               alt="Gosholo Logo"
@@ -155,30 +155,30 @@ function RegisterForm() {
             />
           </div>
           <div className="space-y-1">
-            <h1 className="text-lg font-bold text-brand-primary">
+            <h1 className="text-sm sm:text-lg font-bold text-brand-primary leading-tight">
             Crée ton compte pour accéder à ta plateforme entreprise Gosholo
             </h1>
-            <p className="text-brand-primary/70 text-xs">
-            Ces informations servent uniquement à créer votre accès personnel au tableau de bord. Elles ne seront pas visibles sur votre profil ni dans l’application
+            <p className="text-brand-primary/70 text-xs leading-tight px-2 sm:px-0">
+            Ces informations servent uniquement à créer votre accès personnel au tableau de bord. Elles ne seront pas visibles sur votre profil ni dans l'application
             </p>
           </div>
         </div>
 
         {/* Formulaire d'inscription */}
         <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
-          <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-brand-primary text-center">
+          <CardHeader className="space-y-2 pb-4 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary text-center">
               Créer votre compte
             </CardTitle>
-            <CardDescription className="text-center text-brand-primary/70 text-sm">
+            <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
               Remplissez les informations ci-dessous pour créer votre compte
               commerçant
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               {/* Informations personnelles */}
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <h3 className="font-medium text-brand-primary text-sm">
                   Informations personnelles
                 </h3>
@@ -199,7 +199,7 @@ function RegisterForm() {
                         onChange={(e) =>
                           handleInputChange("firstName", e.target.value)
                         }
-                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        className="pl-10 h-9 sm:h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                         required
                       />
                     </div>
@@ -221,7 +221,7 @@ function RegisterForm() {
                       onChange={(e) =>
                         handleInputChange("lastName", e.target.value)
                       }
-                      className="h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                      className="h-9 sm:h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                       required
                     />
                     {errors.lastName && (
@@ -247,7 +247,7 @@ function RegisterForm() {
                         onChange={(e) =>
                           handleInputChange("email", e.target.value)
                         }
-                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        className="pl-10 h-9 sm:h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                         required
                       />
                     </div>
@@ -272,7 +272,7 @@ function RegisterForm() {
                         onChange={(e) =>
                           handleInputChange("phone", e.target.value)
                         }
-                        className="pl-10 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                        className="pl-10 h-9 sm:h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -302,7 +302,7 @@ function RegisterForm() {
                         onChange={(e) =>
                           handleInputChange("password", e.target.value)
                         }
-                        className="pl-10 pr-12 h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                        className="pl-10 pr-12 h-9 sm:h-11 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                         required
                       />
                       <Button
@@ -327,17 +327,26 @@ function RegisterForm() {
               </div>
 
               {/* Conditions d'utilisation */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-2">
                 <Checkbox
                   id="acceptTerms"
                   checked={acceptTerms}
                   onCheckedChange={(checked) =>
                     setAcceptTerms(Boolean(checked))
                   }
+                  className="mt-0.5 shrink-0"
+                  style={{ 
+                    height: '16px', 
+                    width: '16px', 
+                    minHeight: '16px', 
+                    minWidth: '16px',
+                    maxHeight: '16px',
+                    maxWidth: '16px'
+                  }}
                 />
                 <Label
                   htmlFor="acceptTerms"
-                  className="text-sm text-brand-primary/80"
+                  className="text-xs sm:text-sm text-brand-primary/80 leading-tight"
                 >
                   J'accepte les{" "}
                   <Link
@@ -356,7 +365,7 @@ function RegisterForm() {
               {/* Bouton submit */}
               <Button
                 type="submit"
-                className="w-full h-11 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-full h-9 sm:h-11 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg disabled:opacity-50"
                 disabled={isLoading}
               >
                 {isLoading ? (

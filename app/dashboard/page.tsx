@@ -81,7 +81,7 @@ export default function Dashboard() {
 
   // Get user's display name
   const getUserDisplayName = () => {
-    if (!userProfile) return "Partenaire"
+    if (!userProfile) return t('header.partner', locale)
 
     if (userProfile.first_name && userProfile.last_name) {
       return `${userProfile.first_name} ${userProfile.last_name}`
@@ -91,7 +91,7 @@ export default function Dashboard() {
       return userProfile.last_name
     } else {
       // Fallback to email or generic name
-      return userProfile.email.split('@')[0] || "Partenaire"
+      return userProfile.email.split('@')[0] || t('header.partner', locale)
     }
   }
 
@@ -100,17 +100,17 @@ export default function Dashboard() {
       {/* Welcome Message */}
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-[#005266] mb-1">
-          Tableau de bord
+          {t('dashboard.title', locale)}
         </h1>
         <p className="text-gray-600">
-          Voici un aperçu de l'activité de vos commerces
+          {t('dashboard.subtitle', locale)}
         </p>
       </div>
 
       {/* Commerce Cards Section */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary">Vos commerces</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('dashboard.yourCommerces', locale)}</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto h-12 sm:h-10">
@@ -120,9 +120,9 @@ export default function Dashboard() {
             </DialogTrigger>
             <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
-                <DialogTitle>Créez le profil de votre entreprise</DialogTitle>
+                <DialogTitle>{t('dashboard.createBusinessProfile', locale)}</DialogTitle>
                 <DialogDescription>
-                Entrez les informations de votre entreprise pour la rendre visible sur la carte gosholo et commencez à publier vos offres et événements.
+                {t('dashboard.enterBusinessInfo', locale)}
                 </DialogDescription>
               </DialogHeader>
               <CommerceCreationFlow 
@@ -138,7 +138,7 @@ export default function Dashboard() {
         {isLoading ? (
           <div className="text-center py-8 sm:py-12">
             <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="text-gray-600 mt-2 sm:mt-4">Chargement de vos commerces...</p>
+            <p className="text-gray-600 mt-2 sm:mt-4">{t('dashboard.loadingCommerces', locale)}</p>
           </div>
         ) : commerces.length > 0 ? (
           <div className="space-y-4 sm:space-y-6">
@@ -178,7 +178,7 @@ export default function Dashboard() {
                 <Store className="h-8 w-8 text-brand-primary" />
               </div>
               <p className="text-gray-600 text-base leading-relaxed">
-                C'est gratuit ! Ajoutez une entreprise à votre compte pour apparaître sur la carte gosholo et commencer à attirer des clients avec vos offres et événements.
+                {t('dashboard.welcomeMessage', locale)}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
@@ -187,7 +187,7 @@ export default function Dashboard() {
                 className="flex-1 bg-brand-primary hover:bg-brand-primary/90 h-12 sm:h-10"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Ajouter une entreprise
+                {t('dashboard.addBusiness', locale)}
               </Button>
               <Button 
                 variant="outline" 
@@ -215,8 +215,17 @@ export default function Dashboard() {
                 <Zap className="h-8 w-8 text-brand-accent" />
               </div>
               <p className="text-gray-600 text-base leading-relaxed">
-                Vous êtes présentement sur le plan gratuit.<br />
-                Passez au niveau supérieur et découvrez nos boosts et abonnements pour gagner en visibilité et attirer encore plus de clients.
+                {locale === 'fr' ? (
+                  <>
+                    Vous êtes présentement sur le plan gratuit.<br />
+                    Passez au niveau supérieur et découvrez nos boosts et abonnements pour gagner en visibilité et attirer encore plus de clients.
+                  </>
+                ) : (
+                  <>
+                    You are currently on the free plan.<br />
+                    Level up and discover our boosts and subscriptions to gain visibility and attract even more customers.
+                  </>
+                )}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">

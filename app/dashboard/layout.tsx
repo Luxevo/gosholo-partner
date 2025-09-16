@@ -4,7 +4,7 @@ import { DashboardProvider } from "@/contexts/dashboard-context"
 import { DashboardLayout } from "@/components/dashboard-layout"
 
 export const metadata: Metadata = {
-  title: "Gosholo Partner - Tableau de bord commerçants",
+  title: "gosholo - dahsboard",
   description: "Gérez vos commerces, offres, événements et boosts de visibilité avec Gosholo Partner",
   manifest: "/manifest.json",
   themeColor: "#0d9488",

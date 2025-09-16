@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useLanguage } from "@/contexts/language-context"
-import { t } from "@/lib/category-translations"
+import { t, getCategoryLabel } from "@/lib/category-translations"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -198,8 +198,8 @@ export default function ProfilPage() {
   const handlePasswordChanged = () => {
     setIsPasswordChangeOpen(false)
     toast({
-      title: "Succès",
-      description: "Mot de passe mis à jour avec succès",
+      title: t('messages.success', locale),
+      description: t('messages.passwordUpdated', locale),
     })
   }
 
@@ -241,16 +241,16 @@ export default function ProfilPage() {
       if (commerceError) {
         console.error('Error deleting commerce:', commerceError)
         toast({
-          title: "Erreur",
-          description: "Erreur lors de la suppression du commerce",
+          title: t('messages.error', locale),
+          description: t('messages.commerceDeleteError', locale),
           variant: "destructive"
         })
         return
       }
 
       toast({
-        title: "Succès",
-        description: `Commerce "${commerceToDelete.name}" supprimé avec succès`,
+        title: t('messages.success', locale),
+        description: `Commerce "${commerceToDelete.name}" ${t('profile.commerceDeletedSuccess', locale)}`,
       })
 
       // Refresh data
@@ -261,8 +261,8 @@ export default function ProfilPage() {
     } catch (error) {
       console.error('Error deleting commerce:', error)
       toast({
-        title: "Erreur",
-        description: "Erreur lors de la suppression du commerce",
+        title: t('messages.error', locale),
+        description: t('profile.deleteCommerceError', locale),
         variant: "destructive"
       })
     }
@@ -299,8 +299,8 @@ export default function ProfilPage() {
       if (error) {
         console.error('Error signing out:', error)
         toast({
-          title: "Erreur",
-          description: "Erreur lors de la déconnexion",
+          title: t('messages.error', locale),
+          description: t('profile.logoutError', locale),
           variant: "destructive"
         })
         return
@@ -356,8 +356,8 @@ export default function ProfilPage() {
                     </CardTitle>
                     <CardDescription className="text-sm">
                       {subscription?.plan_type === 'pro' 
-                        ? 'Accès complet avec boosts' 
-                        : 'Accès de base limité'
+                        ? t('profile.fullAccessWithBoosts', locale) 
+                        : t('profile.basicLimitedAccess', locale)
                       }
                     </CardDescription>
                   </div>
@@ -372,25 +372,24 @@ export default function ProfilPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Usage Stats */}
-              <div className="space-y-3 border border-red-500 p-2">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Contenu utilisé</span>
+                  <span className="text-sm font-medium">{t('profile.contentUsed', locale)}</span>
                   <span className="text-sm text-primary/70">
                     {stats?.totalContent || 0} / {currentLimit.content}
                   </span>
                 </div>
-                <div className="bg-yellow-200 p-1">
-                  <Progress value={Math.min(usagePercentage, 100)} className="h-3 bg-gray-200" />
-                  <p className="text-xs">Progress: {usagePercentage.toFixed(1)}%</p>
+                <div>
+                  <Progress value={Math.min(usagePercentage, 100)} className="h-2" />
                 </div>
                 
                 {usagePercentage >= 100 && (
                   <Alert>
                     <XCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Limite atteinte! {subscription?.plan_type === 'free' 
-                        ? 'Passez au plan Pro pour créer plus de contenu.' 
-                        : 'Supprimez du contenu ou contactez le support.'}
+                      {t('profile.limitReached', locale)} {subscription?.plan_type === 'free' 
+                        ? t('profile.upgradeToPro', locale) 
+                        : t('profile.deleteContentOrSupport', locale)}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -422,12 +421,12 @@ export default function ProfilPage() {
                     <span className="font-medium text-sm sm:text-base">{t('profile.boostCredits', locale)}</span>
                   </div>
                   <Badge variant="outline">
-                    {stats?.boostCredits || 0} disponible{(stats?.boostCredits || 0) > 1 ? 's' : ''}
+                    {stats?.boostCredits || 0} {(stats?.boostCredits || 0) > 1 ? t('profile.availablePlural', locale) : t('profile.available', locale)}
                   </Badge>
                 </div>
                 {subscription?.plan_type === 'free' && (
                   <p className="text-xs text-primary/70 mt-1">
-                    Passez au plan Pro pour obtenir 1 crédit boost par mois
+{t('profile.upgradeToProBoosts', locale)}
                   </p>
                 )}
               </div>
@@ -437,31 +436,31 @@ export default function ProfilPage() {
           {/* Account Info */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Informations du compte</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">{t('profile.accountInfo', locale)}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-primary/70">Email</label>
+                  <label className="text-sm font-medium text-primary/70">{t('profile.email', locale)}</label>
                   <p className="font-medium text-sm sm:text-base">{user?.email}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-primary/70">Nom</label>
+                  <label className="text-sm font-medium text-primary/70">{t('profile.name', locale)}</label>
                   <p className="font-medium text-sm sm:text-base">
                     {profile?.first_name} {profile?.last_name}
                   </p>
                 </div>
                 {profile?.phone && (
                   <div>
-                    <label className="text-sm font-medium text-primary/70">Téléphone</label>
+                    <label className="text-sm font-medium text-primary/70">{t('profile.phone', locale)}</label>
                     <p className="font-medium text-sm sm:text-base">{profile.phone}</p>
                   </div>
                 )}
                 <div>
-                  <label className="text-sm font-medium text-primary/70">Membre depuis</label>
+                  <label className="text-sm font-medium text-primary/70">{t('profile.memberSince', locale)}</label>
                   <p className="font-medium text-sm sm:text-base">
                     {subscription?.starts_at 
-                      ? new Date(subscription.starts_at).toLocaleDateString('fr-FR')
+                      ? new Date(subscription.starts_at).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
                       : 'N/A'
                     }
                   </p>
@@ -474,7 +473,7 @@ export default function ProfilPage() {
                 </Button>
                 <Button variant="outline" onClick={() => setIsPasswordChangeOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <Lock className="h-4 w-4 mr-2" />
-                  Changer le mot de passe
+{t('profile.changePassword', locale)}
                 </Button>
                 <Button variant="outline" onClick={() => setIsSubscriptionManagementOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <CreditCard className="h-4 w-4 mr-2" />
@@ -493,7 +492,7 @@ export default function ProfilPage() {
               <div>
                 <CardTitle className="text-lg sm:text-xl">{t('profile.myCommerces', locale)}</CardTitle>
                 <CardDescription className="text-sm">
-                  Gérez vos commerces et leurs informations
+                  {t('profile.manageCommerces', locale)}
                 </CardDescription>
               </div>
               <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
@@ -506,8 +505,8 @@ export default function ProfilPage() {
             {commerces.length === 0 ? (
               <div className="text-center py-8">
                 <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun commerce</h3>
-                <p className="text-gray-600 mb-4">Créez votre premier commerce pour commencer</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">{t('profile.noCommerce', locale)}</h3>
+                <p className="text-gray-600 mb-4">{t('profile.createFirstCommerce', locale)}</p>
                 <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   {t('profile.createCommerce', locale)}
@@ -525,7 +524,7 @@ export default function ProfilPage() {
                             <h4 className="font-semibold text-base sm:text-lg">{commerce.name}</h4>
                           </div>
                           {commerce.category && (
-                            <Badge variant="secondary" className="w-fit">{commerce.category}</Badge>
+                            <Badge variant="secondary" className="w-fit">{getCategoryLabel(commerce.category, locale)}</Badge>
                           )}
                         </div>
                         
@@ -563,8 +562,8 @@ export default function ProfilPage() {
                         </div>
                         
                         <div className="mt-3 text-xs text-gray-500">
-                          Créé le {commerce.created_at 
-                            ? new Date(commerce.created_at).toLocaleDateString('fr-FR')
+                          {t('profile.createdOn', locale)} {commerce.created_at 
+                            ? new Date(commerce.created_at).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
                             : 'N/A'
                           }
                         </div>
@@ -601,7 +600,7 @@ export default function ProfilPage() {
         {/* Account Actions */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">Actions du compte</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">{t('profile.accountActions', locale)}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -611,7 +610,7 @@ export default function ProfilPage() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Se déconnecter
+{t('profile.signOut', locale)}
               </Button>
             </div>
           </CardContent>
@@ -622,9 +621,9 @@ export default function ProfilPage() {
       <Dialog open={isProfileEditOpen} onOpenChange={setIsProfileEditOpen}>
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Modifier le profil</DialogTitle>
+            <DialogTitle>{t('profile.editProfileTitle', locale)}</DialogTitle>
             <DialogDescription>
-              Mettez à jour vos informations personnelles
+              {t('profile.editProfileDesc', locale)}
             </DialogDescription>
           </DialogHeader>
           {profile && (
@@ -641,9 +640,9 @@ export default function ProfilPage() {
       <Dialog open={isPasswordChangeOpen} onOpenChange={setIsPasswordChangeOpen}>
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Changer le mot de passe</DialogTitle>
+            <DialogTitle>{t('profile.changePasswordTitle', locale)}</DialogTitle>
             <DialogDescription>
-              Mettez à jour votre mot de passe pour sécuriser votre compte
+              {t('profile.changePasswordDesc', locale)}
             </DialogDescription>
           </DialogHeader>
           <PasswordChangeFlow 
@@ -657,9 +656,9 @@ export default function ProfilPage() {
       <Dialog open={isSubscriptionManagementOpen} onOpenChange={setIsSubscriptionManagementOpen}>
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Gérer l'abonnement</DialogTitle>
+            <DialogTitle>{t('profile.manageSubscriptionTitle', locale)}</DialogTitle>
             <DialogDescription>
-              Comparez les plans et modifiez votre abonnement
+              {t('profile.manageSubscriptionDesc', locale)}
             </DialogDescription>
           </DialogHeader>
           {subscription && (
@@ -677,10 +676,10 @@ export default function ProfilPage() {
        <Dialog open={isManageCommerceOpen} onOpenChange={setIsManageCommerceOpen}>
          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
            <DialogHeader>
-             <DialogTitle>Gérer le commerce</DialogTitle>
-             <DialogDescription>
-               Modifiez les informations de {commerceToEdit?.name}.
-             </DialogDescription>
+            <DialogTitle>{t('profile.manageCommerceTitle', locale)}</DialogTitle>
+            <DialogDescription>
+              {t('profile.manageCommerceDesc', locale)} {commerceToEdit?.name}.
+            </DialogDescription>
            </DialogHeader>
            {commerceToEdit && (
              <CommerceManagementFlow 
@@ -696,9 +695,9 @@ export default function ProfilPage() {
         <Dialog open={isCreateCommerceOpen} onOpenChange={setIsCreateCommerceOpen}>
           <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Créer un nouveau commerce</DialogTitle>
+              <DialogTitle>{t('profile.createCommerceTitle', locale)}</DialogTitle>
               <DialogDescription>
-                Remplissez les informations pour créer un nouveau commerce.
+                {t('profile.createCommerceDesc', locale)}
               </DialogDescription>
             </DialogHeader>
             <CommerceCreationFlow 
@@ -711,19 +710,19 @@ export default function ProfilPage() {
         <Dialog open={isDeleteCommerceOpen} onOpenChange={setIsDeleteCommerceOpen}>
           <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Supprimer le commerce</DialogTitle>
+              <DialogTitle>{t('profile.deleteCommerceTitle', locale)}</DialogTitle>
               <DialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce commerce ? Cette action est irréversible.
+                {t('profile.deleteCommerceDesc', locale)}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               {commerceToDelete && (
                 <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                   <h4 className="font-medium text-red-800 mb-2">
-                    Commerce à supprimer : {commerceToDelete.name}
+                    {t('profile.commerceToDelete', locale)} {commerceToDelete.name}
                   </h4>
                   <p className="text-sm text-red-700">
-                    Cette action supprimera également toutes les offres et événements associés à ce commerce.
+                    {t('profile.deleteWarning', locale)}
                   </p>
                 </div>
               )}
@@ -736,7 +735,7 @@ export default function ProfilPage() {
                     setCommerceToDelete(null)
                   }}
                 >
-                  Annuler
+                  {t('profile.cancel', locale)}
                 </Button>
                 <Button 
                   variant="destructive" 
@@ -744,7 +743,7 @@ export default function ProfilPage() {
                   onClick={handleDeleteCommerce}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Supprimer définitivement
+                  {t('profile.deletePermanently', locale)}
                 </Button>
               </div>
             </div>

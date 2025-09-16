@@ -26,6 +26,8 @@ import { useToast } from "@/hooks/use-toast"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { formatBoostRemainingTime, isBoostExpired } from "@/lib/boost-utils"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 
 interface CommerceCardProps {
   commerce: any
@@ -36,6 +38,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const { toast } = useToast()
   const router = useRouter()
   const { counts } = useDashboard()
+  const { locale } = useLanguage()
   const [isEditOfferDialogOpen, setIsEditOfferDialogOpen] = useState(false)
   const [editingOffer, setEditingOffer] = useState<any>(null)
   const [isEditEventDialogOpen, setIsEditEventDialogOpen] = useState(false)
@@ -115,11 +118,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
         .single()
 
       if (existingContent?.boosted) {
-        toast({
-          title: "Déjà boosté",
-          description: "Ce contenu est déjà boosté.",
-          variant: "destructive"
-        })
+      toast({
+        title: t('commerceCard.alreadyBoosted', locale),
+        description: t('commerceCard.alreadyBoostedDesc', locale),
+        variant: "destructive"
+      })
         return
       }
 
@@ -152,8 +155,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
       } : null)
 
       toast({
-        title: "Boost appliqué !",
-        description: `Votre ${boostingItem.type === 'offer' ? 'offre' : boostingItem.type === 'event' ? 'événement' : 'commerce'} est maintenant boosté pour 72 heures.`,
+        title: t('commerceCard.boostApplied', locale),
+        description: `${t('commerceCard.your', locale)} ${boostingItem.type === 'offer' ? t('commerceCard.offer', locale) : boostingItem.type === 'event' ? t('commerceCard.event', locale) : t('commerceCard.business', locale)} ${t('commerceCard.boostAppliedDesc', locale)}`,
       })
 
       setIsBoostModalOpen(false)
@@ -165,8 +168,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     } catch (error) {
       console.error('Error applying boost:', error)
       toast({
-        title: "Erreur",
-        description: "Impossible d'appliquer le boost.",
+        title: t('commerceCard.error', locale),
+        description: t('commerceCard.cannotApplyBoost', locale),
         variant: "destructive"
       })
     }
@@ -192,12 +195,12 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   }
 
   const getOfferStatus = (offer: any) => {
-    if (!offer.is_active) return { label: 'Terminée', variant: 'secondary' as const }
-    return { label: 'Active', variant: 'default' as const }
+    if (!offer.is_active) return { label: t('commerceCard.finished', locale), variant: 'secondary' as const }
+    return { label: t('commerceCard.active', locale), variant: 'default' as const }
   }
 
   const getEventStatus = () => {
-    return { label: 'À venir', variant: 'default' as const }
+    return { label: t('commerceCard.upcoming', locale), variant: 'default' as const }
   }
 
   const handleEditOffer = (offer: any) => {
@@ -393,7 +396,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  <div className="flex items-center gap-3 mt-2">
                    <Badge className="w-fit text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1 shadow-md">
                      <TrendingUp className="h-4 w-4 mr-2" style={{ color: 'white' }} />
-                     Visibilité Boost
+                     {t('commerceCard.visibilityBoost', locale)}
                    </Badge>
                    <span className="text-sm font-medium text-blue-600">
                      {formatBoostRemainingTime(commerce.boosted_at)}
@@ -411,7 +414,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
                >
                  <Zap className="h-4 w-4 sm:hidden" />
-                 <span className="hidden sm:inline">Boost ce commerce</span>
+                 <span className="hidden sm:inline">{t('commerceCard.boostThisBusiness', locale)}</span>
                </Button>
              )}
              <Button 
@@ -421,7 +424,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3"
              >
                <Edit className="h-4 w-4 sm:hidden" />
-               <span className="hidden sm:inline">Gérer ce commerce</span>
+               <span className="hidden sm:inline">{t('commerceCard.manageBusiness', locale)}</span>
              </Button>
              <Button 
                variant="ghost" 
@@ -442,7 +445,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
         <div>
           <h4 className="font-medium text-gray-900 mb-2 sm:mb-4 flex items-center text-sm sm:text-lg">
             <Tag className="h-4 w-4 sm:h-5 sm:w-5 mr-2" style={{ color: 'rgb(0,82,102)' }} />
-            Offres actives
+{t('commerceCard.activeOffers', locale)}
           </h4>
           {activeOffers.length > 0 ? (
             activeOffers.map((offer: any) => (
@@ -465,7 +468,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                           {getOfferStatus(offer).label}
                         </Badge>
                         <span className="text-xs text-gray-500">
-                          Expire le {new Date(offer.created_at).toLocaleDateString('fr-FR')}
+                          {t('commerceCard.expiresOn', locale)} {new Date(offer.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                         </span>
                       </div>
                     </div>
@@ -475,7 +478,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleBoostOffer(offer)}
                     >
-                      Boost
+                      {t('commerceCard.boost', locale)}
                     </button>
                     <button 
                       className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
@@ -495,7 +498,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
             ))
           ) : (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-6">
-              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">Aucune offre en cours</p>
+              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">{t('commerceCard.noActiveOffers', locale)}</p>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -504,7 +507,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {counts.canCreateContent ? 'Créer une offre' : 'Limite atteinte'}
+{counts.canCreateContent ? t('commerceCard.createOffer', locale) : t('commerceCard.limitReached', locale)}
               </Button>
             </div>
           )}
@@ -514,7 +517,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
         <div>
           <h4 className="font-medium text-gray-900 mb-2 sm:mb-4 flex items-center text-sm sm:text-lg">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-orange-600" />
-            Événements à venir
+{t('commerceCard.upcomingEvents', locale)}
           </h4>
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event: any) => (
@@ -547,7 +550,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                       className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
                       onClick={() => handleBoostEvent(event)}
                     >
-                      Boost
+                      {t('commerceCard.boost', locale)}
                     </button>
                     <button 
                       className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
@@ -567,7 +570,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
             ))
           ) : (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-6">
-              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">Aucun événement à venir</p>
+              <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-4">{t('commerceCard.noUpcomingEvents', locale)}</p>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -576,7 +579,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 className="h-10 sm:h-8 w-full sm:w-auto"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {counts.canCreateContent ? 'Créer un événement' : 'Limite atteinte'}
+{counts.canCreateContent ? t('commerceCard.createEvent', locale) : t('commerceCard.limitReached', locale)}
               </Button>
             </div>
           )}
@@ -588,9 +591,9 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     <Dialog open={isEditOfferDialogOpen} onOpenChange={setIsEditOfferDialogOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Modifier l'offre</DialogTitle>
+          <DialogTitle>{t('modals.editOffer', locale)}</DialogTitle>
           <DialogDescription>
-            Modifiez les informations de votre offre.
+            {t('modals.editOfferDesc', locale)}
           </DialogDescription>
         </DialogHeader>
         {editingOffer && (
@@ -606,10 +609,10 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
        <DialogContent className="sm:max-w-[425px]">
          <DialogHeader>
-           <DialogTitle>Confirmer la suppression</DialogTitle>
+           <DialogTitle>{t('modals.confirmDelete', locale)}</DialogTitle>
            <DialogDescription>
-             Êtes-vous sûr de vouloir supprimer {itemToDelete?.type === 'offer' ? 'cette offre' : 'cet événement'} ? 
-             Cette action est irréversible.
+             {t('modals.confirmDeleteDesc', locale)} {itemToDelete?.type === 'offer' ? t('modals.thisOffer', locale) : t('modals.thisEvent', locale)} ? 
+             {t('modals.actionIrreversible', locale)}
            </DialogDescription>
          </DialogHeader>
          <div className="py-4">
@@ -619,13 +622,13 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
          </div>
          <div className="flex justify-end space-x-2">
            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
-             Annuler
+             {t('modals.cancel', locale)}
            </Button>
            <Button 
              variant="destructive" 
              onClick={confirmDelete}
            >
-             Supprimer
+             {t('modals.delete', locale)}
            </Button>
          </div>
        </DialogContent>

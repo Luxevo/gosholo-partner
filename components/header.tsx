@@ -32,7 +32,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const { locale } = useLanguage();
 
   const getUserDisplayName = () => {
-    if (!userProfile) return "Partenaire";
+    if (!userProfile) return t('header.partner', locale);
 
     if (userProfile.first_name && userProfile.last_name) {
       return `${userProfile.first_name} ${userProfile.last_name}`;
@@ -42,7 +42,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
       return userProfile.last_name;
     } else {
       // Fallback to email or generic name
-      return userProfile.email.split('@')[0] || "Partenaire";
+      return userProfile.email.split('@')[0] || t('header.partner', locale);
     }
   };
 
@@ -203,13 +203,13 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/dashboard/profil')}>
                 <User className="mr-2 h-4 w-4" />
-                <span>Profil</span>
+                <span>{t('header.profile', locale)}</span>
               </DropdownMenuItem>
  
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Se déconnecter</span>
+                <span>{t('header.logout', locale)}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

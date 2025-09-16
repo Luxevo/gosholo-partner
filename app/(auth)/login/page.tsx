@@ -78,11 +78,11 @@ function LoginForm() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 overflow-hidden">
-      <div className="w-full max-w-md space-y-6 animate-in fade-in-50 duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 py-8 sm:py-4 overflow-auto">
+      <div className="w-full max-w-md space-y-4 sm:space-y-6 animate-in fade-in-50 duration-300">
         {/* Logo Section */}
-        <div className="text-center space-y-3 flex flex-col items-center">
-          <div className="relative w-64 h-24 overflow-hidden transition-transform hover:scale-105 duration-300">
+        <div className="text-center space-y-2 sm:space-y-3 flex flex-col items-center">
+          <div className="relative w-48 h-16 sm:w-64 sm:h-24 overflow-hidden transition-transform hover:scale-105 duration-300">
             <Image
               src="/logo.png"
               alt="Gosholo Logo"
@@ -91,7 +91,7 @@ function LoginForm() {
             />
           </div>
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-brand-primary">
+            <h1 className="text-lg sm:text-xl font-bold text-brand-primary">
               Bienvenue chez gosholo
             </h1>
             <p className="text-brand-primary/70 text-xs">
@@ -101,16 +101,16 @@ function LoginForm() {
         </div>
 
         <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
-          <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-brand-primary text-center">
+          <CardHeader className="space-y-2 pb-4 sm:pb-6">
+            <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary text-center">
               Connexion
             </CardTitle>
-            <CardDescription className="text-center text-brand-primary/70 text-sm">
+            <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
               Entrez vos identifiants pour accéder à votre espace commerçant
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <CardContent className="space-y-4 sm:space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
               {error && (
                 <Alert className="border-red-200/50 bg-red-50/50 animate-in fade-in-50 slide-in-from-top-2 duration-300">
                   <AlertDescription className="text-red-700 text-sm">
@@ -134,7 +134,7 @@ function LoginForm() {
                     placeholder="votre@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                    className="pl-10 h-10 sm:h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                     required
                   />
                 </div>
@@ -155,14 +155,14 @@ function LoginForm() {
                     placeholder="Votre mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-12 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
+                    className="pl-10 pr-12 h-10 sm:h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-10 w-10 hover:bg-brand-primary/10 rounded-md transition-colors"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 sm:h-10 sm:w-10 hover:bg-brand-primary/10 rounded-md transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -185,7 +185,7 @@ function LoginForm() {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-base shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-full h-10 sm:h-12 bg-brand-primary hover:bg-brand-primary/90 transition-all duration-200 font-medium text-sm sm:text-base shadow-md hover:shadow-lg disabled:opacity-50"
                 disabled={isLoading}
               >
                 {isLoading ? (

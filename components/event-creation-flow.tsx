@@ -138,11 +138,11 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
   const validateForm = () => {
     const errors = []
-    if (!form.title) errors.push('Titre requis')
-    if (!form.short_description) errors.push('Description requise')
-    if (!form.selectedCommerceId) errors.push('Commerce requis')
-    if (!form.start_date) errors.push('Date de début requise')
-    if (!form.end_date) errors.push('Date de fin requise')
+    if (!form.title) errors.push(t('events.titleRequired', locale))
+    if (!form.short_description) errors.push(t('events.descriptionRequired', locale))
+    if (!form.selectedCommerceId) errors.push(t('events.commerceRequired', locale))
+    if (!form.start_date) errors.push(t('events.startDateRequired', locale))
+    if (!form.end_date) errors.push(t('events.endDateRequired', locale))
     
     return {
       isValid: errors.length === 0,
@@ -153,7 +153,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   const handlePreviewEvent = () => {
     const validation = validateForm()
     if (!validation.isValid) {
-      alert(`Veuillez corriger les erreurs suivantes :\n${validation.errors.join('\n')}`)
+      alert(`${t('events.correctErrors', locale)}\n${validation.errors.join('\n')}`)
       return
     }
     setIsPreviewMode(true)
@@ -257,8 +257,8 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         if (!canCreate) {
           toast({
             variant: "destructive",
-            title: "Limite de contenu atteinte",
-            description: "Passez au plan Pro pour créer plus de contenu."
+            title: t('messages.contentLimitReached', locale),
+            description: t('messages.upgradeToCreateMore', locale)
           })
           setIsLoading(false)
           return
@@ -315,10 +315,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             <Check className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Confirmer la publication
+            {t('events.confirmPublication', locale)}
           </h2>
           <p className="text-muted-foreground">
-            Êtes-vous sûr de vouloir publier cet événement ?
+            {t('events.confirmPublishDesc', locale)}
           </p>
         </div>
 
@@ -335,7 +335,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 </CardDescription>
               </div>
               <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                Prêt à publier
+                {t('events.readyToPublish', locale)}
               </Badge>
             </div>
           </CardHeader>
@@ -344,29 +344,29 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm">
                 <Store className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Commerce:</span>
-                <span>{selectedCommerce?.name || "Non sélectionné"}</span>
+                <span className="font-medium">{t('events.commerceLabel', locale)}:</span>
+                <span>{selectedCommerce?.name || t('placeholders.notSelected', locale)}</span>
               </div>
               
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Période:</span>
+                <span className="font-medium">{t('events.period', locale)}</span>
                 <span>
-                  Du {new Date(form.start_date).toLocaleDateString('fr-FR')} 
-                  au {new Date(form.end_date).toLocaleDateString('fr-FR')}
+                  {t('events.from', locale)} {new Date(form.start_date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')} 
+                  {t('events.to', locale)} {new Date(form.end_date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                 </span>
               </div>
 
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <div className="space-y-2 text-sm text-blue-800">
                   <div>
-                    <span className="font-medium">Votre événement sera maintenant en ligne !</span>
+                    <span className="font-medium">{t('events.eventWillBeOnline', locale)}</span>
                   </div>
                   <p>
-                    Il sera visible sur votre fiche commerce, sur la carte, et dans les sections de l'application.
+                    {t('events.visibleOnProfile', locale)}
                   </p>
                   <p>
-                    Vous pourrez le modifier ou le désactiver à tout moment. (Lors d'un changement ou de la désactivation, les utilisateurs ayant ajouté votre événement en favori seront avertis.)
+                    {t('events.canModifyAnytime', locale)}
                   </p>
                 </div>
               </div>
@@ -377,7 +377,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
           <Button variant="outline" onClick={handleBackToPreview}>
-            ← Retour à la prévisualisation
+            ← {t('events.backToPreview', locale)}
           </Button>
           <Button 
             className="bg-green-600 hover:bg-green-700 text-white" 
@@ -397,9 +397,9 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
     // Format dates for event display
     const formatEventDate = (dateString: string) => {
-      if (!dateString) return "Date non définie"
+      if (!dateString) return t('events.dateNotDefined', locale)
       const date = new Date(dateString)
-      return date.toLocaleDateString('fr-FR', {
+      return date.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
         weekday: 'short',
         month: 'short',
         day: 'numeric'
@@ -409,7 +409,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     const formatEventTime = (dateString: string) => {
       if (!dateString) return ""
       const date = new Date(dateString)
-      return date.toLocaleTimeString('fr-FR', {
+      return date.toLocaleTimeString(locale === 'fr' ? 'fr-FR' : 'en-US', {
         hour: '2-digit',
         minute: '2-digit',
         hour12: false
@@ -417,7 +417,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     }
 
     const getEventTimeRange = () => {
-      if (!form.start_date || !form.end_date) return "Horaire à définir"
+      if (!form.start_date || !form.end_date) return t('events.scheduleToDefine', locale)
       return `${formatEventTime(form.start_date)}-${formatEventTime(form.end_date)}`
     }
 
@@ -436,10 +436,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
       <div className="space-y-4">
         <div className="text-center mb-4">
           <h2 className="text-lg font-semibold text-primary mb-1">
-            Aperçu de votre événement
+            {t('events.eventPreview', locale)}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Voici comment votre événement apparaîtra aux utilisateurs de Gosholo
+            {t('events.howEventAppears', locale)}
           </p>
         </div>
 
@@ -458,7 +458,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
                   <div className="text-white text-center">
                     <Calendar className="h-12 w-12 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm opacity-80">Image de l'événement</p>
+                    <p className="text-sm opacity-80">{t('events.eventImage', locale)}</p>
                   </div>
                 </div>
               )}
@@ -507,7 +507,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                   {form.title}
                 </h3>
                 <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
-                  {form.conditions || "Entrée libre"}
+                  {form.conditions || t('events.freeEntry', locale)}
                 </span>
               </div>
 
@@ -516,7 +516,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 <div className="flex items-center text-sm text-gray-600">
                   <MapPin className="h-3 w-3 mr-1" />
                   <span className="truncate">
-                    {form.business_address || selectedCommerce?.address || "Lieu à confirmer"}
+                    {form.business_address || selectedCommerce?.address || t('events.venueToConfirm', locale)}
                   </span>
                 </div>
               </div>
@@ -525,7 +525,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
                 <div className="flex items-center">
                   <Users className="h-3 w-3 mr-1 text-orange-500" />
-                  <span className="text-orange-500 font-medium">1.2k+ intéressés</span>
+                  <span className="text-orange-500 font-medium">1.2k+ {t('events.interested', locale)}</span>
                 </div>
                 <span>•</span>
                 <span>Outdoor</span>
@@ -534,10 +534,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               {/* Action Buttons */}
               <div className="flex gap-2 w-1/2">
                 <button className="text-white font-semibold py-1 px-3 rounded-full hover:opacity-90 transition-colors text-sm flex-1" style={{ backgroundColor: '#FF6233' }}>
-                  Participer
+                  {t('events.participate', locale)}
                 </button>
                 <button className="border border-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full hover:bg-gray-50 transition-colors text-sm flex-1">
-                  Details
+                  {t('events.details', locale)}
                 </button>
               </div>
             </div>
@@ -547,15 +547,15 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         {/* Preview Info */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
           <div className="text-blue-800 text-sm">
-            <div className="font-medium mb-1">✨ Aperçu de l'expérience utilisateur</div>
-            <p className="text-xs">C'est exactement ainsi que votre événement apparaîtra aux utilisateurs dans l'application Gosholo.</p>
+            <div className="font-medium mb-1">{t('events.userExperiencePreview', locale)}</div>
+            <p className="text-xs">{t('events.exactlyHowAppears', locale)}</p>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-3 pt-3 border-t">
           <Button variant="outline" onClick={handleBackToEdit} size="sm">
-            ← Retour modifier
+            ← {t('events.backToEdit', locale)}
           </Button>
           <Button 
             className="bg-accent hover:bg-accent/80 text-white" 
@@ -563,7 +563,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             disabled={isLoading}
             size="sm"
           >
-            Continuer vers la publication
+            {t('events.continueToPublication', locale)}
           </Button>
         </div>
       </div>
@@ -665,10 +665,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             <Check className="h-6 w-6 text-green-600" />
           </div>
           <h2 className="text-lg font-semibold text-primary mb-1">
-            🎉 Événement créé avec succès !
+            {t('events.eventCreatedSuccess', locale)}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Votre événement est maintenant en ligne et visible par les utilisateurs.
+            {t('events.eventNowOnline', locale)}
           </p>
         </div>
 
@@ -677,10 +677,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
           <div className="text-center mb-3">
             <Zap className="h-6 w-6 text-orange-500 mx-auto mb-1" />
             <h3 className="text-base font-semibold text-orange-800">
-              Boostez votre événement maintenant ?
+              {t('events.boostEventNow', locale)}
             </h3>
             <p className="text-xs text-orange-700 mt-1">
-              Augmentez la visibilité pendant 72 heures
+              {t('events.increaseVisibility72h', locale)}
             </p>
           </div>
 
@@ -692,14 +692,14 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                   <Sparkles className="h-5 w-5 text-orange-600" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-orange-800">En Vedette</h4>
-                  <p className="text-xs text-orange-600">72h de visibilité premium</p>
+                  <h4 className="font-medium text-orange-800">{t('events.featuredBoost', locale)}</h4>
+                  <p className="text-xs text-orange-600">{t('events.premiumVisibility72h', locale)}</p>
                 </div>
               </div>
               <ul className="text-xs text-orange-700 space-y-1 mb-3">
-                <li>• Badge "En Vedette" visible</li>
-                <li>• Priorité dans les recherches</li>
-                <li>• Mise en avant sur la carte</li>
+                <li>• {t('events.featuredBadgeVisible', locale)}</li>
+                <li>• {t('events.priorityInSearch', locale)}</li>
+                <li>• {t('events.highlightedOnMap', locale)}</li>
               </ul>
               <Button
                 onClick={() => handleApplyBoost('en_vedette')}
@@ -708,8 +708,8 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 size="sm"
               >
                 {boostCredits?.available_en_vedette ? 
-                  `Utiliser crédit (${boostCredits.available_en_vedette} dispo)` : 
-                  "Acheter 5$"
+                  `${t('events.useCredit', locale)} (${boostCredits.available_en_vedette} ${t('events.available', locale)})` : 
+                  t('events.buy5dollars', locale)
                 }
               </Button>
             </div>
@@ -723,7 +723,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               className="text-orange-700 hover:text-orange-800 text-sm"
               disabled={isLoading}
             >
-              Passer pour le moment
+{t('events.skipForNow', locale)}
             </Button>
           </div>
         </div>
@@ -764,17 +764,17 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Commerce * <span className="text-red-500">*</span>
+                  {t('events.commerceLabel', locale)} * <span className="text-red-500">*</span>
                 </label>
                 {commerces.length === 0 ? (
                   <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
                     <div className="text-red-500 mb-2">
                       <Store className="h-12 w-12 mx-auto mb-2" />
-                      <p className="font-medium">Aucun commerce disponible</p>
+                      <p className="font-medium">{t('events.noCommerceAvailable', locale)}</p>
                     </div>
-                    <p className="text-secondary mb-4">Vous devez d'abord créer un commerce avant de pouvoir créer un événement.</p>
+                    <p className="text-secondary mb-4">{t('events.mustCreateCommerceFirst', locale)}</p>
                     <Button variant="outline" onClick={onCancel}>
-                      Retour au tableau de bord
+                      {t('events.backToDashboard', locale)}
                     </Button>
                   </div>
                 ) : (
@@ -784,7 +784,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     disabled={isEditMode || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
                   >
                     <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
-                      <SelectValue placeholder={commerceId ? "Commerce pré-sélectionné" : "Sélectionner un commerce (obligatoire)"} />
+                      <SelectValue placeholder={commerceId ? t('events.commercePreselected', locale) : t('events.selectCommerce', locale)} />
                     </SelectTrigger>
                     <SelectContent>
                       {commerces.map((commerce) => (
@@ -807,7 +807,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     {t('events.name', locale)} * <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    placeholder="Ex: Atelier cuisine, Soirée networking, Lancement produit"
+                    placeholder={t('events.eventTitlePlaceholder', locale)}
                     value={form.title}
                     onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                     required
@@ -819,7 +819,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     {t('events.description', locale)} * <span className="text-red-500">*</span>
                   </label>
                   <Textarea
-                    placeholder="Description courte (max 250 caractères)"
+                    placeholder={t('events.shortDescriptionPlaceholder', locale)}
                     maxLength={250}
                     value={form.short_description}
                     onChange={e => setForm(f => ({ ...f, short_description: e.target.value }))}
@@ -830,7 +830,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Image de l'événement
+                    {t('events.eventImageLabel', locale)}
                   </label>
                   <ImageUpload
                     bucket="gosholo-partner"
@@ -840,51 +840,51 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     onRemoveImage={() => setForm(f => ({ ...f, image_url: "" }))}
                     onUploadError={(error) => {
                       console.error('Image upload error:', error)
-                      alert(`Erreur: ${error}`)
+                      alert(`${t('events.imageUploadError', locale)} ${error}`)
                     }}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Code postal (optionnel)
+                    {t('events.postalCodeOptional', locale)}
                   </label>
                   <Input
-                    placeholder="Ex: H2X 1Y4, M5V 3A8, V6B 1A1"
+                    placeholder={t('events.postalCodePlaceholder', locale)}
                     value={form.postal_code}
                     onChange={e => handlePostalCodeChange(e.target.value)}
                     disabled={isGeocoding}
                   />
                   {isGeocoding && (
-                    <p className="text-sm text-gray-500 mt-1">📍 Recherche du secteur...</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('events.searchingSector', locale)}</p>
                   )}
                   {geoData && (
                     <p className="text-sm text-green-600 mt-1">
-                      ✅ Secteur trouvé: {geoData.address}
+                      {t('events.sectorFound', locale)} {geoData.address}
                     </p>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Adresse spécifique (optionnel)
+                    {t('events.specificAddress', locale)}
                   </label>
                   <Input
-                    placeholder="Ex: 123 Rue Saint-Paul Est"
+                    placeholder={t('events.specificAddressPlaceholder', locale)}
                     value={form.business_address}
                     onChange={e => setForm(f => ({ ...f, business_address: e.target.value }))}
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Si différente du commerce principal
+                    {t('events.ifDifferentFromMain', locale)}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    {t('events.condition', locale)} (optionnel)
+                    {t('events.condition', locale)} {t('events.conditionOptional', locale)}
                   </label>
                   <Textarea
-                    placeholder="Ex: Inscription requise, Limite 20 participants, Apporter votre matériel"
+                    placeholder={t('events.conditionPlaceholder', locale)}
                     value={form.conditions}
                     onChange={e => setForm(f => ({ ...f, conditions: e.target.value }))}
                     rows={3}
