@@ -528,7 +528,28 @@ export type Database = {
         | "Sport"
         | "Culture"
         | "Éducation"
-        | "Autre"
+        | "Bars & Vie nocturne"
+        | "Mode, Bijoux & Accessoires"
+        | "Beauté & Bien-être"
+        | "Santé & Services médicaux"
+        | "Sports & Loisirs"
+        | "Culture & Divertissement"
+        | "Automobile & Transport"
+        | "Maison & Rénovation"
+        | "Immobilier & Logement"
+        | "Épiceries & Alimentation"
+        | "Voyages & Hébergement"
+        | "Événementiel"
+        | "Technologie & Électronique"
+        | "Services professionnels"
+        | "Banques, Finances & Assurances"
+        | "Organismes & Associations"
+        | "Produits du terroir & Marchés locaux"
+        | "Animaux & Services pour animaux"
+        | "Enfants & Famille"
+        | "Pharmacies & Produits de santé"
+        | "Arts & Loisirs créatifs"
+        | "Autres / Divers"
       content_type_enum: "offer" | "event" | "commerce"
       offer_type_enum: "in_store" | "online" | "both"
       subscription_plan_enum: "free" | "pro"
@@ -672,7 +693,28 @@ export const Constants = {
         "Sport",
         "Culture",
         "Éducation",
-        "Autre",
+        "Bars & Vie nocturne",
+        "Mode, Bijoux & Accessoires",
+        "Beauté & Bien-être",
+        "Santé & Services médicaux",
+        "Sports & Loisirs",
+        "Culture & Divertissement",
+        "Automobile & Transport",
+        "Maison & Rénovation",
+        "Immobilier & Logement",
+        "Épiceries & Alimentation",
+        "Voyages & Hébergement",
+        "Événementiel",
+        "Technologie & Électronique",
+        "Services professionnels",
+        "Banques, Finances & Assurances",
+        "Organismes & Associations",
+        "Produits du terroir & Marchés locaux",
+        "Animaux & Services pour animaux",
+        "Enfants & Famille",
+        "Pharmacies & Produits de santé",
+        "Arts & Loisirs créatifs",
+        "Autres / Divers",
       ],
       content_type_enum: ["offer", "event", "commerce"],
       offer_type_enum: ["in_store", "online", "both"],

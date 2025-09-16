@@ -13,6 +13,8 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
 import { geocodePostalCode, validateCanadianPostalCode, formatPostalCode } from "@/lib/mapbox-geocoding"
 import { formatSocialMediaUrl, validateSocialMediaLinks } from "@/lib/social-media-utils"
+import { getCategoriesWithLabels, t } from "@/lib/category-translations"
+import { useLanguage } from "@/contexts/language-context"
 
 interface Commerce {
   id: string
@@ -42,26 +44,14 @@ interface CommerceCreationFlowProps {
   commerce?: Commerce // For editing existing commerce
 }
 
-// Commerce categories - must match the database enum exactly
-const COMMERCE_CATEGORIES = [
-  { value: "Restaurant", label: "Restaurant" },
-  { value: "Café", label: "Café" },
-  { value: "Boulangerie", label: "Boulangerie" },
-  { value: "Épicerie", label: "Épicerie" },
-  { value: "Commerce", label: "Commerce" },
-  { value: "Service", label: "Service" },
-  { value: "Santé", label: "Santé" },
-  { value: "Beauté", label: "Beauté" },
-  { value: "Sport", label: "Sport" },
-  { value: "Culture", label: "Culture" },
-  { value: "Éducation", label: "Éducation" },
-  { value: "Autre", label: "Autre" }
-]
-
 export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: CommerceCreationFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
+  const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Get commerce categories with translated labels based on current locale
+  const COMMERCE_CATEGORIES = getCategoriesWithLabels(locale)
   
   // Determine if we're in edit mode
   const isEditMode = !!commerce
@@ -293,7 +283,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             <Check className="h-8 w-8 text-green-600" />
           </div>
           <h2 className="text-xl font-semibold text-primary mb-2">
-            Confirmer la création
+            {t('buttons.confirmCreation', locale)}
           </h2>
           <p className="text-muted-foreground">
             Êtes-vous sûr de vouloir créer ce commerce ?
@@ -365,14 +355,14 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
           <Button variant="outline" onClick={handleBackToPreview}>
-            ← Retour à la prévisualisation
+            ← {t('buttons.back', locale)}
           </Button>
           <Button 
             className="bg-green-600 hover:bg-green-700 text-white" 
             onClick={handleSaveCommerce}
             disabled={isLoading}
           >
-            {isLoading ? "Création..." : "Créer le commerce"}
+            {isLoading ? t('messages.saving', locale) : t('buttons.create', locale)}
           </Button>
         </div>
       </div>
@@ -473,14 +463,14 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
           <Button variant="outline" onClick={handleBackToEdit}>
-            ← Retour modifier
+            ← {t('buttons.back', locale)}
           </Button>
           <Button 
             className="bg-accent hover:bg-accent/80 text-white" 
             onClick={handleConfirmPublish}
             disabled={isLoading}
           >
-            Continuer vers la création
+            {t('buttons.next', locale)}
           </Button>
         </div>
       </div>
@@ -497,7 +487,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         <>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl text-primary">
-              {isEditMode ? "Modifier le commerce" : "Ajouter un nouveau commerce"}
+              {isEditMode ? t('commerce.editTitle', locale) : t('dashboard.addCommerce', locale)}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -505,7 +495,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Nom du commerce * <span className="text-red-500">*</span>
+                  {t('commerce.name', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Input
                   placeholder="Ex: Boulangerie du Centre"
@@ -517,7 +507,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Description
+                  {t('commerce.description', locale)}
                 </label>
                 <Textarea
                   placeholder="Décrivez votre commerce, vos spécialités..."
@@ -567,7 +557,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Adresse complète * <span className="text-red-500">*</span>
+                  {t('commerce.address', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Input
                   placeholder="Ex: 123 Rue Saint-Paul Est"
@@ -582,11 +572,11 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Catégorie * <span className="text-red-500">*</span>
+                  {t('commerce.category', locale)} * <span className="text-red-500">*</span>
                 </label>
                 <Select value={form.category} onValueChange={(value) => setForm(f => ({ ...f, category: value }))}>
                   <SelectTrigger className={!form.category ? "border-red-300 focus:border-red-500" : ""}>
-                    <SelectValue placeholder="Sélectionner une catégorie (obligatoire)" />
+                    <SelectValue placeholder={t('commerce.categoryPlaceholder', locale)} />
                   </SelectTrigger>
                   <SelectContent>
                     {COMMERCE_CATEGORIES.map((category) => (
@@ -604,7 +594,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Email
+                    {t('commerce.email', locale)}
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -620,7 +610,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Téléphone
+                    {t('commerce.phone', locale)}
                   </label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -636,7 +626,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Site web
+                    {t('commerce.website', locale)}
                   </label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -704,7 +694,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             <div className="flex justify-between gap-4 pt-4 border-t">
               {onCancel && (
                 <Button variant="outline" onClick={onCancel}>
-                  Annuler
+                  {t('buttons.cancel', locale)}
                 </Button>
               )}
               <Button 
@@ -712,7 +702,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 onClick={isEditMode ? handleSaveCommerce : handlePreviewCommerce}
                 disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category}
               >
-                {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour le commerce" : "Voir le commerce")}
+                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
               </Button>
             </div>
           </CardContent>

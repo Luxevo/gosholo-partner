@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
@@ -13,6 +15,7 @@ import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
   const { userProfile, commerces, isLoading, refreshCounts } = useDashboard()
+  const { locale } = useLanguage()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [showBoostPopup, setShowBoostPopup] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
@@ -112,7 +115,7 @@ export default function Dashboard() {
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto h-12 sm:h-10">
                 <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
-                Ajouter un commerce
+                {t('dashboard.addCommerce', locale)}
               </Button>
             </DialogTrigger>
             <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
@@ -147,14 +150,14 @@ export default function Dashboard() {
           <Card>
             <CardContent className="text-center py-8 sm:py-12">
               <Store className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4 sm:mb-6" />
-              <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2 sm:mb-3">Aucun commerce</h3>
-              <p className="text-gray-600 mb-4 sm:mb-6">Commencez par ajouter votre premier commerce</p>
+              <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2 sm:mb-3">{t('dashboard.noCommerce', locale)}</h3>
+              <p className="text-gray-600 mb-4 sm:mb-6">{t('dashboard.startWithFirstCommerce', locale)}</p>
               <Button 
                 onClick={() => setIsDialogOpen(true)}
                 className="h-12 sm:h-10 w-full sm:w-auto"
               >
                 <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
-                Ajouter un commerce
+                {t('dashboard.addCommerce', locale)}
               </Button>
             </CardContent>
           </Card>
@@ -166,7 +169,7 @@ export default function Dashboard() {
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-brand-primary">
-              Soyez visible dès aujourd'hui
+              {t('dashboard.beVisibleToday', locale)}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -191,7 +194,7 @@ export default function Dashboard() {
                 onClick={handleWelcomePopupClose}
                 className="h-12 sm:h-10"
               >
-                Plus tard
+                {t('dashboard.later', locale)}
               </Button>
             </div>
           </div>
@@ -203,7 +206,7 @@ export default function Dashboard() {
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-brand-primary">
-              Faites briller votre commerce
+              {t('dashboard.makeCommerceShine', locale)}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -222,14 +225,14 @@ export default function Dashboard() {
                 className="flex-1 bg-brand-accent hover:bg-brand-accent/90 h-12 sm:h-10"
               >
                 <Zap className="h-4 w-4 mr-2" />
-                Voir les boosts et abonnements
+                {t('dashboard.seeBoosts', locale)}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={handleBoostPopupClose}
                 className="h-12 sm:h-10"
               >
-                Plus tard
+                {t('dashboard.later', locale)}
               </Button>
             </div>
           </div>

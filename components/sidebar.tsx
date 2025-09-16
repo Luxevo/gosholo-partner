@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store, Receipt } from "lucide-react"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import Image from "next/image"
 
 interface SidebarProps {
@@ -17,15 +19,16 @@ interface SidebarProps {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const { counts: { commerces, offers, events, totalBoosts, isLoading } } = useDashboard()
+  const { locale } = useLanguage()
 
   const navigation = [
-    { name: "Tableau de bord", href: "/dashboard", icon: Home },
-    { name: "Offres", href: "/dashboard/offres", icon: Tag },
-    { name: "Événements", href: "/dashboard/evenements", icon: Calendar },
-    { name: "Boosts & Abonnements", href: "/dashboard/boosts", icon: Zap },
+    { name: t('navigation.dashboard', locale), href: "/dashboard", icon: Home },
+    { name: t('navigation.offers', locale), href: "/dashboard/offres", icon: Tag },
+    { name: t('navigation.events', locale), href: "/dashboard/evenements", icon: Calendar },
+    { name: t('navigation.boosts', locale), href: "/dashboard/boosts", icon: Zap },
     { name: "Historique de paiement", href: "/dashboard/historique-paiement", icon: Receipt },
-    { name: "Profil & compte", href: "/dashboard/profil", icon: User },
-    { name: "Assistance", href: "/dashboard/support", icon: HelpCircle },
+    { name: t('navigation.profile', locale), href: "/dashboard/profil", icon: User },
+    { name: t('navigation.support', locale), href: "/dashboard/support", icon: HelpCircle },
   ]
 
   return (

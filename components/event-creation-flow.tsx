@@ -11,6 +11,8 @@ import { Store, Calendar, MapPin, Check, Users, Heart, TrendingUp, Sparkles, Zap
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import ImageUpload from "@/components/image-upload"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
@@ -46,6 +48,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const { toast } = useToast()
+  const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
   
@@ -381,7 +384,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             onClick={handleSaveEvent}
             disabled={isLoading}
           >
-            {isLoading ? "Publication..." : "Publier l'événement"}
+            {isLoading ? t('messages.saving', locale) : t('buttons.create', locale)}
           </Button>
         </div>
       </div>
@@ -753,7 +756,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         <>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl text-primary">
-              {isEditMode ? "Modifier l'événement" : "Créer un nouvel événement"}
+              {isEditMode ? t('events.editTitle', locale) : t('events.title', locale)}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -801,7 +804,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Titre de l'événement * <span className="text-red-500">*</span>
+                    {t('events.name', locale)} * <span className="text-red-500">*</span>
                   </label>
                   <Input
                     placeholder="Ex: Atelier cuisine, Soirée networking, Lancement produit"
@@ -813,7 +816,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Description * <span className="text-red-500">*</span>
+                    {t('events.description', locale)} * <span className="text-red-500">*</span>
                   </label>
                   <Textarea
                     placeholder="Description courte (max 250 caractères)"
@@ -878,7 +881,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    Conditions (optionnel)
+                    {t('events.condition', locale)} (optionnel)
                   </label>
                   <Textarea
                     placeholder="Ex: Inscription requise, Limite 20 participants, Apporter votre matériel"
@@ -891,7 +894,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-primary mb-2">
-                      Date de début
+                      {t('events.startDate', locale)}
                     </label>
                     <Input
                       type="date"
@@ -902,7 +905,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-primary mb-2">
-                      Date de fin
+                      {t('events.endDate', locale)}
                     </label>
                     <Input
                       type="date"
@@ -919,7 +922,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             <div className="flex justify-between gap-4 pt-4 border-t">
               {onCancel && (
                 <Button variant="outline" onClick={onCancel}>
-                  Annuler
+                  {t('buttons.cancel', locale)}
                 </Button>
               )}
               <Button 
@@ -927,7 +930,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 onClick={isEditMode ? handleSaveEvent : handlePreviewEvent}
                 disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
               >
-                {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'événement" : "Voir l'événement")}
+                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
               </Button>
             </div>
           </CardContent>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -56,6 +58,7 @@ interface BoostCredits {
 export default function BoostsPage() {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
+  const { locale } = useLanguage()
   const [userContent, setUserContent] = useState<UserContent[]>([])
   const [stats, setStats] = useState<UserStats | null>(null)
   const [boostCredits, setBoostCredits] = useState<BoostCredits | null>(null)
@@ -430,7 +433,7 @@ export default function BoostsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Boosts & Abonnements</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{t('navigation.boosts', locale)}</h1>
           <p className="text-primary/70 text-sm sm:text-base">Faites rayonner votre entreprise et gagnez en visibilité.</p>
         </div>
 
@@ -524,7 +527,7 @@ export default function BoostsPage() {
                   <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-gray-600">Crédits Vedette</p>
+                  <p className="text-sm text-gray-600">{t('boosts.vedette', locale)} {t('boosts.credits', locale)}</p>
                   <p className="text-xl sm:text-2xl font-bold">{boostCredits?.available_en_vedette || 0}</p>
                 </div>
               </div>
@@ -538,7 +541,7 @@ export default function BoostsPage() {
                   <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-brand-secondary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-gray-600">Crédits Visibilité</p>
+                  <p className="text-sm text-gray-600">{t('boosts.visibility', locale)} {t('boosts.credits', locale)}</p>
                   <p className="text-xl sm:text-2xl font-bold">{boostCredits?.available_visibilite || 0}</p>
                 </div>
               </div>
@@ -581,7 +584,7 @@ export default function BoostsPage() {
                       <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-semibold">Vedette</h3>
+                      <h3 className="text-base sm:text-lg font-semibold">{t('boosts.vedette', locale)}</h3>
                       <Badge variant="secondary">72h</Badge>
                     </div>
                   </div>
@@ -622,7 +625,7 @@ export default function BoostsPage() {
                       <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-brand-secondary" />
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-semibold">Visibilité</h3>
+                      <h3 className="text-base sm:text-lg font-semibold">{t('boosts.visibility', locale)}</h3>
                       <Badge variant="secondary">72h</Badge>
                     </div>
                   </div>
@@ -703,9 +706,9 @@ export default function BoostsPage() {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
                             <Badge variant="secondary" className="w-fit">
                               {content.boost_type === 'en_vedette' ? (
-                                <><Sparkles className="h-3 w-3 mr-1" />Vedette</>
+                                <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
                               ) : (
-                                <><TrendingUp className="h-3 w-3 mr-1" />Visibilité</>
+                                <><TrendingUp className="h-3 w-3 mr-1" />{t('boosts.visibility', locale)}</>
                               )}
                             </Badge>
                             {content.remaining_time && (
@@ -739,7 +742,7 @@ export default function BoostsPage() {
                           className="h-12 sm:h-8 w-full sm:w-auto"
                         >
                           <TrendingUp className="h-4 w-4 mr-1" />
-                          Visibilité ({boostCredits?.available_visibilite || 0})
+                          {t('boosts.visibility', locale)} ({boostCredits?.available_visibilite || 0})
                         </Button>
                       ) : (
                         <Button
@@ -750,7 +753,7 @@ export default function BoostsPage() {
                           className="h-12 sm:h-8 w-full sm:w-auto"
                         >
                           <Sparkles className="h-4 w-4 mr-1" />
-                          Vedette ({boostCredits?.available_en_vedette || 0})
+                          {t('boosts.vedette', locale)} ({boostCredits?.available_en_vedette || 0})
                         </Button>
                       )}
                     </div>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -74,6 +76,7 @@ type Commerce = Tables<'commerces'>
 export default function ProfilPage() {
   const supabase = createClient()
   const { toast } = useToast()
+  const { locale } = useLanguage()
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [user, setUser] = useState<any>(null)
@@ -331,8 +334,8 @@ export default function ProfilPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">Mon Profil</h1>
-          <p className="text-primary/70 text-sm sm:text-base">Gérez votre compte et vos commerces</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2">{t('profile.title', locale)}</h1>
+          <p className="text-primary/70 text-sm sm:text-base">{t('profile.subtitle', locale)}</p>
         </div>
 
         {/* Current Plan and Account Info - Side by Side */}
@@ -349,7 +352,7 @@ export default function ProfilPage() {
                   )}
                   <div>
                     <CardTitle className="text-lg sm:text-xl">
-                      Plan {subscription?.plan_type === 'pro' ? 'Plus' : 'Gratuit'}
+                      {t('profile.plan', locale)} {subscription?.plan_type === 'pro' ? t('profile.pro', locale) : t('profile.free', locale)}
                     </CardTitle>
                     <CardDescription className="text-sm">
                       {subscription?.plan_type === 'pro' 
@@ -363,7 +366,7 @@ export default function ProfilPage() {
                   variant={subscription?.plan_type === 'pro' ? "default" : "secondary"}
                   className={subscription?.plan_type === 'pro' ? "bg-yellow-500" : ""}
                 >
-                  {subscription?.plan_type === 'pro' ? 'Plus' : 'GRATUIT'}
+                  {subscription?.plan_type === 'pro' ? t('profile.pro', locale) : t('profile.free', locale)}
                 </Badge>
               </div>
             </CardHeader>
@@ -400,14 +403,14 @@ export default function ProfilPage() {
                     <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 mr-2" />
                     <span className="font-semibold text-base sm:text-lg">{stats?.offers || 0}</span>
                   </div>
-                  <p className="text-xs text-primary/70">Offres</p>
+                  <p className="text-xs text-primary/70">{t('profile.offers', locale)}</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
                     <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mr-2" />
                     <span className="font-semibold text-base sm:text-lg">{stats?.events || 0}</span>
                   </div>
-                  <p className="text-xs text-primary/70">Événements</p>
+                  <p className="text-xs text-primary/70">{t('profile.events', locale)}</p>
                 </div>
               </div>
 
@@ -416,7 +419,7 @@ export default function ProfilPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
-                    <span className="font-medium text-sm sm:text-base">Crédits Boost</span>
+                    <span className="font-medium text-sm sm:text-base">{t('profile.boostCredits', locale)}</span>
                   </div>
                   <Badge variant="outline">
                     {stats?.boostCredits || 0} disponible{(stats?.boostCredits || 0) > 1 ? 's' : ''}
@@ -467,7 +470,7 @@ export default function ProfilPage() {
               <div className="flex flex-col sm:flex-wrap sm:flex-row gap-3 pt-4">
                 <Button variant="outline" onClick={() => setIsProfileEditOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <User className="h-4 w-4 mr-2" />
-                  Modifier le profil
+                  {t('profile.editProfile', locale)}
                 </Button>
                 <Button variant="outline" onClick={() => setIsPasswordChangeOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <Lock className="h-4 w-4 mr-2" />
@@ -475,7 +478,7 @@ export default function ProfilPage() {
                 </Button>
                 <Button variant="outline" onClick={() => setIsSubscriptionManagementOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
                   <CreditCard className="h-4 w-4 mr-2" />
-                  Gérer l'abonnement
+                  {t('profile.manageSubscription', locale)}
                 </Button>
                 
               </div>
@@ -488,14 +491,14 @@ export default function ProfilPage() {
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
               <div>
-                <CardTitle className="text-lg sm:text-xl">Mes Commerces</CardTitle>
+                <CardTitle className="text-lg sm:text-xl">{t('profile.myCommerces', locale)}</CardTitle>
                 <CardDescription className="text-sm">
                   Gérez vos commerces et leurs informations
                 </CardDescription>
               </div>
               <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
                 <Plus className="h-4 w-4 mr-2" />
-                Ajouter un commerce
+                {t('profile.addCommerce', locale)}
               </Button>
             </div>
           </CardHeader>
@@ -507,7 +510,7 @@ export default function ProfilPage() {
                 <p className="text-gray-600 mb-4">Créez votre premier commerce pour commencer</p>
                 <Button onClick={handleCreateCommerce} className="h-12 sm:h-10 w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
-                  Créer un commerce
+                  {t('profile.createCommerce', locale)}
                 </Button>
               </div>
             ) : (
@@ -575,7 +578,7 @@ export default function ProfilPage() {
                           onClick={() => handleEditCommerce(commerce)}
                         >
                           <Edit className="h-4 w-4 mr-1" />
-                          Modifier
+                          {t('profile.edit', locale)}
                         </Button>
                         <Button
                           variant="outline"
@@ -584,7 +587,7 @@ export default function ProfilPage() {
                           onClick={() => confirmDeleteCommerce(commerce)}
                         >
                           <Trash2 className="h-4 w-4 mr-1" />
-                          Supprimer
+                          {t('profile.delete', locale)}
                         </Button>
                       </div>
                     </div>

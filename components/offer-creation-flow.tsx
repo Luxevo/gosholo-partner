@@ -11,6 +11,8 @@ import { Store, Tag, Calendar, MapPin, Check, Heart, Sparkles, Zap } from "lucid
 import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 import ImageUpload from "@/components/image-upload"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
@@ -47,6 +49,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const { toast } = useToast()
+  const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
   
@@ -416,7 +419,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             onClick={handleSaveOffer}
             disabled={isLoading}
           >
-            {isLoading ? "Publication..." : "Publier l'offre"}
+            {isLoading ? t('messages.saving', locale) : t('buttons.create', locale)}
           </Button>
         </div>
       </div>
@@ -746,7 +749,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         <>
           <CardHeader className="pb-4">
             <CardTitle className="text-xl text-primary">
-              {isEditMode ? "Modifier l'offre" : "Créer une nouvelle offre"}
+              {isEditMode ? t('offers.editTitle', locale) : t('offers.title', locale)}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -794,7 +797,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Titre de l'offre * <span className="text-red-500">*</span>
+                {t('offers.name', locale)} * <span className="text-red-500">*</span>
               </label>
               <Input
                 placeholder="Ex: 2 cafés pour $5, 10% sur tout"
@@ -806,7 +809,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Description * <span className="text-red-500">*</span>
+                {t('offers.description', locale)} * <span className="text-red-500">*</span>
               </label>
               <Textarea
                 placeholder="Description courte (max 250 caractères)"
@@ -837,16 +840,16 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Type d'offre
+                {t('offers.type', locale)}
               </label>
               <Select value={form.type} onValueChange={(value: any) => setForm(f => ({ ...f, type: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="en_magasin">En magasin</SelectItem>
-                  <SelectItem value="en_ligne">En ligne</SelectItem>
-                  <SelectItem value="les_deux">Les deux</SelectItem>
+                  <SelectItem value="en_magasin">{t('offers.inStore', locale)}</SelectItem>
+                  <SelectItem value="en_ligne">{t('offers.online', locale)}</SelectItem>
+                  <SelectItem value="les_deux">{t('offers.both', locale)}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -887,7 +890,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Conditions (optionnel)
+                {t('offers.condition', locale)} (optionnel)
               </label>
               <Textarea
                 placeholder="Ex: Valable pour les 100 premiers clients. Limite 1 par personne."
@@ -900,7 +903,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Date de début
+                  {t('offers.startDate', locale)}
                 </label>
                 <Input
                   type="date"
@@ -912,7 +915,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
               </div>
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Date de fin
+                  {t('offers.endDate', locale)}
                 </label>
                 <Input
                   type="date"
@@ -931,7 +934,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         <div className="flex justify-between gap-4 pt-4 border-t">
           {onCancel && (
             <Button variant="outline" onClick={onCancel}>
-              Annuler
+              {t('buttons.cancel', locale)}
             </Button>
           )}
           <Button 
@@ -939,7 +942,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             onClick={isEditMode ? handleSaveOffer : handlePreviewOffer}
             disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
           >
-            {isLoading ? "Sauvegarde..." : (isEditMode ? "Mettre à jour l'offre" : "Voir l'offre")}
+            {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
           </Button>
         </div>
           </CardContent>

@@ -16,6 +16,9 @@ import { createClient } from "@/lib/supabase/client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useDashboard } from "@/contexts/dashboard-context"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
+import LanguageSelector from "@/components/language-selector"
 
 interface HeaderProps {
   onMenuClick?: () => void
@@ -26,6 +29,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
   const { counts, userProfile } = useDashboard();
+  const { locale } = useLanguage();
 
   const getUserDisplayName = () => {
     if (!userProfile) return "Partenaire";
@@ -76,8 +80,8 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
            
            {/* Title - responsive and truncates on mobile */}
            <h1 className="text-lg font-semibold text-brand-primary truncate">
-             <span className="hidden sm:inline">Bienvenue, {getUserDisplayName()} !</span>
-             <span className="sm:hidden text-sm">Bienvenue, {getUserDisplayName()} !</span>
+             <span className="hidden sm:inline">{t('dashboard.welcome', locale)}, {getUserDisplayName()} !</span>
+             <span className="sm:hidden text-sm">{t('dashboard.welcome', locale)}, {getUserDisplayName()} !</span>
            </h1>
          </div>
 
@@ -129,7 +133,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                    <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] bg-brand-light/20 border-brand-primary/30 hover:bg-brand-light/30 hover:border-brand-primary/50">
                      <Sparkles className="h-4 w-4 text-brand-primary" />
                      <div className="flex items-center space-x-1 text-sm">
-                       <span className="text-brand-primary">Vedette:</span>
+                       <span className="text-brand-primary">{t('boosts.vedette', locale)}:</span>
                        <span className="font-medium text-brand-primary">
                          {counts.isLoading ? '...' : counts.boostCreditsVedette}
                        </span>
@@ -145,7 +149,7 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
                      <TrendingUp className="h-4 w-4" style={{ color: 'rgb(70,130,180)' }} />
                      <div className="flex items-center space-x-1 text-sm">
-                       <span style={{ color: 'rgb(70,130,180)' }}>Visibilité:</span>
+                       <span style={{ color: 'rgb(70,130,180)' }}>{t('boosts.visibility', locale)}:</span>
                        <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>
                          {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
                        </span>
@@ -168,11 +172,14 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                 <span className={`text-sm font-medium ${
                   counts.subscriptionPlan === 'pro' ? 'text-orange-700' : 'text-gray-700'
                 }`}>
-                  {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? 'Plus' : 'Gratuit'}
+                  {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? t('boosts.pro', locale) : t('boosts.free', locale)}
                 </span>
               </div>
             </Link>
           </div>
+
+          {/* Language Selector */}
+          <LanguageSelector />
 
           {/* User Menu - improved touch target */}
           <DropdownMenu>

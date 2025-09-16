@@ -12,6 +12,8 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
 import { validateSocialMediaLinks } from "@/lib/social-media-utils"
+import { getCategoriesWithLabels, t } from "@/lib/category-translations"
+import { useLanguage } from "@/contexts/language-context"
 
 interface Commerce {
   id: string
@@ -41,26 +43,15 @@ interface CommerceManagementFlowProps {
   onCommerceUpdated?: () => void
 }
 
-const COMMERCE_CATEGORIES = [
-  { value: "Restaurant", label: "Restaurant" },
-  { value: "Café", label: "Café" },
-  { value: "Boulangerie", label: "Boulangerie" },
-  { value: "Épicerie", label: "Épicerie" },
-  { value: "Commerce", label: "Commerce" },
-  { value: "Service", label: "Service" },
-  { value: "Santé", label: "Santé" },
-  { value: "Beauté", label: "Beauté" },
-  { value: "Sport", label: "Sport" },
-  { value: "Culture", label: "Culture" },
-  { value: "Éducation", label: "Éducation" },
-  { value: "Autre", label: "Autre" }
-]
-
 export default function CommerceManagementFlow({ commerce, onCancel, onCommerceUpdated }: CommerceManagementFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
   const { toast } = useToast()
+  const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Get commerce categories with translated labels based on current locale
+  const COMMERCE_CATEGORIES = getCategoriesWithLabels(locale)
   
   const [form, setForm] = useState({
     name: commerce.name || "",
@@ -229,7 +220,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
       <CardHeader className="pb-4">
         <CardTitle className="text-xl text-primary">
-          Gérer le commerce
+          {t('dashboard.manageCommerce', locale)}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -237,7 +228,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Nom du commerce * <span className="text-red-500">*</span>
+              {t('commerce.name', locale)} * <span className="text-red-500">*</span>
             </label>
             <Input
               placeholder="Ex: Boulangerie du Centre"
@@ -249,7 +240,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Description * <span className="text-red-500">*</span>
+              {t('commerce.description', locale)} * <span className="text-red-500">*</span>
             </label>
             <Textarea
               placeholder="Description de votre commerce"
@@ -283,7 +274,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Adresse complète * <span className="text-red-500">*</span>
+              {t('commerce.address', locale)} * <span className="text-red-500">*</span>
             </label>
             <Input
               placeholder="Ex: 123 Rue Saint-Paul Est"
@@ -298,11 +289,11 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Catégorie * <span className="text-red-500">*</span>
+              {t('commerce.category', locale)} * <span className="text-red-500">*</span>
             </label>
             <Select value={form.category} onValueChange={(value) => setForm(f => ({ ...f, category: value }))}>
               <SelectTrigger className={!form.category ? "border-red-300 focus:border-red-500" : ""}>
-                <SelectValue placeholder="Sélectionner une catégorie" />
+                <SelectValue placeholder={t('commerce.categoryPlaceholder', locale)} />
               </SelectTrigger>
               <SelectContent>
                 {COMMERCE_CATEGORIES.map((category) => (
@@ -320,7 +311,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Email * <span className="text-red-500">*</span>
+                {t('commerce.email', locale)} * <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -337,7 +328,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Téléphone (optionnel)
+                {t('commerce.phone', locale)} (optionnel)
               </label>
               <div className="relative">
                 <Phone className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -353,7 +344,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Site web (optionnel)
+                {t('commerce.website', locale)} (optionnel)
               </label>
               <div className="relative">
                 <Globe className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -447,7 +438,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
         <div className="flex justify-between gap-4 pt-4 border-t">
           {onCancel && (
             <Button variant="outline" onClick={onCancel}>
-              Annuler
+              {t('buttons.cancel', locale)}
             </Button>
           )}
           <Button 
@@ -455,7 +446,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             onClick={handleSaveCommerce}
             disabled={isLoading || !form.name || !form.description || !form.address || !form.category || !form.email}
           >
-            {isLoading ? "Sauvegarde..." : "Mettre à jour le commerce"}
+            {isLoading ? t('messages.saving', locale) : t('buttons.save', locale)}
           </Button>
         </div>
       </CardContent>
