@@ -133,6 +133,8 @@ export const TRANSLATIONS = {
       postalCodePlaceholder: "Ex: H2Y 1G5",
       category: "Catégorie",
       categoryPlaceholder: "Sélectionner une catégorie",
+      subCategory: "Sous-catégorie",
+      subCategoryPlaceholder: "Sélectionner une sous-catégorie",
       email: "Email",
       emailPlaceholder: "contact@votrecommerce.com",
       phone: "Téléphone",
@@ -149,7 +151,6 @@ export const TRANSLATIONS = {
       required: "obligatoire",
       contactInfo: "Informations de contact",
       socialNetworks: "Réseaux sociaux",
-      postalCode: "Code postal",
       exactAddress: "Adresse exacte de votre commerce (numéro, rue, etc.)",
       noDescription: "Aucune description",
       addressLabel: "Adresse:",
@@ -252,7 +253,6 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Description courte (max 250 caractères)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Rue Saint-Paul Est",
-      conditionPlaceholder: "Ex: Valable pour les 100 premiers clients. Limite 1 par personne.",
       imageUploadError: "Erreur:"
     },
 
@@ -416,7 +416,6 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Description courte (max 250 caractères)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Rue Saint-Paul Est",
-      conditionPlaceholder: "Ex: Inscription requise, Limite 20 participants, Apporter votre matériel",
       imageUploadError: "Erreur:"
     },
 
@@ -650,8 +649,7 @@ export const TRANSLATIONS = {
       canUseOnContent: "Vous pouvez maintenant l'utiliser sur vos offres, événements ou commerces",
       windowWillClose: "Cette fenêtre se fermera automatiquement dans quelques secondes...",
       processing: "Traitement...",
-      pay5dollars: "Payer $5",
-      cancel: "Annuler"
+      pay5dollars: "Payer $5"
     },
     
     // Profile page
@@ -961,6 +959,8 @@ export const TRANSLATIONS = {
       postalCodePlaceholder: "Ex: H2Y 1G5",
       category: "Category",
       categoryPlaceholder: "Select a category",
+      subCategory: "Sub-category",
+      subCategoryPlaceholder: "Select a sub-category",
       email: "Email",
       emailPlaceholder: "contact@yourbusiness.com",
       phone: "Phone",
@@ -977,7 +977,6 @@ export const TRANSLATIONS = {
       required: "required",
       contactInfo: "Contact Information",
       socialNetworks: "Social Networks",
-      postalCode: "Postal Code",
       exactAddress: "Exact address of your business (number, street, etc.)",
       noDescription: "No description",
       addressLabel: "Address:",
@@ -1080,7 +1079,6 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Short description (max 250 characters)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Saint-Paul Street East",
-      conditionPlaceholder: "Ex: Valid for the first 100 customers. Limit 1 per person.",
       imageUploadError: "Error:"
     },
 
@@ -1244,7 +1242,6 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Short description (max 250 characters)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Saint-Paul Street East",
-      conditionPlaceholder: "Ex: Registration required, Limit 20 participants, Bring your equipment",
       imageUploadError: "Error:"
     },
 
@@ -1478,8 +1475,7 @@ export const TRANSLATIONS = {
       canUseOnContent: "You can now use it on your offers, events or businesses",
       windowWillClose: "This window will close automatically in a few seconds...",
       processing: "Processing...",
-      pay5dollars: "Pay $5",
-      cancel: "Cancel"
+      pay5dollars: "Pay $5"
     },
     
     // Profile page
@@ -1659,6 +1655,121 @@ export const TRANSLATIONS = {
   }
 } as const
 
+// Restaurant sub-categories
+export const RESTAURANT_SUBCATEGORIES = {
+  fr: [
+    { value: "africain", label: "Africain" },
+    { value: "americain_diner", label: "Américain / Diner" },
+    { value: "argentin", label: "Argentin" },
+    { value: "asiatique_fusion", label: "Asiatique (fusion)" },
+    { value: "bagels", label: "Bagels" },
+    { value: "bbq_rotisserie", label: "BBQ / Rôtisserie" },
+    { value: "bistro", label: "Bistro" },
+    { value: "buffet", label: "Buffet" },
+    { value: "burger", label: "Burger" },
+    { value: "cafe_bistro", label: "Café / Bistro" },
+    { value: "cantine_casse_croute", label: "Cantine / Casse-croûte" },
+    { value: "chinois", label: "Chinois" },
+    { value: "coreen", label: "Coréen" },
+    { value: "creperie", label: "Crêperie" },
+    { value: "cremerie_gelato", label: "Crèmerie / Gelato" },
+    { value: "dejeuner_brunch", label: "Déjeuner / Brunch" },
+    { value: "espagnol_tapas", label: "Espagnol / Tapas" },
+    { value: "fast_food", label: "Fast-food / Restauration rapide" },
+    { value: "fine_cuisine", label: "Fine cuisine / Gastronomique" },
+    { value: "food_truck", label: "Food truck" },
+    { value: "francais", label: "Français" },
+    { value: "fruits_mer", label: "Fruits de mer / Poissonnerie-restaurant" },
+    { value: "grec", label: "Grec" },
+    { value: "haitien_caraibes", label: "Haïtien / Caraïbes" },
+    { value: "halal", label: "Halal" },
+    { value: "indien", label: "Indien" },
+    { value: "italien", label: "Italien" },
+    { value: "jamaicain", label: "Jamaïcain" },
+    { value: "japonais_sushi", label: "Japonais / Sushi" },
+    { value: "kebab_doner", label: "Kebab / Döner" },
+    { value: "libanais", label: "Libanais" },
+    { value: "marocain", label: "Marocain" },
+    { value: "mediterraneen", label: "Méditerranéen" },
+    { value: "mexicain", label: "Mexicain" },
+    { value: "patisserie_boulangerie", label: "Pâtisserie / Boulangerie" },
+    { value: "peruvien", label: "Péruvien" },
+    { value: "pizzeria", label: "Pizzeria" },
+    { value: "poke_comptoir_sante", label: "Poké / Comptoir santé" },
+    { value: "poutinerie", label: "Poutinerie" },
+    { value: "portugais", label: "Portugais" },
+    { value: "ramen_nouilles", label: "Ramen / Nouilles" },
+    { value: "sandwicherie", label: "Sandwicherie" },
+    { value: "shawarma", label: "Shawarma" },
+    { value: "steakhouse_grillades", label: "Steakhouse / Grillades" },
+    { value: "tex_mex", label: "Tex-Mex" },
+    { value: "thai", label: "Thaï" },
+    { value: "traiteur", label: "Traiteur" },
+    { value: "vegane", label: "Végane" },
+    { value: "vegetarien", label: "Végétarien" },
+    { value: "vietnamien", label: "Vietnamien" },
+    { value: "autres", label: "Autres" }
+  ],
+  en: [
+    { value: "africain", label: "African" },
+    { value: "americain_diner", label: "American / Diner" },
+    { value: "argentin", label: "Argentinian" },
+    { value: "asiatique_fusion", label: "Asian (fusion)" },
+    { value: "bagels", label: "Bagels" },
+    { value: "bbq_rotisserie", label: "BBQ / Rotisserie" },
+    { value: "bistro", label: "Bistro" },
+    { value: "buffet", label: "Buffet" },
+    { value: "burger", label: "Burger" },
+    { value: "cafe_bistro", label: "Café / Bistro" },
+    { value: "cantine_casse_croute", label: "Canteen / Snack Bar" },
+    { value: "chinois", label: "Chinese" },
+    { value: "coreen", label: "Korean" },
+    { value: "creperie", label: "Crêperie" },
+    { value: "cremerie_gelato", label: "Ice Cream / Gelato" },
+    { value: "dejeuner_brunch", label: "Breakfast / Brunch" },
+    { value: "espagnol_tapas", label: "Spanish / Tapas" },
+    { value: "fast_food", label: "Fast-food / Quick Service" },
+    { value: "fine_cuisine", label: "Fine Dining / Gourmet" },
+    { value: "food_truck", label: "Food Truck" },
+    { value: "francais", label: "French" },
+    { value: "fruits_mer", label: "Seafood / Fish Restaurant" },
+    { value: "grec", label: "Greek" },
+    { value: "haitien_caraibes", label: "Haitian / Caribbean" },
+    { value: "halal", label: "Halal" },
+    { value: "indien", label: "Indian" },
+    { value: "italien", label: "Italian" },
+    { value: "jamaicain", label: "Jamaican" },
+    { value: "japonais_sushi", label: "Japanese / Sushi" },
+    { value: "kebab_doner", label: "Kebab / Döner" },
+    { value: "libanais", label: "Lebanese" },
+    { value: "marocain", label: "Moroccan" },
+    { value: "mediterraneen", label: "Mediterranean" },
+    { value: "mexicain", label: "Mexican" },
+    { value: "patisserie_boulangerie", label: "Pastry / Bakery" },
+    { value: "peruvien", label: "Peruvian" },
+    { value: "pizzeria", label: "Pizzeria" },
+    { value: "poke_comptoir_sante", label: "Poké / Health Counter" },
+    { value: "poutinerie", label: "Poutinerie" },
+    { value: "portugais", label: "Portuguese" },
+    { value: "ramen_nouilles", label: "Ramen / Noodles" },
+    { value: "sandwicherie", label: "Sandwich Shop" },
+    { value: "shawarma", label: "Shawarma" },
+    { value: "steakhouse_grillades", label: "Steakhouse / Grill" },
+    { value: "tex_mex", label: "Tex-Mex" },
+    { value: "thai", label: "Thai" },
+    { value: "traiteur", label: "Catering" },
+    { value: "vegane", label: "Vegan" },
+    { value: "vegetarien", label: "Vegetarian" },
+    { value: "vietnamien", label: "Vietnamese" },
+    { value: "autres", label: "Other" }
+  ]
+} as const
+
+// Helper function to get restaurant sub-categories with labels
+export function getRestaurantSubcategories(locale: 'fr' | 'en') {
+  return RESTAURANT_SUBCATEGORIES[locale] || RESTAURANT_SUBCATEGORIES.fr
+}
+
 // Legacy category translations (kept for backward compatibility)
 export const CATEGORY_TRANSLATIONS = {
   "Restaurant": { fr: "Restaurant", en: "Restaurant" },
@@ -1731,7 +1842,6 @@ export const getAllCategoryValues = (): string[] => {
 }
 
 // New comprehensive translation functions
-export type Locale = 'fr' | 'en'
 export type TranslationKey = keyof typeof TRANSLATIONS.fr
 
 /**

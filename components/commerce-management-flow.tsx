@@ -12,7 +12,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
 import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
 import { validateSocialMediaLinks } from "@/lib/social-media-utils"
-import { getCategoriesWithLabels, t } from "@/lib/category-translations"
+import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
 
 interface Commerce {
@@ -22,6 +22,7 @@ interface Commerce {
   description: string | null
   address: string
   category: string | null
+  sub_category: string | null
   email: string | null
   phone: string | null
   website: string | null
@@ -53,12 +54,16 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
   // Get commerce categories with translated labels based on current locale
   const COMMERCE_CATEGORIES = getCategoriesWithLabels(locale)
   
+  // Get restaurant sub-categories with translated labels based on current locale
+  const RESTAURANT_SUBCATEGORIES = getRestaurantSubcategories(locale)
+  
   const [form, setForm] = useState({
     name: commerce.name || "",
     description: commerce.description || "",
     address: commerce.address || "",
     postal_code: commerce.postal_code || "",
     category: commerce.category || "",
+    sub_category: commerce.sub_category || "",
     email: commerce.email || "",
     phone: commerce.phone || "",
     website: commerce.website || "",
@@ -74,6 +79,15 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       ? { latitude: commerce.latitude, longitude: commerce.longitude, address: commerce.address }
       : null
   )
+
+  // Handle category change to clear sub_category if not Restaurant
+  const handleCategoryChange = (value: string) => {
+    setForm(f => ({
+      ...f,
+      category: value,
+      sub_category: value === "Restaurant" ? f.sub_category : ""
+    }))
+  }
 
   const handlePostalCodeChange = async (value: string) => {
     setForm(f => ({ ...f, postal_code: value }))
@@ -167,6 +181,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           latitude: geoData?.latitude || null,
           longitude: geoData?.longitude || null,
           category: form.category,
+          sub_category: form.sub_category.trim() || null,
           email: form.email.trim(),
           phone: form.phone.trim() || null,
           website: form.website.trim() || null,
@@ -291,7 +306,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             <label className="block text-sm font-medium text-primary mb-2">
               {t('commerce.category', locale)} * <span className="text-red-500">*</span>
             </label>
-            <Select value={form.category} onValueChange={(value) => setForm(f => ({ ...f, category: value }))}>
+            <Select value={form.category} onValueChange={handleCategoryChange}>
               <SelectTrigger className={!form.category ? "border-red-300 focus:border-red-500" : ""}>
                 <SelectValue placeholder={t('commerce.categoryPlaceholder', locale)} />
               </SelectTrigger>
@@ -304,6 +319,27 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
               </SelectContent>
             </Select>
           </div>
+
+          {/* Sub-category dropdown - only show for restaurants */}
+          {form.category === "Restaurant" && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-primary mb-2">
+                {t('commerce.subCategory', locale)}
+              </label>
+              <Select value={form.sub_category} onValueChange={(value) => setForm(f => ({ ...f, sub_category: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t('commerce.subCategoryPlaceholder', locale)} />
+                </SelectTrigger>
+                <SelectContent>
+                  {RESTAURANT_SUBCATEGORIES.map((subCategory) => (
+                    <SelectItem key={subCategory.value} value={subCategory.value}>
+                      {subCategory.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Contact Information */}
           <div className="space-y-4">
