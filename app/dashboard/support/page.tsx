@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
+import { FaqSection } from "@/components/faq-section"
 
 export default function SupportPage() {
   const { locale } = useLanguage()
@@ -26,7 +27,7 @@ export default function SupportPage() {
 
   return (
     <div>
-      <div className="p-4 lg:p-6 max-w-xl mx-auto space-y-6 sm:space-y-8">
+      <div className="p-4 lg:p-6 max-w-3xl mx-auto space-y-6 sm:space-y-8">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold text-primary mb-1">{t('support.title', locale)}</h1>
           <p className="text-primary/70 text-sm lg:text-base mb-4">{t('support.subtitle', locale)}</p>
@@ -86,13 +87,12 @@ export default function SupportPage() {
               <span className="font-medium text-primary text-sm sm:text-base">{t('support.email', locale)} :</span> 
               <a href="mailto:support@gosholo.com" className="text-accent underline text-sm sm:text-base">support@gosholo.com</a>
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <span className="font-medium text-primary text-sm sm:text-base">{t('support.faq', locale)} :</span> 
-              <span className="text-secondary text-sm sm:text-base">{t('support.comingSoon', locale)}</span>
-            </div>
             {/* Future: Chat or built-in messaging */}
           </CardContent>
         </Card>
+
+        {/* FAQ Section */}
+        <FaqSection />
       </div>
     </div>
   )

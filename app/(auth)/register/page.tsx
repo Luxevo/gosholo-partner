@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { TermsOfUse } from "@/components/terms-of-use";
+import { PrivacyPolicy } from "@/components/privacy-policy";
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -349,12 +351,11 @@ function RegisterForm() {
                   className="text-xs sm:text-sm text-brand-primary/80 leading-tight"
                 >
                   J'accepte les{" "}
-                  <Link
-                    href="/terms"
-                    className="underline hover:text-brand-primary"
-                  >
-                    conditions d'utilisation
-                  </Link>{" "}
+                  <TermsOfUse>
+                    <button type="button" className="underline hover:text-brand-primary">
+                      conditions d'utilisation
+                    </button>
+                  </TermsOfUse>{" "}
                   *
                 </Label>
               </div>
@@ -398,13 +399,17 @@ function RegisterForm() {
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
               En créant un compte, vous acceptez nos{" "}
-              <Link href="#" className="text-brand-primary hover:underline">
-                conditions d'utilisation
-              </Link>{" "}
+              <TermsOfUse>
+                <button className="text-brand-primary hover:underline">
+                  conditions d'utilisation
+                </button>
+              </TermsOfUse>{" "}
               et notre{" "}
-              <Link href="#" className="text-brand-primary hover:underline">
-                politique de confidentialité
-              </Link>
+              <PrivacyPolicy>
+                <button className="text-brand-primary hover:underline">
+                  politique de confidentialité
+                </button>
+              </PrivacyPolicy>
             </p>
           </div>
         </div>

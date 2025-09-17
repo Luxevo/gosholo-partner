@@ -19,6 +19,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { TermsOfUse } from "@/components/terms-of-use";
+import { PrivacyPolicy } from "@/components/privacy-policy";
 
 function LoginForm() {
   const supabase = createClient();
@@ -218,13 +220,17 @@ function LoginForm() {
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
               En vous connectant, vous acceptez nos{" "}
-              <Link href="#" className="text-brand-primary hover:underline">
-                conditions d'utilisation
-              </Link>{" "}
+              <TermsOfUse>
+                <button className="text-brand-primary hover:underline">
+                  conditions d'utilisation
+                </button>
+              </TermsOfUse>{" "}
               et notre{" "}
-              <Link href="#" className="text-brand-primary hover:underline">
-                politique de confidentialité
-              </Link>
+              <PrivacyPolicy>
+                <button className="text-brand-primary hover:underline">
+                  politique de confidentialité
+                </button>
+              </PrivacyPolicy>
             </p>
           </div>
         </div>

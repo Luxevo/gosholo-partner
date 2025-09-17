@@ -78,11 +78,10 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
              </Button>
            )}
            
-           {/* Title - responsive and truncates on mobile */}
-           <h1 className="text-lg font-semibold text-brand-primary truncate">
-             <span className="hidden sm:inline">{t('dashboard.welcome', locale)}, {getUserDisplayName()} !</span>
-             <span className="sm:hidden text-sm">{t('dashboard.welcome', locale)}, {getUserDisplayName()} !</span>
-           </h1>
+          {/* Title - only show welcome message on desktop */}
+          <h1 className="text-lg font-semibold text-brand-primary truncate">
+            <span className="hidden sm:inline">{t('dashboard.welcome', locale)}, {getUserDisplayName()} !</span>
+          </h1>
          </div>
 
                  {/* Right side - Boost credits and user menu */}
