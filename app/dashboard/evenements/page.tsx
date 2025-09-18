@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
@@ -131,11 +131,15 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
             <div className="absolute top-3 left-3">
               <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
                 event.boost_type === 'en_vedette' 
-                  ? 'bg-green-600' 
+                  ? 'bg-brand-primary text-white' 
                   : 'bg-blue-600'
               }`}>
                 <>
-                  <Star className="h-2 w-2 mr-1" />
+                  {event.boost_type === 'en_vedette' ? (
+                    <Sparkles className="h-2 w-2 mr-1" />
+                  ) : (
+                    <Star className="h-2 w-2 mr-1" />
+                  )}
                   {locale === 'fr' ? 'Vedette' : 'Featured'}
                 </>
               </div>
@@ -280,12 +284,16 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
                 <Badge 
                   className={`text-xs w-fit text-white ${
                     event.boost_type === 'en_vedette' 
-                      ? 'bg-green-600 hover:bg-green-700' 
+                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
                       : 'bg-blue-600 hover:bg-blue-700'
                   }`}
                 >
                   <>
-                    <Star className="h-3 w-3 mr-1" />
+                    {event.boost_type === 'en_vedette' ? (
+                      <Sparkles className="h-3 w-3 mr-1" />
+                    ) : (
+                      <Star className="h-3 w-3 mr-1" />
+                    )}
                     {locale === 'fr' ? 'Vedette' : 'Featured'}
                   </>
                 </Badge>

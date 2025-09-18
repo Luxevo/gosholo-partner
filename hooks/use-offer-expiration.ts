@@ -10,11 +10,21 @@ export const useOfferExpiration = (intervalMinutes: number = 60) => {
 
   useEffect(() => {
     // Check immediately when component mounts
-    checkAndDeactivateOffers()
+    const checkOffers = async () => {
+      const result = await checkAndDeactivateOffers()
+      if (!result.success) {
+        console.warn('Warning: Could not deactivate old offers:', result.error)
+      }
+    }
+    
+    checkOffers()
 
     // Set up periodic checks
-    intervalRef.current = setInterval(() => {
-      checkAndDeactivateOffers()
+    intervalRef.current = setInterval(async () => {
+      const result = await checkAndDeactivateOffers()
+      if (!result.success) {
+        console.warn('Warning: Could not deactivate old offers:', result.error)
+      }
     }, intervalMinutes * 60 * 1000)
 
     // Cleanup on unmount
@@ -26,6 +36,12 @@ export const useOfferExpiration = (intervalMinutes: number = 60) => {
   }, [intervalMinutes])
 
   return {
-    checkNow: checkAndDeactivateOffers
+    checkNow: async () => {
+      const result = await checkAndDeactivateOffers()
+      if (!result.success) {
+        console.warn('Warning: Could not deactivate old offers:', result.error)
+      }
+      return result
+    }
   }
 } 

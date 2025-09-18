@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown, Star } from "lucide-react"
+import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown, Star, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -64,11 +64,11 @@ const formatDate = (dateString: string) => {
 const getTypeLabel = (type: string, locale: string) => {
   switch (type) {
     case "in_store":
-      return t('offersPage.inStore', locale)
+      return t('offersPage.inStore', locale as 'fr' | 'en')
     case "online":
-      return t('offersPage.online', locale)
+      return t('offersPage.online', locale as 'fr' | 'en')
     case "both":
-      return t('offersPage.both', locale)
+      return t('offersPage.both', locale as 'fr' | 'en')
     default:
       return type
   }
@@ -86,7 +86,7 @@ interface CustomerOfferCardProps {
 const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: CustomerOfferCardProps) => {
   // Calculate time remaining
   const getTimeRemaining = () => {
-    if (!offer.end_date) return t('offersPage.notDefined', locale)
+    if (!offer.end_date) return t('offersPage.notDefined', locale as 'fr' | 'en')
     const endDate = new Date(offer.end_date)
     const now = new Date()
     const diffTime = endDate.getTime() - now.getTime()
@@ -94,9 +94,9 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
     
     if (diffDays <= 1) {
       const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
-      return diffHours > 0 ? `${t('offersPage.endsIn', locale)} ${diffHours}${t('offersPage.endsHours', locale)}` : t('offersPage.expired', locale)
+      return diffHours > 0 ? `${t('offersPage.endsIn', locale as 'fr' | 'en')} ${diffHours}${t('offersPage.endsHours', locale as 'fr' | 'en')}` : t('offersPage.expired', locale as 'fr' | 'en')
     }
-    return `${t('offersPage.endsIn', locale)} ${diffDays}${t('offersPage.endsDays', locale)}`
+    return `${t('offersPage.endsIn', locale as 'fr' | 'en')} ${diffDays}${t('offersPage.endsDays', locale as 'fr' | 'en')}`
   }
 
 
@@ -115,7 +115,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
             <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
               <div className="text-white text-center">
                 <Store className="h-12 w-12 mx-auto mb-2 opacity-80" />
-                <p className="text-sm opacity-80">{t('offersPage.offerImage', locale)}</p>
+                <p className="text-sm opacity-80">{t('offersPage.offerImage', locale as 'fr' | 'en')}</p>
               </div>
             </div>
           )}
@@ -125,11 +125,15 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
                 <div className="absolute top-3 left-3">
                   <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
                     offer.boost_type === 'en_vedette' 
-                      ? 'bg-green-600' 
+                      ? 'bg-brand-primary text-white' 
                       : 'bg-blue-600'
                   }`}>
                     <>
-                      <Star className="h-2 w-2 mr-1" />
+                      {offer.boost_type === 'en_vedette' ? (
+                        <Sparkles className="h-2 w-2 mr-1" />
+                      ) : (
+                        <Star className="h-2 w-2 mr-1" />
+                      )}
                       {locale === 'fr' ? 'Vedette' : 'Featured'}
                     </>
                   </div>
@@ -147,7 +151,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
             <div className="flex justify-between items-center text-sm">
               <span>
-                {offer.condition || t('offersPage.conditionsAvailable', locale)} • {commerce?.category || t('placeholders.restaurant', locale)}
+                {offer.condition || t('offersPage.conditionsAvailable', locale as 'fr' | 'en')} • {commerce?.category || t('placeholders.restaurant', locale as 'fr' | 'en')}
               </span>
               <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
                 {getTimeRemaining()}
@@ -162,20 +166,20 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
             {offer.title}
           </h3>
           <div className="flex items-center text-sm opacity-90 mb-1">
-            <span>{commerce?.category || t('placeholders.restaurant', locale)}</span>
+            <span>{commerce?.category || t('placeholders.restaurant', locale as 'fr' | 'en')}</span>
             <span className="mx-2">•</span>
-            <span>{commerce?.name || t('placeholders.commerce', locale)}</span>
+            <span>{commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}</span>
           </div>
           <div className="flex items-center text-sm opacity-90 mb-3">
             <MapPin className="h-3 w-3 mr-1" />
             <span className="text-xs">
-              {offer.custom_location || commerce?.name || t('offersPage.commerceLocation', locale)}
+              {offer.custom_location || commerce?.name || t('offersPage.commerceLocation', locale as 'fr' | 'en')}
             </span>
           </div>
 
           {/* Action Button */}
           <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
-            {t('offersPage.claimOffer', locale)}
+            {t('offersPage.claimOffer', locale as 'fr' | 'en')}
           </button>
         </div>
       </div>
@@ -249,12 +253,16 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
                 <Badge 
                   className={`text-xs w-fit text-white ${
                     offer.boost_type === 'en_vedette' 
-                      ? 'bg-green-600 hover:bg-green-700' 
+                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
                       : 'bg-blue-600 hover:bg-blue-700'
                   }`}
                 >
                   <>
-                    <Star className="h-3 w-3 mr-1" />
+                    {offer.boost_type === 'en_vedette' ? (
+                      <Sparkles className="h-3 w-3 mr-1" />
+                    ) : (
+                      <Star className="h-3 w-3 mr-1" />
+                    )}
                     {locale === 'fr' ? 'Vedette' : 'Featured'}
                   </>
                 </Badge>
@@ -276,7 +284,7 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
                 className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                <span className="sm:hidden">{t('buttons.delete', locale)}</span>
+                <span className="sm:hidden">{t('buttons.delete', locale as 'fr' | 'en')}</span>
               </Button>
             </div>
           </div>
@@ -289,25 +297,25 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">{t('offersPage.type', locale)}:</span>
+              <span className="font-medium">{t('offersPage.type', locale as 'fr' | 'en')}:</span>
               <span>{getTypeLabel(offer.offer_type, locale)}</span>
             </div>
             
             {offer.condition && (
               <div className="flex items-start gap-2 text-sm">
                 <DollarSign className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <span className="font-medium">{t('offersPage.condition', locale)}:</span>
+                <span className="font-medium">{t('offersPage.condition', locale as 'fr' | 'en')}:</span>
                 <span className="text-muted-foreground">{offer.condition}</span>
               </div>
             )}
             
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <span className="font-medium">{t('offersPage.location', locale)}:</span>
+              <span className="font-medium">{t('offersPage.location', locale as 'fr' | 'en')}:</span>
               <span>
                 {offer.uses_commerce_location 
-                  ? t('offersPage.commerceLocation', locale) 
-                  : offer.custom_location || t('offersPage.notSpecified', locale)
+                  ? t('offersPage.commerceLocation', locale as 'fr' | 'en') 
+                  : offer.custom_location || t('offersPage.notSpecified', locale as 'fr' | 'en')
                 }
               </span>
             </div>
@@ -317,16 +325,16 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">{t('offersPage.createdOn', locale)}:</span>
+              <span className="font-medium">{t('offersPage.createdOn', locale as 'fr' | 'en')}:</span>
               <span>{offer.created_at ? formatDate(offer.created_at) : "N/A"}</span>
             </div>
             
             {offer.is_active && daysRemaining !== null && (
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('offersPage.daysRemaining', locale)}:</span>
+                <span className="font-medium">{t('offersPage.daysRemaining', locale as 'fr' | 'en')}:</span>
                 <span className={daysRemaining <= 7 ? "text-brand-accent font-medium" : ""}>
-                  {daysRemaining} {t('offersPage.days', locale)}
+                  {daysRemaining} {t('offersPage.days', locale as 'fr' | 'en')}
                 </span>
               </div>
             )}
@@ -334,7 +342,7 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
             {offer.updated_at && offer.updated_at !== offer.created_at && (
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('offersPage.modifiedOn', locale)}:</span>
+                <span className="font-medium">{t('offersPage.modifiedOn', locale as 'fr' | 'en')}:</span>
                 <span className="text-brand-secondary font-medium">{formatDate(offer.updated_at)}</span>
               </div>
             )}
@@ -342,7 +350,7 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
             {offer.start_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('offersPage.startDate', locale)}:</span>
+                <span className="font-medium">{t('offersPage.startDate', locale as 'fr' | 'en')}:</span>
                 <span className="text-brand-primary font-medium">{formatDate(offer.start_date)}</span>
               </div>
             )}
@@ -350,7 +358,7 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
             {offer.end_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('offersPage.endDate', locale)}:</span>
+                <span className="font-medium">{t('offersPage.endDate', locale as 'fr' | 'en')}:</span>
                 <span className="text-brand-accent font-medium">{formatDate(offer.end_date)}</span>
               </div>
             )}
@@ -380,21 +388,21 @@ const FilterButtons = ({ filterActive, onFilterChange, offers, locale }: FilterB
         size="sm"
         onClick={() => onFilterChange('all')}
       >
-        {t('offersPage.allOffers', locale)} ({offers.length})
+        {t('offersPage.allOffers', locale as 'fr' | 'en')} ({offers.length})
       </Button>
       <Button
         variant={filterActive === 'active' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('active')}
       >
-        {t('offersPage.activeOffers', locale)} ({activeCount})
+        {t('offersPage.activeOffers', locale as 'fr' | 'en')} ({activeCount})
       </Button>
       <Button
         variant={filterActive === 'inactive' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('inactive')}
       >
-        {t('offersPage.finishedOffers', locale)} ({inactiveCount})
+        {t('offersPage.finishedOffers', locale as 'fr' | 'en')} ({inactiveCount})
       </Button>
     </div>
   )
@@ -417,7 +425,7 @@ const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <List className="h-4 w-4" />
-        {t('offersPage.management', locale)}
+        {t('offersPage.management', locale as 'fr' | 'en')}
       </Button>
       <Button
         variant={viewType === 'customer' ? 'default' : 'ghost'}
@@ -426,7 +434,7 @@ const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <LayoutGrid className="h-4 w-4" />
-        {t('offersPage.customerPreview', locale)}
+        {t('offersPage.customerPreview', locale as 'fr' | 'en')}
       </Button>
     </div>
   )
@@ -444,13 +452,13 @@ const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange, locale 
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">{t('offersPage.commerce', locale)}:</span>
+      <span className="text-sm font-medium">{t('offersPage.commerce', locale as 'fr' | 'en')}:</span>
       <Select value={selectedCommerce} onValueChange={onCommerceChange}>
         <SelectTrigger className="w-48">
-          <SelectValue placeholder={t('offersPage.allCommerces', locale)} />
+          <SelectValue placeholder={t('offersPage.allCommerces', locale as 'fr' | 'en')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{t('offersPage.allCommerces', locale)}</SelectItem>
+          <SelectItem value="all">{t('offersPage.allCommerces', locale as 'fr' | 'en')}</SelectItem>
           {commerces.map((commerce) => (
             <SelectItem key={commerce.id} value={commerce.id}>
               {commerce.name}
@@ -467,7 +475,7 @@ const LoadingSpinner = ({ locale }: { locale: string }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-      <p className="text-muted-foreground">{t('offersPage.loadingOffers', locale)}</p>
+      <p className="text-muted-foreground">{t('offersPage.loadingOffers', locale as 'fr' | 'en')}</p>
     </div>
   </div>
 )
@@ -478,9 +486,9 @@ const EmptyState = ({ locale }: { locale: string }) => (
     <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
       <Tag className="h-12 w-12 text-muted-foreground" />
     </div>
-    <h3 className="text-lg font-semibold text-primary mb-2">{t('offersPage.noOffersFound', locale)}</h3>
+    <h3 className="text-lg font-semibold text-primary mb-2">{t('offersPage.noOffersFound', locale as 'fr' | 'en')}</h3>
     <p className="text-muted-foreground mb-4">
-      {t('offersPage.createFirstOffer', locale)}
+      {t('offersPage.createFirstOffer', locale as 'fr' | 'en')}
     </p>
   </div>
 )
@@ -513,7 +521,11 @@ function OffresPageContent() {
       setIsLoadingOffers(true)
       
       // First check and deactivate old offers using utility function
-      await checkAndDeactivateOffers()
+      const deactivationResult = await checkAndDeactivateOffers()
+      if (!deactivationResult.success) {
+        console.warn('Warning: Could not deactivate old offers:', deactivationResult.error)
+        // Continue loading offers even if deactivation fails
+      }
       
       // Check authentication first
       const { data: { user }, error: userError } = await supabase.auth.getUser()
@@ -675,9 +687,9 @@ function OffresPageContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('offersPage.title', locale)}</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('offersPage.title', locale as 'fr' | 'en')}</h1>
           <p className="text-muted-foreground text-sm lg:text-base">
-            {t('offersPage.subtitle', locale)}
+            {t('offersPage.subtitle', locale as 'fr' | 'en')}
           </p>
         </div>
         
@@ -686,17 +698,17 @@ function OffresPageContent() {
             <Button 
               className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={!counts.canCreateContent}
-              title={!counts.canCreateContent ? t('offersPage.contentLimitReached', locale) : ''}
+              title={!counts.canCreateContent ? t('offersPage.contentLimitReached', locale as 'fr' | 'en') : ''}
             >
               <Plus className="h-4 w-4 mr-2" />
-              {t('offersPage.addOffer', locale)}
+              {t('offersPage.addOffer', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{t('offersPage.createNewOffer', locale)}</DialogTitle>
+              <DialogTitle>{t('offersPage.createNewOffer', locale as 'fr' | 'en')}</DialogTitle>
               <DialogDescription>
-                {t('offersPage.createNewOfferDesc', locale)}
+                {t('offersPage.createNewOfferDesc', locale as 'fr' | 'en')}
               </DialogDescription>
             </DialogHeader>
             <OfferCreationFlow onCancel={handleOfferCreated} />
@@ -711,10 +723,10 @@ function OffresPageContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <span className="font-medium">
-                {counts.subscriptionPlan === 'pro' ? t('offersPage.proPlan', locale) : t('offersPage.freePlan', locale)}
-              </span> {counts.totalContent}/{counts.contentLimit} {t('offersPage.contentUsed', locale)}
+                {counts.subscriptionPlan === 'pro' ? t('offersPage.proPlan', locale as 'fr' | 'en') : t('offersPage.freePlan', locale as 'fr' | 'en')}
+              </span> {counts.totalContent}/{counts.contentLimit} {t('offersPage.contentUsed', locale as 'fr' | 'en')}
               {!counts.canCreateContent && (
-                <span className="text-amber-700 ml-2">- {t('offersPage.limitReached', locale)}</span>
+                <span className="text-amber-700 ml-2">- {t('offersPage.limitReached', locale as 'fr' | 'en')}</span>
               )}
             </div>
               {counts.subscriptionPlan === 'free' && (
@@ -725,7 +737,7 @@ function OffresPageContent() {
                   onClick={() => router.push('/dashboard/boosts')}
                 >
                   <Crown className="h-4 w-4 mr-1" />
-                  {t('offersPage.upgradeToPro', locale)}
+                  {t('offersPage.upgradeToPro', locale as 'fr' | 'en')}
                 </Button>
               )}
             </div>
@@ -784,9 +796,9 @@ function OffresPageContent() {
                     <LayoutGrid className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="text-blue-800">
-                    <div className="font-medium mb-1">{t('offersPage.userExperiencePreview', locale)}</div>
+                    <div className="font-medium mb-1">{t('offersPage.userExperiencePreview', locale as 'fr' | 'en')}</div>
                     <p className="text-sm">
-                      {t('offersPage.userExperienceDesc', locale)}
+                      {t('offersPage.userExperienceDesc', locale as 'fr' | 'en')}
                     </p>
                   </div>
                 </div>
@@ -816,9 +828,9 @@ function OffresPageContent() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t('offersPage.editOffer', locale)}</DialogTitle>
+            <DialogTitle>{t('offersPage.editOffer', locale as 'fr' | 'en')}</DialogTitle>
             <DialogDescription>
-              {t('offersPage.editOfferDesc', locale)}
+              {t('offersPage.editOfferDesc', locale as 'fr' | 'en')}
             </DialogDescription>
           </DialogHeader>
           {editingOffer && (
@@ -834,19 +846,19 @@ function OffresPageContent() {
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{t('offersPage.deleteOffer', locale)}</DialogTitle>
+            <DialogTitle>{t('offersPage.deleteOffer', locale as 'fr' | 'en')}</DialogTitle>
             <DialogDescription>
-              {t('offersPage.deleteOfferDesc', locale)}
+              {t('offersPage.deleteOfferDesc', locale as 'fr' | 'en')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {itemToDelete && (
               <div className="bg-brand-accent/10 p-4 rounded-lg border border-brand-accent/30">
                 <h4 className="font-medium text-brand-accent mb-2">
-                  {t('offersPage.offerToDelete', locale)} {itemToDelete.title}
+                  {t('offersPage.offerToDelete', locale as 'fr' | 'en')} {itemToDelete.title}
                 </h4>
                 <p className="text-sm text-red-700">
-                  {t('offersPage.deleteOfferWarning', locale)}
+                  {t('offersPage.deleteOfferWarning', locale as 'fr' | 'en')}
                 </p>
               </div>
             )}
@@ -858,14 +870,14 @@ function OffresPageContent() {
                   setItemToDelete(null)
                 }}
               >
-                {t('buttons.cancel', locale)}
+                {t('buttons.cancel', locale as 'fr' | 'en')}
               </Button>
               <Button 
                 variant="destructive" 
                 onClick={confirmDelete}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {t('offersPage.deletePermanently', locale)}
+                {t('offersPage.deletePermanently', locale as 'fr' | 'en')}
               </Button>
             </div>
           </div>
