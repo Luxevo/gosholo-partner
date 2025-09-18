@@ -51,7 +51,7 @@ const plans = {
     borderColor: "border-orange-200",
     price: "$8/mois",
     features: [
-      "5 contenus totaux (offres ET événements)",
+      "10 contenus totaux (offres ET événements)",
       "1 crédit boost par mois (auto-renouvelé)",
       "Profil commerce complet",
       "Support prioritaire",
@@ -169,8 +169,8 @@ export default function SubscriptionManagementFlow({
             return (
               <Card 
                 key={plan}
-                className={`relative ${planData.bgColor} ${planData.borderColor} border-2 transition-all hover:shadow-md ${
-                  isCurrent ? 'ring-2 ring-primary' : ''
+                className={`relative ${planData.bgColor} ${plan === 'pro' ? 'border-0' : `${planData.borderColor} border-2`} transition-all hover:shadow-md ${
+                  isCurrent && plan !== 'pro' ? 'ring-2 ring-primary' : ''
                 }`}
               >
                 {isCurrent && (
@@ -194,7 +194,7 @@ export default function SubscriptionManagementFlow({
                         {planData.price}
                       </div>
                       {plan === 'pro' && (
-                        <div className="text-xs text-gray-500">par mois</div>
+                        <div className="text-xs text-orange-500">par mois</div>
                       )}
                     </div>
                   </div>
@@ -203,12 +203,12 @@ export default function SubscriptionManagementFlow({
                 <CardContent className="space-y-4">
                   {/* Features */}
                   <div className="space-y-2">
-                    <h4 className="font-medium text-gray-900">Fonctionnalités incluses</h4>
+                    <h4 className={`font-medium ${plan === 'pro' ? 'text-orange-600' : 'text-gray-900'}`}>Fonctionnalités incluses</h4>
                     <ul className="space-y-1">
                       {planData.features.map((feature, index) => (
                         <li key={index} className="flex items-center text-sm">
                           <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                          <span>{feature}</span>
+                          <span className={plan === 'pro' ? 'text-orange-600' : ''}>{feature}</span>
                         </li>
                       ))}
                     </ul>

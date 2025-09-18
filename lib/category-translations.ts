@@ -1157,7 +1157,7 @@ export const TRANSLATIONS = {
       
       // Content limits
       freePlan: "Free Plan:",
-      proPlan: "Pro Plan:",
+      proPlan: "Plus Plan:",
       contentUsed: "content used",
       limitReached: "Limit reached!",
       contentLimitReached: "Content limit reached. Upgrade to Pro plan to create more content.",
@@ -1325,7 +1325,7 @@ export const TRANSLATIONS = {
       
       // Content limits
       freePlan: "Free Plan:",
-      proPlan: "Pro Plan:",
+      proPlan: "Plus Plan:",
       contentUsed: "content used",
       limitReached: "Limit reached!",
       contentLimitReached: "Content limit reached. Upgrade to Pro plan to create more content.",

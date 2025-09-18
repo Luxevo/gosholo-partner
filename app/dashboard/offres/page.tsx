@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown } from "lucide-react"
+import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown, Star } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -37,6 +37,9 @@ interface Offer {
   updated_at: string | null
   start_date: string | null
   end_date: string | null
+  boosted: boolean | null
+  boost_type: "en_vedette" | "visibilite" | null
+  boosted_at: string | null
 }
 
 interface Commerce {
@@ -96,11 +99,6 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
     return `${t('offersPage.endsIn', locale)} ${diffDays}${t('offersPage.endsDays', locale)}`
   }
 
-  // Extract discount percentage from title if present
-  const getDiscountFromTitle = () => {
-    const match = offer.title.match(/(\d+)%/)
-    return match ? match[1] : "25" // Default to 25% if no percentage found
-  }
 
   return (
     <div className="relative max-w-sm">
@@ -122,20 +120,28 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
             </div>
           )}
           
-          {/* Discount Badge */}
-          <div className="absolute top-3 left-3">
-            <div className="px-3 py-1 rounded-full text-sm font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
-              <Tag className="h-3 w-3 mr-1" />
-              {getDiscountFromTitle()}% OFF
-            </div>
-          </div>
+              {/* Boost Badge */}
+              {offer.boosted && (
+                <div className="absolute top-3 left-3">
+                  <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
+                    offer.boost_type === 'en_vedette' 
+                      ? 'bg-green-600' 
+                      : 'bg-blue-600'
+                  }`}>
+                    <>
+                      <Star className="h-2 w-2 mr-1" />
+                      {locale === 'fr' ? 'Vedette' : 'Featured'}
+                    </>
+                  </div>
+                </div>
+              )}
 
-          {/* Heart Icon */}
-          <div className="absolute top-3 right-3">
-            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-              <Heart className="w-4 h-4 text-gray-400" />
-            </div>
-          </div>
+              {/* Heart Icon */}
+              <div className="absolute top-3 right-3">
+                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
 
           {/* Bottom Info Bar */}
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
@@ -235,9 +241,25 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
-            <Badge variant={status.variant} className="text-xs w-fit">
-              {status.label}
-            </Badge>
+            <div className="flex gap-2 flex-wrap">
+              <Badge variant={status.variant} className="text-xs w-fit">
+                {status.label}
+              </Badge>
+              {offer.boosted && (
+                <Badge 
+                  className={`text-xs w-fit text-white ${
+                    offer.boost_type === 'en_vedette' 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  <>
+                    <Star className="h-3 w-3 mr-1" />
+                    {locale === 'fr' ? 'Vedette' : 'Featured'}
+                  </>
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"

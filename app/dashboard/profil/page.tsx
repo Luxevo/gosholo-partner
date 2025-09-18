@@ -415,7 +415,7 @@ export default function ProfilPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                 <div className="flex items-center space-x-3">
                   {subscription?.plan_type === 'pro' ? (
-                    <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500" />
+                    <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
                   ) : (
                     <Star className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                   )}
@@ -433,7 +433,7 @@ export default function ProfilPage() {
                 </div>
                 <Badge 
                   variant={subscription?.plan_type === 'pro' ? "default" : "secondary"}
-                  className={subscription?.plan_type === 'pro' ? "bg-yellow-500" : ""}
+                  className={subscription?.plan_type === 'pro' ? "bg-orange-500 hover:bg-orange-600" : ""}
                 >
                   {subscription?.plan_type === 'pro' ? t('profile.pro', locale) : t('profile.free', locale)}
                 </Badge>
