@@ -479,7 +479,7 @@ export default function BoostsPage() {
                 <div className="text-center space-y-4">
                   <div className="flex items-center justify-center space-x-2">
                     <Crown className="h-5 w-5 text-brand-accent" />
-                    <h3 className="text-lg sm:text-xl font-bold">{t('boostsPage.gosholoPLUS', locale)}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-brand-accent">{t('boostsPage.gosholoPLUS', locale)}</h3>
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">{t('boostsPage.current', locale)}</Badge>}
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8${t('boostsPage.perMonth', locale)}</div>
@@ -576,7 +576,7 @@ export default function BoostsPage() {
           <CardContent>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Vedette */}
-              <div className="p-4 sm:p-6 border rounded-lg space-y-4">
+              <div className="p-4 sm:p-6 border border-brand-primary/30 rounded-lg space-y-4 bg-brand-light/20">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-brand-light/20 rounded-full flex-shrink-0">
@@ -584,7 +584,7 @@ export default function BoostsPage() {
                     </div>
                     <div>
                       <h3 className="text-base sm:text-lg font-semibold">{t('boosts.vedette', locale)}</h3>
-                      <Badge variant="secondary">{t('boostsPage.duration72h', locale)}</Badge>
+                      <Badge className="bg-brand-primary text-white">{t('boostsPage.duration72h', locale)}</Badge>
                     </div>
                   </div>
                   <div className="text-center sm:text-right">
@@ -609,7 +609,7 @@ export default function BoostsPage() {
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('en_vedette')}
-                    className="w-full bg-brand-secondary hover:bg-brand-secondary/80 h-12 sm:h-10"
+                    className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white h-12 sm:h-10"
                   >
                     {t('boostsPage.buy5dollars', locale)}
                   </Button>
@@ -617,34 +617,35 @@ export default function BoostsPage() {
               </div>
               
               {/* Visibilité */}
-              <div className="p-4 sm:p-6 border rounded-lg space-y-4">
+              <div className="p-4 sm:p-6 border rounded-lg space-y-4" 
+                   style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }}>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-brand-secondary/20 rounded-full flex-shrink-0">
-                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-brand-secondary" />
+                    <div className="p-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'rgb(200,235,245)' }}>
+                      <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: 'rgb(70,130,180)' }} />
                     </div>
                     <div>
-                      <h3 className="text-base sm:text-lg font-semibold">{t('boosts.visibility', locale)}</h3>
+                      <h3 className="text-base sm:text-lg font-semibold" style={{ color: 'rgb(70,130,180)' }}>{t('boosts.visibility', locale)}</h3>
                       <Badge variant="secondary">{t('boostsPage.duration72h', locale)}</Badge>
                     </div>
                   </div>
                   <div className="text-center sm:text-right">
-                    <div className="text-xl sm:text-2xl font-bold text-brand-primary">5$</div>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: 'rgb(70,130,180)' }}>5$</div>
                   </div>
                 </div>
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600">{t('boostsPage.shineOnMap', locale)}</p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" style={{ color: 'rgb(70,130,180)' }} />
                       {t('boostsPage.priorityOnMap', locale)}
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" style={{ color: 'rgb(70,130,180)' }} />
                       {t('boostsPage.attractNearbyMembers', locale)}
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="h-4 w-4 text-brand-secondary mr-2 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" style={{ color: 'rgb(70,130,180)' }} />
                       {t('boostsPage.highlightWhereCounts', locale)}
                     </li>
                   </ul>
@@ -663,9 +664,15 @@ export default function BoostsPage() {
         {/* Content List */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('boostsPage.yourActiveContent', locale)}</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <Zap className="h-5 w-5 text-brand-primary" />
+              <span>{t('boostsPage.yourActiveContent', locale)}</span>
+            </CardTitle>
             <CardDescription>
-            {t('boostsPage.contentReadyToBoost', locale)}
+              <div className="space-y-1">
+                <p>{t('boostsPage.contentReadyToBoost', locale)}</p>
+                
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -680,84 +687,208 @@ export default function BoostsPage() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {userContent.map((content) => (
-                  <div key={content.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4 sm:gap-0">
-                    <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
-                      {content.type === 'offer' ? (
-                        <Tag className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                      ) : content.type === 'event' ? (
-                        <Calendar className="h-5 w-5 text-green-500 flex-shrink-0" />
-                      ) : (
-                        <TrendingUp className="h-5 w-5 text-purple-500 flex-shrink-0" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-1">
-                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            {content.type === 'offer' ? t('boostsPage.offer', locale) : content.type === 'event' ? t('boostsPage.event', locale) : t('boostsPage.business', locale)}
-                          </span>
-                          <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
-                        </div>
-                        {content.type !== 'commerce' && (
-                          <p className="text-sm text-gray-600">{content.commerce_name}</p>
-                        )}
-                        {content.boosted && (
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
-                            <Badge variant="secondary" className="w-fit">
-                              {content.boost_type === 'en_vedette' ? (
-                                <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
-                              ) : (
-                                <><TrendingUp className="h-3 w-3 mr-1" />{t('boosts.visibility', locale)}</>
-                              )}
-                            </Badge>
-                            {content.remaining_time && (
-                              <span className="text-xs text-gray-500">{content.remaining_time}</span>
+              <div className="space-y-6">
+                {/* Offers Section */}
+                {userContent.filter(c => c.type === 'offer').length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-brand-primary pb-2 border-b border-gray-200">
+                      {locale === 'fr' ? 'Mes Offres' : 'My Offers'}
+                    </h3>
+                    {userContent.filter(c => c.type === 'offer').map((content) => (
+                      <div key={content.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4 sm:gap-0">
+                        <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
+                          <Tag className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1">
+                              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                {t('boostsPage.offer', locale)}
+                              </span>
+                              <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
+                            </div>
+                            <p className="text-sm text-gray-600">{content.commerce_name}</p>
+                            {content.boosted && (
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
+                                <Badge variant="secondary" className="w-fit">
+                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
+                                </Badge>
+                                {content.remaining_time && (
+                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
-                      {content.boosted && content.type !== 'commerce' ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveBoost(content.id, content.type)}
-                          disabled={isApplyingBoost === content.id}
-                          className="h-12 sm:h-8 w-full sm:w-auto"
-                        >
-{t('boostsPage.removeBoost', locale)}
-                        </Button>
-                      ) : content.boosted && content.type === 'commerce' ? (
-                        <div className="flex items-center justify-center h-12 sm:h-8 px-4 text-sm text-gray-500 bg-gray-50 rounded-md border">
-{t('boostsPage.boostActive', locale)}
                         </div>
-                      ) : content.type === 'commerce' ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
-                          disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
-                          className="h-12 sm:h-8 w-full sm:w-auto"
-                        >
-                          <TrendingUp className="h-4 w-4 mr-1" />
-                          {t('boosts.visibility', locale)} ({boostCredits?.available_visibilite || 0})
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
-                          disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
-                          className="h-12 sm:h-8 w-full sm:w-auto"
-                        >
-                          <Sparkles className="h-4 w-4 mr-1" />
-                          {t('boosts.vedette', locale)} ({boostCredits?.available_en_vedette || 0})
-                        </Button>
-                      )}
-                    </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {content.boosted ? (
+                            <div className="flex flex-col sm:flex-row gap-2 w-full">
+                              <div className="flex items-center justify-center h-10 px-3 text-sm bg-brand-light/20 border border-brand-primary/30 rounded-md flex-1">
+                                <Sparkles className="h-3 w-3 mr-1 text-brand-primary" />
+                                <span className="text-brand-primary font-medium">{locale === 'fr' ? 'Boost Vedette actif' : 'Featured Boost Active'}</span>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRemoveBoost(content.id, content.type)}
+                                disabled={isApplyingBoost === content.id}
+                                className="h-10 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                {locale === 'fr' ? 'Retirer boost Vedette' : 'Remove Featured Boost'}
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
+                              disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
+                              className="h-10 w-full bg-brand-light/20 border-brand-primary/30 text-brand-primary hover:bg-brand-light/30 hover:border-brand-primary/50"
+                            >
+                              <Sparkles className="h-4 w-4 mr-1 text-brand-primary" />
+                              {locale === 'fr' ? `Booster Vedette (${boostCredits?.available_en_vedette || 0} crédits)` : `Boost Featured (${boostCredits?.available_en_vedette || 0} credits)`}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Events Section */}
+                {userContent.filter(c => c.type === 'event').length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-brand-primary pb-2 border-b border-gray-200">
+                      {locale === 'fr' ? 'Mes Événements' : 'My Events'}
+                    </h3>
+                    {userContent.filter(c => c.type === 'event').map((content) => (
+                      <div key={content.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4 sm:gap-0">
+                        <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
+                          <Calendar className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1">
+                              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                {t('boostsPage.event', locale)}
+                              </span>
+                              <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
+                            </div>
+                            <p className="text-sm text-gray-600">{content.commerce_name}</p>
+                            {content.boosted && (
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
+                                <Badge variant="secondary" className="w-fit">
+                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
+                                </Badge>
+                                {content.remaining_time && (
+                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {content.boosted ? (
+                            <div className="flex flex-col sm:flex-row gap-2 w-full">
+                              <div className="flex items-center justify-center h-10 px-3 text-sm bg-brand-light/20 border border-brand-primary/30 rounded-md flex-1">
+                                <Sparkles className="h-3 w-3 mr-1 text-brand-primary" />
+                                <span className="text-brand-primary font-medium">{locale === 'fr' ? 'Boost Vedette actif' : 'Featured Boost Active'}</span>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRemoveBoost(content.id, content.type)}
+                                disabled={isApplyingBoost === content.id}
+                                className="h-10 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                {locale === 'fr' ? 'Retirer boost Vedette' : 'Remove Featured Boost'}
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApplyBoost(content.id, content.type, 'en_vedette')}
+                              disabled={isApplyingBoost === content.id || (boostCredits?.available_en_vedette || 0) <= 0}
+                              className="h-10 w-full bg-brand-light/20 border-brand-primary/30 text-brand-primary hover:bg-brand-light/30 hover:border-brand-primary/50"
+                            >
+                              <Sparkles className="h-4 w-4 mr-1 text-brand-primary" />
+                              {locale === 'fr' ? `Booster Vedette (${boostCredits?.available_en_vedette || 0} crédits)` : `Boost Featured (${boostCredits?.available_en_vedette || 0} credits)`}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Commerces Section */}
+                {userContent.filter(c => c.type === 'commerce').length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold text-brand-primary pb-2 border-b border-gray-200">
+                      {locale === 'fr' ? 'Mes Commerces' : 'My Businesses'}
+                    </h3>
+                    {userContent.filter(c => c.type === 'commerce').map((content) => (
+                      <div key={content.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg gap-4 sm:gap-0">
+                        <div className="flex items-start sm:items-center space-x-4 flex-1 min-w-0">
+                          <TrendingUp className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1">
+                              <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                {t('boostsPage.business', locale)}
+                              </span>
+                              <h4 className="font-medium text-sm sm:text-base mt-1">{content.title}</h4>
+                            </div>
+                            {content.boosted && (
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
+                                <Badge variant="secondary" className="w-fit">
+                                  <><TrendingUp className="h-3 w-3 mr-1" />{t('boosts.visibility', locale)}</>
+                                </Badge>
+                                {content.remaining_time && (
+                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {content.boosted ? (
+                            // Commerce boosted - show status and remove button
+                            <div className="flex flex-col sm:flex-row gap-2 w-full">
+                              <div className="flex items-center justify-center h-10 px-3 text-sm rounded-md border flex-1" 
+                                   style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }}>
+                                <TrendingUp className="h-3 w-3 mr-1" style={{ color: 'rgb(70,130,180)' }} />
+                                <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>{locale === 'fr' ? 'Boost Visibilité actif' : 'Visibility Boost Active'}</span>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleRemoveBoost(content.id, content.type)}
+                                disabled={isApplyingBoost === content.id}
+                                className="h-10 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                {locale === 'fr' ? 'Retirer Boost Visibilité' : 'Remove Visibility Boost'}
+                              </Button>
+                            </div>
+                          ) : (
+                            // Commerce not boosted - visibility boost only
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApplyBoost(content.id, content.type, 'visibilite')}
+                              disabled={isApplyingBoost === content.id || (boostCredits?.available_visibilite || 0) <= 0}
+                              className="h-10 w-full border-0"
+                              style={{ 
+                                backgroundColor: 'rgb(222,243,248)', 
+                                borderColor: 'rgb(105,200,221)',
+                                color: 'rgb(70,130,180)'
+                              }}
+                            >
+                              <TrendingUp className="h-4 w-4 mr-1" style={{ color: 'rgb(70,130,180)' }} />
+                              {locale === 'fr' ? `Booster Visibilité (${boostCredits?.available_visibilite || 0} crédits)` : `Boost Visibility (${boostCredits?.available_visibilite || 0} credits)`}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

@@ -568,8 +568,8 @@ export const TRANSLATIONS = {
       // Subscription section
       yourSubscription: "Votre Abonnement",
       upgradeWithPlus: "Passez au niveau supérieur avec gosholo Plus",
-      gosholoBase: "Gosholo Base",
-      gosholoPLUS: "Gosholo PLUS",
+      gosholoBase: "gosholo Base",
+      gosholoPLUS: "gosholo PLUS",
       current: "Actuel",
       freePlan: "Plan gratuit",
       upgradeSpeed: "Passez à la vitesse supérieure",
@@ -1415,8 +1415,8 @@ export const TRANSLATIONS = {
       // Subscription section
       yourSubscription: "Your Subscription",
       upgradeWithPlus: "Level up with gosholo Plus",
-      gosholoBase: "Gosholo Base",
-      gosholoPLUS: "Gosholo PLUS",
+      gosholoBase: "gosholo Base",
+      gosholoPLUS: "gosholo PLUS",
       current: "Current",
       freePlan: "Free plan",
       upgradeSpeed: "Level up",

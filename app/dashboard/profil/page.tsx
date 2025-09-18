@@ -587,14 +587,28 @@ export default function ProfilPage() {
                   <div key={commerce.id} className="border rounded-lg p-4 h-full">
                     <div className="flex flex-col h-full">
                       <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 mb-2 gap-2 sm:gap-0">
-                          <div className="flex items-center space-x-3">
-                            <Building2 className="h-5 w-5 text-primary flex-shrink-0" />
-                            <h4 className="font-semibold text-base sm:text-lg">{commerce.name}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:space-x-3 mb-2 gap-2 sm:gap-0">
+                          <div className="flex items-start space-x-3 flex-1">
+                            {commerce.image_url ? (
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                <img
+                                  src={commerce.image_url}
+                                  alt={commerce.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <Building2 className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-base sm:text-lg">{commerce.name}</h4>
+                              {commerce.category && (
+                                <Badge variant="secondary" className="w-fit mt-1">{getCategoryLabel(commerce.category, locale)}</Badge>
+                              )}
+                            </div>
                           </div>
-                          {commerce.category && (
-                            <Badge variant="secondary" className="w-fit">{getCategoryLabel(commerce.category, locale)}</Badge>
-                          )}
                         </div>
                         
                         {commerce.description && (
