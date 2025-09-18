@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { DashboardProvider } from "@/contexts/dashboard-context"
 import { LanguageProvider } from "@/contexts/language-context"
 import { DashboardLayout } from "@/components/dashboard-layout"
+import { AuthErrorHandler } from "@/components/auth-error-handler"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -35,7 +36,8 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <LanguageProvider>
             <DashboardProvider>
-                {children}
+              <AuthErrorHandler />
+              {children}
               <Toaster />
             </DashboardProvider>
           </LanguageProvider>

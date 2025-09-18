@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { 
   Crown, 
   Zap, 
@@ -93,6 +94,9 @@ export default function ProfilPage() {
   const [isManageCommerceOpen, setIsManageCommerceOpen] = useState(false)
   const [commerceToEdit, setCommerceToEdit] = useState<Commerce | null>(null)
   const [isCreateCommerceOpen, setIsCreateCommerceOpen] = useState(false)
+  const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false)
+  const [deleteConfirmation, setDeleteConfirmation] = useState("")
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 
   const loadUserData = async () => {
     try {
@@ -310,6 +314,71 @@ export default function ProfilPage() {
       window.location.href = '/login'
     } catch (error) {
       console.error('Unexpected error signing out:', error)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    const expectedText = t('profile.typeDelete', locale)
+    if (deleteConfirmation !== expectedText) {
+      toast({
+        title: t('messages.error', locale),
+        description: t('profile.confirmationMismatch', locale),
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsDeletingAccount(true)
+    
+    try {
+      const response = await fetch('/api/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account')
+      }
+
+      toast({
+        title: t('messages.success', locale),
+        description: t('profile.deleteAccountSuccess', locale),
+      })
+
+      // Complete cleanup - clear everything
+      console.log('🧹 Performing complete cleanup after account deletion')
+      
+      // 1. Clear all browser storage
+      localStorage.clear()
+      sessionStorage.clear()
+      
+      // 2. Clear all cookies manually
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+      
+      // 3. Try to sign out (will probably fail but try anyway)
+      try {
+        await supabase.auth.signOut({ scope: 'global' })
+      } catch (signOutError) {
+        console.log('Expected: signOut failed because user already deleted')
+      }
+
+      // 4. Force complete page replacement (not just redirect)
+      console.log('✅ Account deleted successfully - redirecting to home')
+      window.location.replace('/')
+
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      toast({
+        title: t('messages.error', locale),
+        description: t('profile.deleteAccountError', locale),
+        variant: "destructive"
+      })
+    } finally {
+      setIsDeletingAccount(false)
     }
   }
 
@@ -610,7 +679,15 @@ export default function ProfilPage() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-2" />
-{t('profile.signOut', locale)}
+                {t('profile.signOut', locale)}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 h-12 sm:h-10 border-red-200"
+                onClick={() => setIsDeleteAccountOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                {t('profile.deleteAccount', locale)}
               </Button>
             </div>
           </CardContent>
@@ -744,6 +821,64 @@ export default function ProfilPage() {
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   {t('profile.deletePermanently', locale)}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Account Confirmation Dialog */}
+        <Dialog open={isDeleteAccountOpen} onOpenChange={setIsDeleteAccountOpen}>
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle className="text-red-600">{t('profile.deleteAccountTitle', locale)}</DialogTitle>
+              <DialogDescription>
+                {t('profile.deleteAccountDesc', locale)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                <p className="font-medium text-red-800 mb-3">
+                  {t('profile.deleteAccountWarning', locale)}
+                </p>
+                <div className="text-sm text-red-700 whitespace-pre-line">
+                  {t('profile.deleteAccountDataList', locale)}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <p className="font-medium text-gray-900">
+                  {t('profile.deleteAccountConfirm', locale)}
+                </p>
+                <Input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder={t('profile.typeDelete', locale)}
+                  className="w-full"
+                />
+              </div>
+              
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full sm:w-auto h-12 sm:h-10"
+                  onClick={() => {
+                    setIsDeleteAccountOpen(false)
+                    setDeleteConfirmation("")
+                  }}
+                  disabled={isDeletingAccount}
+                >
+                  {t('profile.deleteAccountCancel', locale)}
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  className="w-full sm:w-auto h-12 sm:h-10"
+                  onClick={handleDeleteAccount}
+                  disabled={isDeletingAccount || deleteConfirmation !== t('profile.typeDelete', locale)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {isDeletingAccount ? t('profile.deleteAccountProcessing', locale) : t('profile.deleteAccountButton', locale)}
                 </Button>
               </div>
             </div>

@@ -55,10 +55,26 @@ export async function middleware(request: NextRequest) {
   )
 
   // Check if user is authenticated
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  let user = null
+  let error = null
+  
+  try {
+    const result = await supabase.auth.getUser()
+    user = result.data.user
+    error = result.error
+  } catch (authError: any) {
+    // Handle JWT errors (user deleted but token still exists)
+    if (authError.message?.includes('User from sub claim in JWT does not exist')) {
+      console.log('JWT token exists but user deleted - clearing session')
+      // Clear the invalid session
+      await supabase.auth.signOut({ scope: 'global' })
+      error = authError
+      user = null
+    } else {
+      error = authError
+      user = null
+    }
+  }
 
   const url = request.nextUrl.clone()
   const isAuthPage = url.pathname.startsWith('/login') || 

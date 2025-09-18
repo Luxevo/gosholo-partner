@@ -701,6 +701,19 @@ export const TRANSLATIONS = {
       // Account actions
       accountActions: "Actions du compte",
       signOut: "Se déconnecter",
+      deleteAccount: "Supprimer le compte",
+      deleteAccountTitle: "Supprimer définitivement le compte",
+      deleteAccountDesc: "Cette action supprimera définitivement votre compte et toutes vos données associées.",
+      deleteAccountWarning: "⚠️ Cette action est irréversible. Toutes vos données seront définitivement supprimées :",
+      deleteAccountDataList: "• Votre profil et informations personnelles\n• Tous vos commerces, offres et événements\n• Vos abonnements et crédits boost\n• Votre historique de transactions\n• Vos favoris et préférences",
+      deleteAccountConfirm: "Pour confirmer la suppression, tapez \"SUPPRIMER\" ci-dessous :",
+      deleteAccountButton: "Supprimer définitivement le compte",
+      deleteAccountSuccess: "Compte supprimé avec succès",
+      deleteAccountError: "Erreur lors de la suppression du compte",
+      deleteAccountProcessing: "Suppression en cours...",
+      deleteAccountCancel: "Annuler",
+      typeDelete: "SUPPRIMER",
+      confirmationMismatch: "Le texte de confirmation ne correspond pas",
       
       // Modal dialogs
       editProfileTitle: "Modifier le profil",
@@ -1527,6 +1540,19 @@ export const TRANSLATIONS = {
       // Account actions
       accountActions: "Account Actions",
       signOut: "Sign out",
+      deleteAccount: "Delete Account",
+      deleteAccountTitle: "Permanently Delete Account",
+      deleteAccountDesc: "This action will permanently delete your account and all associated data.",
+      deleteAccountWarning: "⚠️ This action is irreversible. All your data will be permanently deleted:",
+      deleteAccountDataList: "• Your profile and personal information\n• All your businesses, offers and events\n• Your subscriptions and boost credits\n• Your transaction history\n• Your favorites and preferences",
+      deleteAccountConfirm: "To confirm deletion, type \"DELETE\" below:",
+      deleteAccountButton: "Permanently Delete Account",
+      deleteAccountSuccess: "Account successfully deleted",
+      deleteAccountError: "Error deleting account",
+      deleteAccountProcessing: "Deleting...",
+      deleteAccountCancel: "Cancel",
+      typeDelete: "DELETE",
+      confirmationMismatch: "Confirmation text does not match",
       
       // Modal dialogs
       editProfileTitle: "Edit profile",
