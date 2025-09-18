@@ -44,11 +44,11 @@ const plans = {
     ]
   },
   pro: {
-    name: "Plan Pro",
+    name: "Plan Plus",
     icon: Crown,
-    color: "text-yellow-600",
-    bgColor: "bg-yellow-50",
-    borderColor: "border-yellow-200",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    borderColor: "border-orange-200",
     price: "$8/mois",
     features: [
       "5 contenus totaux (offres ET événements)",
@@ -91,7 +91,7 @@ export default function SubscriptionManagementFlow({
         // Upgrade to Pro - In a real app, this would integrate with a payment processor
         toast({
           title: "Fonctionnalité à venir",
-          description: "L'upgrade vers le plan Pro sera bientôt disponible avec paiement sécurisé.",
+          description: "L'upgrade vers le plan Plus sera bientôt disponible avec paiement sécurisé.",
         })
       } else {
         // Downgrade to Free
@@ -237,7 +237,7 @@ export default function SubscriptionManagementFlow({
                       isCurrent 
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                         : plan === 'pro' 
-                          ? 'bg-yellow-600 hover:bg-yellow-700' 
+                          ? 'bg-orange-600 hover:bg-orange-700' 
                           : 'bg-gray-600 hover:bg-gray-700'
                     }`}
                   >
@@ -248,7 +248,7 @@ export default function SubscriptionManagementFlow({
                     ) : plan === 'pro' ? (
                       <>
                         <Crown className="h-4 w-4 mr-2" />
-                        Passer au Pro
+                        Passer au Plus
                       </>
                     ) : (
                       <>
@@ -263,23 +263,7 @@ export default function SubscriptionManagementFlow({
           })}
         </div>
 
-        {/* Additional Information */}
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-          <h4 className="font-medium text-gray-900 mb-2">Informations importantes</h4>
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>• Les changements de plan prennent effet immédiatement</li>
-            <li>• Le plan Pro inclut 1 crédit boost par mois, renouvelé automatiquement</li>
-            <li>• Vous pouvez changer de plan à tout moment</li>
-            <li>• Contactez le support pour toute question sur votre abonnement</li>
-          </ul>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={onCancel}>
-            Fermer
-          </Button>
-        </div>
+      
       </CardContent>
     </Card>
   )

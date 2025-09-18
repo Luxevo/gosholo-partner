@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram, Linkedin } from "lucide-react"
+import ImageUpload from "@/components/image-upload"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
@@ -122,7 +123,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category) errors.push('Catégorie requise')
-    if (!form.email.trim()) errors.push('Email requis')
+    // Email is optional - removed validation
     
     // Validate social media URLs
     const socialValidation = validateSocialMediaLinks({
@@ -347,7 +348,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                {t('commerce.email', locale)} * <span className="text-red-500">*</span>
+                {t('commerce.email', locale)} (optionnel)
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
@@ -357,7 +358,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
                   value={form.email}
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   className="pl-10"
-                  required
                 />
               </div>
             </div>
@@ -445,28 +445,23 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              Image du commerce (optionnel)
+              {t('commerce.image', locale)}
             </label>
-            <Input
-              type="url"
-              placeholder="URL de l'image"
-              value={form.image_url}
-              onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))}
+            <ImageUpload
+              bucket="gosholo-partner"
+              folder="commerces"
+              currentImage={form.image_url}
+              onUploadComplete={(url) => setForm(f => ({ ...f, image_url: url }))}
+              onRemoveImage={() => setForm(f => ({ ...f, image_url: "" }))}
+              onUploadError={(error) => {
+                console.error('Image upload error:', error)
+                toast({
+                  title: "Erreur de téléchargement",
+                  description: `Impossible de télécharger l'image: ${error}`,
+                  variant: "destructive",
+                })
+              }}
             />
-            <div className="text-xs text-secondary mt-1">
-              Ajouter une image améliore la visibilité de votre commerce.
-            </div>
-            {form.image_url && (
-              <img 
-                src={form.image_url} 
-                alt="Aperçu" 
-                className="mt-2 rounded w-32 h-32 object-cover" 
-                onError={(e) => { 
-                  const target = e.target as HTMLImageElement; 
-                  target.style.display = 'none'; 
-                }} 
-              />
-            )}
           </div>
         </div>
 
@@ -480,7 +475,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           <Button 
             className="bg-accent hover:bg-accent/80 text-white flex-1" 
             onClick={handleSaveCommerce}
-            disabled={isLoading || !form.name || !form.description || !form.address || !form.category || !form.email}
+            disabled={isLoading || !form.name || !form.description || !form.address || !form.category}
           >
             {isLoading ? t('messages.saving', locale) : t('buttons.save', locale)}
           </Button>
