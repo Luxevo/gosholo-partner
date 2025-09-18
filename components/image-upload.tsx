@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context"
+import { t } from "@/lib/category-translations"
 
 interface ImageUploadProps {
   bucket: string // e.g., "images"
@@ -27,6 +29,7 @@ export default function ImageUpload({
   className = ""
 }: ImageUploadProps) {
   const supabase = createClient()
+  const { locale } = useLanguage()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
@@ -141,12 +144,12 @@ export default function ImageUpload({
       {currentImage ? (
         // Show current image
         <Card className="relative overflow-hidden">
-          <div className="aspect-video w-full relative bg-gray-50">
+          <div className="aspect-square w-40 h-40 relative bg-gray-50 mx-auto">
             <Image
               src={currentImage}
               alt="Image téléchargée"
               fill
-              className="object-cover"
+              className="object-cover rounded"
             />
             {onRemoveImage && (
               <Button
@@ -188,21 +191,23 @@ export default function ImageUpload({
                 </div>
                 <div>
                   <p className="text-sm font-medium text-brand-primary">
-                    Cliquez pour télécharger une image
+                    {locale === 'en' ? 'Click to upload an image' : 'Cliquez pour télécharger une image'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    ou glissez-déposez votre fichier ici
+                    {locale === 'en' ? 'or drag and drop your file here' : 'ou glissez-déposez votre fichier ici'}
                   </p>
+                  <div className="mt-3 text-xs text-gray-500 space-y-1 text-center">
+                    <div>📐 {locale === 'en' ? 'Recommended: Square format (1:1)' : 'Recommandé : Format carré (1:1)'}</div>
+                    <div>📁 {locale === 'en' ? 'Formats: JPG, PNG, WebP, GIF' : 'Formats : JPG, PNG, WebP, GIF'}</div>
+                    <div>💾 {locale === 'en' ? 'Max: 5 MB' : 'Max : 5 MB'}</div>
+                  </div>
                 </div>
                 <div className="flex items-center justify-center">
                   <Button type="button" variant="outline" size="sm">
                     <Upload className="h-4 w-4 mr-2" />
-                    Choisir une image
+                    {locale === 'en' ? 'Choose image' : 'Choisir une image'}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-400">
-                  JPG, PNG, WebP, GIF jusqu'à 5 MB
-                </p>
               </div>
             )}
           </div>

@@ -467,7 +467,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         <div className="max-w-xs mx-auto">
           <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
             {/* Image Section */}
-            <div className="relative h-40 bg-gradient-to-br from-orange-400 to-orange-500">
+            <div className="relative h-36 bg-gradient-to-br from-orange-400 to-orange-500">
               {form.image_url ? (
                 <img 
                   src={form.image_url} 

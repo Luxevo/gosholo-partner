@@ -325,7 +325,15 @@ export const TRANSLATIONS = {
       expired: "Expiré",
       endsIn: "Se termine dans",
       endsHours: "h",
-      endsDays: "j"
+      endsDays: "j",
+      
+      // Image upload recommendations
+      imageRecommendedFormat: "Recommandé : Format carré (1:1)",
+      imageFormats: "Formats : JPG, PNG, WebP, GIF",
+      imageMaxSize: "Max : 5 MB",
+      clickToUpload: "Cliquez pour télécharger une image",
+      dragAndDrop: "ou glissez-déposez votre fichier ici",
+      chooseImage: "Choisir une image"
     },
     
     // Events
@@ -1164,7 +1172,15 @@ export const TRANSLATIONS = {
       expired: "Expired", 
       endsIn: "Ends in",
       endsHours: "h",
-      endsDays: "d"
+      endsDays: "d",
+      
+      // Image upload recommendations
+      imageRecommendedFormat: "Recommended: Square format (1:1)",
+      imageFormats: "Formats: JPG, PNG, WebP, GIF",
+      imageMaxSize: "Max: 5 MB",
+      clickToUpload: "Click to upload an image",
+      dragAndDrop: "or drag and drop your file here",
+      chooseImage: "Choose image"
     },
     
     // Events

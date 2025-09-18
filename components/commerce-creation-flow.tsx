@@ -328,7 +328,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             {/* Commerce Image */}
             {form.image_url && (
               <div className="mb-4">
-                <div className="aspect-video w-full relative bg-gray-50 rounded-lg overflow-hidden">
+                <div className="aspect-square w-32 h-32 relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200 mx-auto">
                   <img
                     src={form.image_url}
                     alt={form.name}
@@ -420,7 +420,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             {/* Commerce Image */}
             {form.image_url && (
               <div className="mb-4">
-                <div className="aspect-video w-full relative bg-gray-50 rounded-lg overflow-hidden">
+                <div className="aspect-square w-32 h-32 relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200 mx-auto">
                   <img
                     src={form.image_url}
                     alt={form.name}
