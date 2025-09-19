@@ -99,7 +99,8 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
       : boostCredits.available_visibilite
 
     if (availableCredits <= 0) {
-      // Show purchase form
+      // Close boost modal and show purchase form
+      setIsBoostModalOpen(false)
       setShowPurchaseForm(boostType)
       return
     }
@@ -192,6 +193,13 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
     setTimeout(() => {
       handleApplyBoost(showPurchaseForm)
     }, 500)
+  }
+
+  const handlePurchaseCancel = () => {
+    setShowPurchaseForm(null)
+    // Close all modals when canceling payment
+    setIsBoostModalOpen(false)
+    setBoostingItem(null)
   }
 
   const getOfferStatus = (offer: any) => {
@@ -394,11 +402,12 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                <span className="text-base sm:text-xl font-semibold">{commerce.name}</span>
                {commerce.boosted && commerce.boost_type && !isBoostExpired(commerce.boosted_at) && (
                  <div className="flex items-center gap-3 mt-2">
-                   <Badge className="w-fit text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 px-3 py-1 shadow-md">
-                     <TrendingUp className="h-4 w-4 mr-2" style={{ color: 'white' }} />
+                   <Badge className="w-fit text-sm font-semibold border px-3 py-1 shadow-md" 
+                          style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)', color: 'rgb(70,130,180)' }}>
+                     <TrendingUp className="h-4 w-4 mr-2" style={{ color: 'rgb(70,130,180)' }} />
                      {t('commerceCard.visibilityBoost', locale)}
                    </Badge>
-                   <span className="text-sm font-medium text-blue-600">
+                   <span className="text-sm font-medium" style={{ color: 'rgb(70,130,180)' }}>
                      {formatBoostRemainingTime(commerce.boosted_at)}
                    </span>
                  </div>
@@ -411,10 +420,16 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  variant="outline" 
                  size="sm" 
                  onClick={() => handleBoostCommerce(commerce)}
-                 className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                 className="h-8 w-8 sm:h-8 sm:w-auto p-0 sm:px-3 border-0"
+                 style={{ 
+                   backgroundColor: 'rgb(222,243,248)', 
+                   borderColor: 'rgb(105,200,221)',
+                   color: 'rgb(70,130,180)'
+                 }}
                >
-                 <Zap className="h-4 w-4 sm:hidden" />
-                 <span className="hidden sm:inline">{t('commerceCard.boostThisBusiness', locale)}</span>
+                 <TrendingUp className="h-4 w-4 sm:hidden" style={{ color: 'rgb(70,130,180)' }} />
+                 <TrendingUp className="h-4 w-4 mr-1 hidden sm:inline" style={{ color: 'rgb(70,130,180)' }} />
+                 <span className="hidden sm:inline">{locale === 'fr' ? `Booster Visibilité (${boostCredits?.available_visibilite || 0})` : `Boost Visibility (${boostCredits?.available_visibilite || 0})`}</span>
                </Button>
              )}
              <Button 
@@ -475,10 +490,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                   </div>
                   <div className="flex items-center gap-1 sm:gap-1">
                     <button 
-                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
+                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs bg-brand-light/20 border border-brand-primary/30 text-brand-primary hover:bg-brand-light/30 hover:border-brand-primary/50 rounded min-h-[36px] sm:min-h-[32px] flex items-center"
                       onClick={() => handleBoostOffer(offer)}
                     >
-                      {t('commerceCard.boost', locale)}
+                      <Sparkles className="h-3 w-3 mr-1 text-brand-primary" />
+                      {locale === 'fr' ? `Booster Vedette (${boostCredits?.available_en_vedette || 0})` : `Boost Featured (${boostCredits?.available_en_vedette || 0})`}
                     </button>
                     <button 
                       className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
@@ -547,10 +563,11 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                   </div>
                   <div className="flex items-center gap-1 sm:gap-1">
                     <button 
-                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs text-orange-600 bg-orange-50 hover:bg-orange-100 rounded min-h-[36px] sm:min-h-[32px]"
+                      className="px-2 py-1 sm:px-2 sm:py-1 text-xs bg-brand-light/20 border border-brand-primary/30 text-brand-primary hover:bg-brand-light/30 hover:border-brand-primary/50 rounded min-h-[36px] sm:min-h-[32px] flex items-center"
                       onClick={() => handleBoostEvent(event)}
                     >
-                      {t('commerceCard.boost', locale)}
+                      <Sparkles className="h-3 w-3 mr-1 text-brand-primary" />
+                      {locale === 'fr' ? `Booster Vedette (${boostCredits?.available_en_vedette || 0})` : `Boost Featured (${boostCredits?.available_en_vedette || 0})`}
                     </button>
                     <button 
                       className="p-1 sm:p-1 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded min-h-[36px] sm:min-h-[32px]"
@@ -685,24 +702,31 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
          <div>
            {boostingItem?.type === 'commerce' ? (
              /* Visibilité Boost for Commerce */
-             <div className="border rounded-lg p-4">
+             <div className="border rounded-lg p-4" 
+                  style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }}>
                <div className="flex items-center gap-3 mb-3">
-                 <div className="p-2 bg-blue-100 rounded-full">
-                   <Zap className="h-5 w-5 text-blue-600" />
+                 <div className="p-2 rounded-full" style={{ backgroundColor: 'rgb(200,235,245)' }}>
+                   <TrendingUp className="h-5 w-5" style={{ color: 'rgb(70,130,180)' }} />
                  </div>
                  <div>
-                   <h4 className="font-medium text-blue-800">Visibilité</h4>
-                   <p className="text-xs text-blue-600">72h de portée élargie</p>
+                   <h4 className="font-medium" style={{ color: 'rgb(70,130,180)' }}>Visibilité</h4>
+                   <p className="text-xs" style={{ color: 'rgb(70,130,180)' }}>72h de portée élargie</p>
                  </div>
                </div>
-               <ul className="text-xs text-blue-700 space-y-1 mb-3">
+               <ul className="text-xs space-y-1 mb-3" style={{ color: 'rgb(70,130,180)' }}>
                  <li>• Plus visible sur la carte</li>
                  <li>• Augmente le trafic</li>
                  <li>• Portée géographique élargie</li>
                </ul>
                <Button
                  onClick={() => handleApplyBoost('visibilite')}
-                 className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                 className="w-full text-white text-sm"
+                 style={{ 
+                   backgroundColor: 'rgb(70,130,180)', 
+                   borderColor: 'rgb(70,130,180)'
+                 }}
+                 onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(60,120,170)' }}
+                 onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(70,130,180)' }}
                  size="sm"
                >
                  {boostCredits?.available_visibilite ? 
@@ -713,24 +737,24 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
              </div>
            ) : (
              /* En Vedette Boost for Offers/Events */
-             <div className="border rounded-lg p-4">
+             <div className="border border-brand-primary/30 rounded-lg p-4 bg-brand-light/20">
                <div className="flex items-center gap-3 mb-3">
-                 <div className="p-2 bg-orange-100 rounded-full">
-                   <Sparkles className="h-5 w-5 text-orange-600" />
+                 <div className="p-2 bg-brand-light/20 rounded-full">
+                   <Sparkles className="h-5 w-5 text-brand-primary" />
                  </div>
                  <div>
-                   <h4 className="font-medium text-orange-800">En Vedette</h4>
-                   <p className="text-xs text-orange-600">72h de visibilité premium</p>
+                   <h4 className="font-medium text-brand-primary">En Vedette</h4>
+                   <p className="text-xs text-brand-primary">72h de visibilité premium</p>
                  </div>
                </div>
-               <ul className="text-xs text-orange-700 space-y-1 mb-3">
+               <ul className="text-xs text-brand-primary space-y-1 mb-3">
                  <li>• Badge "En Vedette" visible</li>
                  <li>• Priorité dans les recherches</li>
                  <li>• Mise en avant sur la carte</li>
                </ul>
                <Button
                  onClick={() => handleApplyBoost('en_vedette')}
-                 className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                 className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white text-sm"
                  size="sm"
                >
                  {boostCredits?.available_en_vedette ? 
@@ -785,7 +809,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
            <BoostPurchaseForm
              boostType={showPurchaseForm}
              onSuccess={handlePurchaseSuccess}
-             onCancel={() => setShowPurchaseForm(null)}
+             onCancel={handlePurchaseCancel}
            />
          </div>
        </div>

@@ -13,7 +13,7 @@ import {
   XCircle,
   Clock,
   Zap,
-  Eye,
+  TrendingUp,
   Sparkles,
   ExternalLink,
   Settings
@@ -361,12 +361,18 @@ export default function PaymentHistoryPage() {
                     {/* Mobile Layout */}
                     <div className="block sm:hidden">
                       <div className="flex items-start space-x-3 mb-3">
-                        <div className={`p-2 rounded-full flex-shrink-0 ${isBoost ? 'bg-blue-100' : 'bg-yellow-100'}`}>
+                        <div className={`p-2 rounded-full flex-shrink-0 ${
+                          isBoost ? (
+                            boostTransaction!.boost_type === 'en_vedette' 
+                              ? 'bg-brand-light/20' 
+                              : 'bg-[rgb(222,243,248)]'
+                          ) : 'bg-yellow-100'
+                        }`}>
                           {isBoost ? (
                             boostTransaction!.boost_type === 'en_vedette' ? (
-                              <Sparkles className="h-5 w-5 text-blue-600" />
+                              <Sparkles className="h-5 w-5 text-brand-primary" />
                             ) : (
-                              <Eye className="h-5 w-5 text-blue-600" />
+                              <TrendingUp className="h-5 w-5" style={{ color: 'rgb(70,130,180)' }} />
                             )
                           ) : (
                             <CreditCard className="h-5 w-5 text-yellow-600" />
@@ -424,12 +430,18 @@ export default function PaymentHistoryPage() {
                     <div className="hidden sm:block">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <div className={`p-3 rounded-full ${isBoost ? 'bg-blue-100' : 'bg-yellow-100'}`}>
+                          <div className={`p-3 rounded-full ${
+                            isBoost ? (
+                              boostTransaction!.boost_type === 'en_vedette' 
+                                ? 'bg-brand-light/20' 
+                                : 'bg-[rgb(222,243,248)]'
+                            ) : 'bg-yellow-100'
+                          }`}>
                             {isBoost ? (
                               boostTransaction!.boost_type === 'en_vedette' ? (
-                                <Sparkles className="h-6 w-6 text-blue-600" />
+                                <Sparkles className="h-6 w-6 text-brand-primary" />
                               ) : (
-                                <Eye className="h-6 w-6 text-blue-600" />
+                                <TrendingUp className="h-6 w-6" style={{ color: 'rgb(70,130,180)' }} />
                               )
                             ) : (
                               <CreditCard className="h-6 w-6 text-yellow-600" />

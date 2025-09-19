@@ -707,6 +707,23 @@ TRANSLATIONS = {
 
 ## 🔧 Recent Major Changes
 
+### Boost System Visual Harmonization (January 2025)
+- **Complete color consistency**: All boost elements now use identical colors across the application
+- **Dashboard boost buttons**: 
+  - Vedette: Green styling (`brand-primary`, `brand-light/20`) with `Sparkles` icon and credit display
+  - Visibilité: Blue styling (`rgb(222,243,248)`, `rgb(70,130,180)`) with `TrendingUp` icon and credit display
+- **Boost modals redesign**:
+  - En Vedette modal: Full green brand colors replacing orange
+  - Visibilité modal: Exact header blue colors (`rgb(222,243,248)` background, `rgb(70,130,180)` text/icons)
+- **Commerce boost badge**: Updated from blue background to blue-on-light styling matching header
+- **Payment history page**: 
+  - Corrected icons (`TrendingUp` for Visibilité, `Sparkles` for Vedette)
+  - Applied brand-specific colors for each boost type
+- **Modal flow improvements**: 
+  - Auto-close boost modal when opening payment popup
+  - Complete modal closure on payment cancellation
+- **Perfect visual consistency**: All boost representations (header, dashboard, modals, history) now identical
+
 ### Header Component Enhancements (January 2025)
 - **Mobile optimization**: Improved mobile header with combined boost credits display
 - **Subscription plan indicator**: Visual indicator showing current plan (crown for Pro, star for Free)
