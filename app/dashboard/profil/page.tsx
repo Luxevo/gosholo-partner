@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useLanguage } from "@/contexts/language-context"
+import { useDashboard } from "@/contexts/dashboard-context"
 import { t, getCategoryLabel } from "@/lib/category-translations"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -78,6 +79,7 @@ export default function ProfilPage() {
   const supabase = createClient()
   const { toast } = useToast()
   const { locale } = useLanguage()
+  const { refreshCounts } = useDashboard()
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [user, setUser] = useState<any>(null)
@@ -210,6 +212,7 @@ export default function ProfilPage() {
   const handleSubscriptionUpdated = () => {
     setIsSubscriptionManagementOpen(false)
     loadUserData()
+    refreshCounts() // Refresh the global dashboard context to update header
   }
 
   const handleDeleteCommerce = async () => {
