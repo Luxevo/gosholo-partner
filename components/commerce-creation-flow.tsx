@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Check, Building2, Facebook, Instagram, Linkedin } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Check, Building2, Facebook, Instagram } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
@@ -33,7 +33,6 @@ interface Commerce {
   longitude: number | null
   facebook_url: string | null
   instagram_url: string | null
-  linkedin_url: string | null
   status: string
   created_at: string | null
   updated_at: string | null
@@ -77,7 +76,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     website: commerce?.website || "",
     facebook_url: commerce?.facebook_url || "",
     instagram_url: commerce?.instagram_url || "",
-    linkedin_url: commerce?.linkedin_url || "",
     image_url: commerce?.image_url || ""
   })
   
@@ -107,7 +105,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     const socialValidation = validateSocialMediaLinks({
       facebook_url: form.facebook_url,
       instagram_url: form.instagram_url,
-      linkedin_url: form.linkedin_url,
       website: form.website
     })
     
@@ -206,7 +203,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         website: form.website.trim() || null,
         facebook_url: form.facebook_url.trim() || null,
         instagram_url: form.instagram_url.trim() || null,
-        linkedin_url: form.linkedin_url.trim() || null,
         image_url: form.image_url.trim() || null,
         status: 'active'
       }
@@ -275,7 +271,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
           website: "",
           facebook_url: "",
           instagram_url: "",
-          linkedin_url: "",
           image_url: ""
         })
       }
@@ -711,22 +706,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                       placeholder={t('commerce.instagramPlaceholder', locale)}
                       value={form.instagram_url}
                       onChange={e => setForm(f => ({ ...f, instagram_url: e.target.value }))}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-primary mb-2">
-                    LinkedIn
-                  </label>
-                  <div className="relative">
-                    <Linkedin className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                    <Input
-                      type="url"
-                      placeholder={t('commerce.linkedinPlaceholder', locale)}
-                      value={form.linkedin_url}
-                      onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))}
                       className="pl-10"
                     />
                   </div>

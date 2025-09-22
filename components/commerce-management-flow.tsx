@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram, Linkedin } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram } from "lucide-react"
 import ImageUpload from "@/components/image-upload"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -33,7 +33,6 @@ interface Commerce {
   longitude: number | null
   facebook_url: string | null
   instagram_url: string | null
-  linkedin_url: string | null
   status: string | null
   created_at: string | null
   updated_at: string | null
@@ -70,7 +69,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     website: commerce.website || "",
     facebook_url: commerce.facebook_url || "",
     instagram_url: commerce.instagram_url || "",
-    linkedin_url: commerce.linkedin_url || "",
     image_url: commerce.image_url || "",
   })
 
@@ -129,7 +127,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     const socialValidation = validateSocialMediaLinks({
       facebook_url: form.facebook_url,
       instagram_url: form.instagram_url,
-      linkedin_url: form.linkedin_url,
       website: form.website
     })
     
@@ -188,7 +185,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           website: form.website.trim() || null,
           facebook_url: form.facebook_url.trim() || null,
           instagram_url: form.instagram_url.trim() || null,
-          linkedin_url: form.linkedin_url.trim() || null,
           image_url: form.image_url.trim() || null,
           updated_at: new Date().toISOString(),
         })
@@ -426,21 +422,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-primary mb-2">
-                LinkedIn (optionnel)
-              </label>
-              <div className="relative">
-                <Linkedin className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                <Input
-                  type="url"
-                  placeholder="linkedin.com/company/moncommerce"
-                  value={form.linkedin_url}
-                  onChange={e => setForm(f => ({ ...f, linkedin_url: e.target.value }))}
-                  className="pl-10"
-                />
-              </div>
-            </div>
           </div>
 
           <div>

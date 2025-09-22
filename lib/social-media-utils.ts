@@ -1,7 +1,6 @@
 export interface SocialMediaLinks {
   facebook_url?: string | null
   instagram_url?: string | null
-  linkedin_url?: string | null
   website?: string | null
 }
 
@@ -13,7 +12,7 @@ export interface SocialMediaValidation {
 /**
  * Auto-formats and validates social media URLs
  */
-export function formatSocialMediaUrl(url: string, platform: 'facebook' | 'instagram' | 'linkedin' | 'website'): string {
+export function formatSocialMediaUrl(url: string, platform: 'facebook' | 'instagram' | 'website'): string {
   if (!url.trim()) return ''
   
   let cleanUrl = url.trim()
@@ -40,12 +39,6 @@ export function formatSocialMediaUrl(url: string, platform: 'facebook' | 'instag
       }
       break
     
-    case 'linkedin':
-      if (!cleanUrl.includes('linkedin.com')) {
-        // Assume it's a company page
-        cleanUrl = `linkedin.com/company/${cleanUrl}`
-      }
-      break
     
     case 'website':
       // For websites, just ensure it has a domain
@@ -59,7 +52,7 @@ export function formatSocialMediaUrl(url: string, platform: 'facebook' | 'instag
 /**
  * Validates social media URLs
  */
-export function validateSocialMediaUrl(url: string, platform: 'facebook' | 'instagram' | 'linkedin' | 'website'): boolean {
+export function validateSocialMediaUrl(url: string, platform: 'facebook' | 'instagram' | 'website'): boolean {
   if (!url.trim()) return true // Optional fields
   
   try {
@@ -72,8 +65,6 @@ export function validateSocialMediaUrl(url: string, platform: 'facebook' | 'inst
       case 'instagram':
         return urlObj.hostname.includes('instagram.com')
       
-      case 'linkedin':
-        return urlObj.hostname.includes('linkedin.com')
       
       case 'website':
         return urlObj.protocol === 'http:' || urlObj.protocol === 'https:'
@@ -100,9 +91,6 @@ export function validateSocialMediaLinks(links: SocialMediaLinks): SocialMediaVa
     errors.push('URL Instagram invalide')
   }
   
-  if (links.linkedin_url && !validateSocialMediaUrl(links.linkedin_url, 'linkedin')) {
-    errors.push('URL LinkedIn invalide')
-  }
   
   if (links.website && !validateSocialMediaUrl(links.website, 'website')) {
     errors.push('URL du site web invalide')
@@ -117,7 +105,7 @@ export function validateSocialMediaLinks(links: SocialMediaLinks): SocialMediaVa
 /**
  * Get display name from social media URL
  */
-export function getSocialMediaDisplayName(url: string, platform: 'facebook' | 'instagram' | 'linkedin'): string {
+export function getSocialMediaDisplayName(url: string, platform: 'facebook' | 'instagram'): string {
   if (!url) return ''
   
   try {
@@ -131,9 +119,6 @@ export function getSocialMediaDisplayName(url: string, platform: 'facebook' | 'i
       case 'instagram':
         return pathname.split('/').filter(Boolean)[0] || ''
       
-      case 'linkedin':
-        const parts = pathname.split('/').filter(Boolean)
-        return parts[1] || '' // Skip 'company' part
       
       default:
         return ''
