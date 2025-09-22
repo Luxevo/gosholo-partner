@@ -164,12 +164,12 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
                   : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
               }`}>
                 {counts.subscriptionPlan === 'pro' ? (
-                  <Crown className="h-4 w-4 text-orange-600" />
+                  <Crown className="h-4 w-4 text-brand-accent" />
                 ) : (
                   <Star className="h-4 w-4 text-gray-500" />
                 )}
                 <span className={`text-sm font-medium ${
-                  counts.subscriptionPlan === 'pro' ? 'text-orange-700' : 'text-gray-700'
+                  counts.subscriptionPlan === 'pro' ? 'text-brand-accent' : 'text-gray-700'
                 }`}>
                   {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? t('boosts.pro', locale) : t('boosts.free', locale)}
                 </span>

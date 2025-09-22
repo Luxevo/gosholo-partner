@@ -678,7 +678,6 @@ export const TRANSLATIONS = {
       deletePermanently: "Supprimer définitivement",
       
       // Plan descriptions
-      fullAccessWithBoosts: "Accès complet avec boosts",
       basicLimitedAccess: "Accès de base limité",
       
       // Usage stats
@@ -1523,7 +1522,6 @@ export const TRANSLATIONS = {
       deletePermanently: "Delete permanently",
       
       // Plan descriptions
-      fullAccessWithBoosts: "Full access with boosts",
       basicLimitedAccess: "Basic limited access",
       
       // Usage stats

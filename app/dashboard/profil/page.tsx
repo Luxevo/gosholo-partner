@@ -413,22 +413,22 @@ export default function ProfilPage() {
         {/* Current Plan and Account Info - Side by Side */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Current Plan Card */}
-          <Card className="border-primary/20">
+          <Card className={`border-primary/20 ${subscription?.plan_type === 'pro' ? 'bg-orange-50 border-orange-200' : ''}`}>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                 <div className="flex items-center space-x-3">
                   {subscription?.plan_type === 'pro' ? (
-                    <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
+                    <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-brand-accent" />
                   ) : (
                     <Star className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                   )}
                   <div>
-                    <CardTitle className="text-lg sm:text-xl">
+                    <CardTitle className={`text-lg sm:text-xl ${subscription?.plan_type === 'pro' ? 'text-brand-accent' : ''}`}>
                       {t('profile.plan', locale)} {subscription?.plan_type === 'pro' ? t('profile.pro', locale) : t('profile.free', locale)}
                     </CardTitle>
                     <CardDescription className="text-sm">
                       {subscription?.plan_type === 'pro' 
-                        ? t('profile.fullAccessWithBoosts', locale) 
+                        ? "" 
                         : t('profile.basicLimitedAccess', locale)
                       }
                     </CardDescription>
@@ -436,7 +436,7 @@ export default function ProfilPage() {
                 </div>
                 <Badge 
                   variant={subscription?.plan_type === 'pro' ? "default" : "secondary"}
-                  className={subscription?.plan_type === 'pro' ? "bg-orange-500 hover:bg-orange-600" : ""}
+                  className={subscription?.plan_type === 'pro' ? "bg-brand-accent hover:bg-brand-accent/90 text-white" : ""}
                 >
                   {subscription?.plan_type === 'pro' ? t('profile.pro', locale) : t('profile.free', locale)}
                 </Badge>
