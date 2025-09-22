@@ -142,11 +142,11 @@ export async function applyBoost(
       .single()
     
     if (checkError) {
-      return { success: false, error: 'Erreur lors de la vérification du contenu' }
+      return { success: false, error: 'Erreur lors de la vérification de la publication' }
     }
     
     if (existingContent?.boosted) {
-      return { success: false, error: 'Ce contenu est déjà boosté' }
+      return { success: false, error: 'Cette publication est déjà boostée' }
     }
     
     // Apply boost to content

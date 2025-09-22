@@ -261,26 +261,28 @@ export function FaqSection() {
           {locale === 'fr' ? 'Questions fréquemment posées (FAQ)' : 'Frequently Asked Questions (FAQ)'}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {faqSections.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="space-y-3">
-            <h3 className="text-base font-semibold text-primary border-b border-primary/20 pb-2">
-              {section.title}
-            </h3>
-            <Accordion type="single" collapsible className="w-full">
-              {section.items.map((item, itemIndex) => (
-                <AccordionItem key={itemIndex} value={`item-${sectionIndex}-${itemIndex}`} className="border-b border-primary/10">
-                  <AccordionTrigger className="text-left text-sm font-medium text-primary hover:text-primary/80 py-3">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-primary/70 pb-3 whitespace-pre-line">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        ))}
+      <CardContent className="space-y-4">
+        <Accordion type="multiple" className="w-full">
+          {faqSections.map((section, sectionIndex) => (
+            <AccordionItem key={sectionIndex} value={`section-${sectionIndex}`} className="border-b border-primary/20">
+              <AccordionTrigger className="text-left text-base font-semibold text-primary hover:text-primary/80 py-4">
+                {section.title}
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-2">
+                {section.items.map((item, itemIndex) => (
+                  <div key={itemIndex} className="space-y-2">
+                    <h4 className="text-sm font-medium text-primary">
+                      {item.question}
+                    </h4>
+                    <p className="text-sm text-primary/70 whitespace-pre-line pl-4">
+                      {item.answer}
+                    </p>
+                  </div>
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </CardContent>
     </Card>
   )

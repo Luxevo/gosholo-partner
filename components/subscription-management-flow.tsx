@@ -32,14 +32,14 @@ const plans = {
     borderColor: "border-gray-200",
     price: "Gratuit",
     features: [
-      "1 contenu total (offre OU événement)",
+      "1 publication total (offre OU événement)",
       "0 crédit boost par mois",
       "Profil commerce de base",
       "Support communautaire"
     ],
     limitations: [
       "Pas de boosts",
-      "Limite de contenu stricte",
+      "Limite de publication stricte",
       "Fonctionnalités limitées"
     ]
   },
@@ -51,7 +51,7 @@ const plans = {
     borderColor: "border-orange-200",
     price: "$8/mois",
     features: [
-      "10 contenus totaux (offres ET événements)",
+      "10 publications totaux (offres ET événements)",
       "1 crédit boost par mois (auto-renouvelé)",
       "Profil commerce complet",
       "Support prioritaire",
@@ -88,11 +88,31 @@ export default function SubscriptionManagementFlow({
 
     try {
       if (newPlan === 'pro') {
-        // Upgrade to Pro - In a real app, this would integrate with a payment processor
+        // Upgrade to Pro
+        const { error } = await supabase
+          .from('subscriptions')
+          .update({
+            plan_type: 'pro',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', currentSubscription.id)
+
+        if (error) {
+          console.error('Error upgrading subscription:', error)
+          toast({
+            title: "Erreur",
+            description: "Erreur lors du changement de plan",
+            variant: "destructive"
+          })
+          return
+        }
+
         toast({
-          title: "Fonctionnalité à venir",
-          description: "L'upgrade vers le plan Plus sera bientôt disponible avec paiement sécurisé.",
+          title: "Succès",
+          description: "Plan changé vers le plan Plus",
         })
+
+        onSubscriptionUpdated()
       } else {
         // Downgrade to Free
         const { error } = await supabase

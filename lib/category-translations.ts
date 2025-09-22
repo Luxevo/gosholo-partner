@@ -59,7 +59,7 @@ export const TRANSLATIONS = {
       upcoming: "À venir",
       expiresOn: "Expire le",
       alreadyBoosted: "Déjà boosté",
-      alreadyBoostedDesc: "Ce contenu est déjà boosté.",
+      alreadyBoostedDesc: "Cette publication est déjà boostée.",
       boostApplied: "Boost appliqué !",
       boostAppliedDesc: "est maintenant boosté pour 72 heures.",
       error: "Erreur",
@@ -309,9 +309,9 @@ export const TRANSLATIONS = {
       // Content limits
       freePlan: "Plan Gratuit:",
       proPlan: "Plan Plus:",
-      contentUsed: "contenu utilisé",
+      contentUsed: "publication utilisée",
       limitReached: "Limite atteinte!",
-      contentLimitReached: "Limite de contenu atteinte. Passez au plan Plus pour créer plus de contenu.",
+      contentLimitReached: "Limite de publication atteinte. Passez au plan Plus pour créer plus de publication.",
       upgradeToPro: "Passer au Plus",
       
       // Customer preview explanation
@@ -477,9 +477,9 @@ export const TRANSLATIONS = {
       // Content limits
       freePlan: "Plan Gratuit:",
       proPlan: "Plan Plus:",
-      contentUsed: "contenu utilisé",
+      contentUsed: "publication utilisée",
       limitReached: "Limite atteinte!",
-      contentLimitReached: "Limite de contenu atteinte. Passez au plan Plus pour créer plus de contenu.",
+      contentLimitReached: "Limite de publication atteinte. Passez au plan Plus pour créer plus de publication.",
       upgradeToPro: "Passer au Plus",
       
       // Customer preview explanation
@@ -518,8 +518,8 @@ export const TRANSLATIONS = {
       loading: "Chargement...",
       saving: "Enregistrement...",
       deleting: "Suppression...",
-      contentLimitReached: "Limite de contenu atteinte",
-      upgradeToCreateMore: "Passez au plan Pro pour créer plus de contenu.",
+      contentLimitReached: "Limite de publication atteinte",
+      upgradeToCreateMore: "Passez au plan Pro pour créer plus de publication.",
       success: "Succès",
       error: "Erreur",
       passwordUpdated: "Mot de passe mis à jour avec succès",
@@ -589,7 +589,7 @@ export const TRANSLATIONS = {
       // Boost credits stats
       vedetteCredits: "Vedette Crédits",
       visibilityCredits: "Visibilité Crédits",
-      boostedContent: "Contenu Boosté",
+      boostedContent: "Publication Boostée",
       
       // A la carte section
       boostsALaCarte: "Boosts à la Carte",
@@ -610,9 +610,9 @@ export const TRANSLATIONS = {
       highlightWhereCounts: "Mettez votre commerce en avant là où ça compte vraiment",
       
       // Content section
-      yourActiveContent: "Votre contenu en cours",
+      yourActiveContent: "Votre publication en cours",
       contentReadyToBoost: "Retrouvez ici vos offres, événements et commerces actifs, prêts à être boostés en un clic",
-      noContent: "Aucun contenu",
+      noContent: "Aucune publication",
       createContentToBoost: "Créez des offres, événements ou commerces pour utiliser les boosts",
       goToBusinesses: "Aller aux commerces",
       offer: "Offre",
@@ -652,7 +652,7 @@ export const TRANSLATIONS = {
       yourBoost: "Votre boost",
       creditAvailable: "crédit",
       available: "disponible",
-      canUseOnContent: "Vous pouvez maintenant l'utiliser sur vos offres, événements ou commerces",
+      canUseOnContent: "Vous pouvez maintenant l'utiliser sur vos offres et événements",
       windowWillClose: "Cette fenêtre se fermera automatiquement dans quelques secondes...",
       processing: "Traitement...",
       pay5dollars: "Payer $5"
@@ -682,10 +682,10 @@ export const TRANSLATIONS = {
       basicLimitedAccess: "Accès de base limité",
       
       // Usage stats
-      contentUsed: "Contenu utilisé",
+      contentUsed: "Publication utilisée",
       limitReached: "Limite atteinte!",
-      upgradeToPro: "Passez au plan Pro pour créer plus de contenu.",
-      deleteContentOrSupport: "Supprimez du contenu ou contactez le support.",
+      upgradeToPro: "Passez au plan Pro pour créer plus de publication.",
+      deleteContentOrSupport: "Supprimez du publication ou contactez le support.",
       available: "disponible",
       availablePlural: "disponibles",
       upgradeToProBoosts: "Passez au plan Pro pour obtenir 1 crédit boost par mois",
@@ -1154,9 +1154,9 @@ export const TRANSLATIONS = {
       // Content limits
       freePlan: "Free Plan:",
       proPlan: "Plus Plan:",
-      contentUsed: "content used",
+      contentUsed: "publication used",
       limitReached: "Limit reached!",
-      contentLimitReached: "Content limit reached. Upgrade to Pro plan to create more content.",
+      contentLimitReached: "Publication limit reached. Upgrade to Pro plan to create more publications.",
       upgradeToPro: "Upgrade to Pro",
       
       // Customer preview explanation
@@ -1322,9 +1322,9 @@ export const TRANSLATIONS = {
       // Content limits
       freePlan: "Free Plan:",
       proPlan: "Plus Plan:",
-      contentUsed: "content used",
+      contentUsed: "publication used",
       limitReached: "Limit reached!",
-      contentLimitReached: "Content limit reached. Upgrade to Pro plan to create more content.",
+      contentLimitReached: "Publication limit reached. Upgrade to Pro plan to create more publications.",
       upgradeToPro: "Upgrade to Pro",
       
       // Customer preview explanation
@@ -1363,8 +1363,8 @@ export const TRANSLATIONS = {
       loading: "Loading...",
       saving: "Saving...",
       deleting: "Deleting...",
-      contentLimitReached: "Content limit reached",
-      upgradeToCreateMore: "Upgrade to Pro plan to create more content.",
+      contentLimitReached: "Publication limit reached",
+      upgradeToCreateMore: "Upgrade to Pro plan to create more publications.",
       success: "Success",
       error: "Error",
       passwordUpdated: "Password updated successfully",
@@ -1455,9 +1455,9 @@ export const TRANSLATIONS = {
       highlightWhereCounts: "Highlight your business where it really counts",
       
       // Content section
-      yourActiveContent: "Your active content",
+      yourActiveContent: "Your active publications",
       contentReadyToBoost: "Find here your offers, events and active businesses, ready to be boosted with one click",
-      noContent: "No content",
+      noContent: "No publications",
       createContentToBoost: "Create offers, events or businesses to use boosts",
       goToBusinesses: "Go to businesses",
       offer: "Offer",
@@ -1497,7 +1497,7 @@ export const TRANSLATIONS = {
       yourBoost: "Your boost",
       creditAvailable: "credit",
       available: "available",
-      canUseOnContent: "You can now use it on your offers, events or businesses",
+      canUseOnContent: "You can now use it on your offers and events",
       windowWillClose: "This window will close automatically in a few seconds...",
       processing: "Processing...",
       pay5dollars: "Pay $5"
@@ -1527,10 +1527,10 @@ export const TRANSLATIONS = {
       basicLimitedAccess: "Basic limited access",
       
       // Usage stats
-      contentUsed: "Content used",
+      contentUsed: "Publication used",
       limitReached: "Limit reached!",
-      upgradeToPro: "Upgrade to Pro plan to create more content.",
-      deleteContentOrSupport: "Delete content or contact support.",
+      upgradeToPro: "Upgrade to Pro plan to create more publications.",
+      deleteContentOrSupport: "Delete publications or contact support.",
       available: "available",
       availablePlural: "available",
       upgradeToProBoosts: "Upgrade to Pro plan to get 1 boost credit per month",
