@@ -11,10 +11,11 @@ import ImageUpload from "@/components/image-upload"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
-import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
+import { geocodePostalCode, validateCanadianPostalCode, geocodeAddress, validateAddress, AddressSuggestion } from "@/lib/mapbox-geocoding"
 import { validateSocialMediaLinks } from "@/lib/social-media-utils"
 import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
+import AddressAutocomplete from "@/components/address-autocomplete"
 
 interface Commerce {
   id: string
@@ -108,6 +109,51 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       }
     } else {
       setGeoData(null)
+    }
+  }
+
+  const handleAddressChange = async (value: string) => {
+    setForm(f => ({ ...f, address: value }))
+    
+    // If address contains a postal code pattern, try to extract and validate it
+    const postalCodeMatch = value.match(/\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/i)
+    if (postalCodeMatch) {
+      const postalCode = postalCodeMatch[0]
+      if (validateCanadianPostalCode(postalCode)) {
+        setIsGeocoding(true)
+        try {
+          const result = await geocodePostalCode(postalCode)
+          setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
+          setForm(f => ({ 
+            ...f, 
+            postal_code: result.postal_code 
+          }))
+        } catch (error) {
+          console.error('Postal code geocoding failed:', error)
+        } finally {
+          setIsGeocoding(false)
+        }
+      }
+    }
+    
+    // Also try to geocode the full address if it looks like a complete address
+    if (validateAddress(value) && value.length > 10) {
+      setIsGeocoding(true)
+      try {
+        const result = await geocodeAddress(value)
+        setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
+        if (result.postal_code) {
+          setForm(f => ({ 
+            ...f, 
+            postal_code: result.postal_code 
+          }))
+        }
+      } catch (error) {
+        console.error('Address geocoding failed:', error)
+        // Don't clear geoData on failure, keep existing data
+      } finally {
+        setIsGeocoding(false)
+      }
     }
   }
 
@@ -265,6 +311,33 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
+              {t('commerce.address', locale)} * <span className="text-red-500">*</span>
+            </label>
+            <AddressAutocomplete
+              value={form.address}
+              onChange={(value) => setForm(f => ({ ...f, address: value }))}
+              onSelect={(suggestion: AddressSuggestion) => {
+                setForm(f => ({ 
+                  ...f, 
+                  address: suggestion.place_name,
+                  postal_code: suggestion.postal_code 
+                }))
+                setGeoData({ 
+                  latitude: suggestion.latitude, 
+                  longitude: suggestion.longitude, 
+                  address: suggestion.place_name 
+                })
+              }}
+              placeholder="Ex: 123 Rue Saint-Paul Est"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Adresse exacte de votre commerce (numéro, rue, etc.)
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">
               Code postal * <span className="text-red-500">*</span>
             </label>
             <Input
@@ -282,21 +355,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
                 ✅ Secteur trouvé: {geoData.address}
               </p>
             )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-primary mb-2">
-              {t('commerce.address', locale)} * <span className="text-red-500">*</span>
-            </label>
-            <Input
-              placeholder="Ex: 123 Rue Saint-Paul Est"
-              value={form.address}
-              onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Adresse exacte de votre commerce (numéro, rue, etc.)
-            </p>
           </div>
 
           <div>

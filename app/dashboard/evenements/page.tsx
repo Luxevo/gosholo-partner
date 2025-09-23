@@ -116,6 +116,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
               src={event.image_url} 
               alt={event.title}
               className="w-full h-full object-cover"
+              style={{ objectPosition: 'center top' }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">

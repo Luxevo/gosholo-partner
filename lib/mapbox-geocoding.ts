@@ -76,3 +76,99 @@ export function validateCanadianPostalCode(postalCode: string): boolean {
 export function formatPostalCode(postalCode: string): string {
   return postalCode.toUpperCase().replace(/\s/g, '').replace(/(.{3})(.{3})/, '$1 $2')
 }
+
+export async function geocodeAddress(address: string): Promise<GeocodingResult> {
+  if (!MAPBOX_TOKEN) {
+    throw new Error('Mapbox access token not found')
+  }
+
+  const query = `${address} Canada`
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=CA&limit=1&types=address`
+  
+  try {
+    const response = await fetch(url)
+    
+    if (!response.ok) {
+      throw new Error(`Geocoding API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (data.features && data.features.length > 0) {
+      const feature = data.features[0]
+      const [longitude, latitude] = feature.center
+      
+      // Extract postal code from context if available
+      const postalCode = feature.context?.find((ctx: any) => ctx.id.startsWith('postcode'))?.text || ''
+      
+      return {
+        latitude,
+        longitude,
+        address: feature.place_name,
+        postal_code: postalCode
+      }
+    }
+    
+    throw new Error('Address not found')
+  } catch (error) {
+    console.error('Geocoding error:', error)
+    throw new Error(`Failed to geocode address: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+export function validateAddress(address: string): boolean {
+  // Basic validation - address should have at least 3 characters and contain some letters
+  return address.trim().length >= 3 && /[a-zA-Z]/.test(address)
+}
+
+export interface AddressSuggestion {
+  id: string
+  address: string
+  postal_code: string
+  latitude: number
+  longitude: number
+  place_name: string
+}
+
+export async function getAddressSuggestions(query: string): Promise<AddressSuggestion[]> {
+  if (!MAPBOX_TOKEN) {
+    throw new Error('Mapbox access token not found')
+  }
+
+  if (query.trim().length < 3) {
+    return []
+  }
+
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&country=CA&limit=5&types=address,poi`
+  
+  try {
+    const response = await fetch(url)
+    
+    if (!response.ok) {
+      throw new Error(`Geocoding API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (data.features && data.features.length > 0) {
+      return data.features.map((feature: any) => {
+        const [longitude, latitude] = feature.center
+        const postalCode = feature.context?.find((ctx: any) => ctx.id.startsWith('postcode'))?.text || ''
+        
+        return {
+          id: feature.id,
+          address: feature.place_name,
+          postal_code: postalCode,
+          latitude,
+          longitude,
+          place_name: feature.place_name
+        }
+      })
+    }
+    
+    return []
+  } catch (error) {
+    console.error('Address suggestions error:', error)
+    return []
+  }
+}

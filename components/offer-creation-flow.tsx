@@ -473,6 +473,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                   src={form.image_url} 
                   alt={form.title}
                   className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center top' }}
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">

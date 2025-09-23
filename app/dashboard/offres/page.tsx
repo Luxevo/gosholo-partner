@@ -110,6 +110,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
               src={offer.image_url} 
               alt={offer.title}
               className="w-full h-full object-cover"
+              style={{ objectPosition: 'center top' }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">

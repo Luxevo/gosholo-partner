@@ -257,6 +257,7 @@ subscription_plan_enum: "free" | "pro"
 #### Visibilité Boost
 - Enhanced map presence
 - Larger commerce appearance on Mapbox
+- Address autocomplete with real-time suggestions
 - Increased map visibility radius
 - Duration: 30 days
 - Cost: 1 boost credit

@@ -144,7 +144,7 @@ export default function ImageUpload({
       {currentImage ? (
         // Show current image
         <Card className="relative overflow-hidden">
-          <div className="aspect-square w-40 h-40 relative bg-gray-50 mx-auto">
+          <div className="w-48 h-24 relative bg-gray-50 mx-auto" style={{ aspectRatio: '2/1' }}>
             <Image
               src={currentImage}
               alt="Image téléchargée"
@@ -197,7 +197,7 @@ export default function ImageUpload({
                     {locale === 'en' ? 'or drag and drop your file here' : 'ou glissez-déposez votre fichier ici'}
                   </p>
                   <div className="mt-3 text-xs text-gray-500 space-y-1 text-center">
-                    <div>📐 {locale === 'en' ? 'Recommended: Square format (1:1)' : 'Recommandé : Format carré (1:1)'}</div>
+                    <div>📐 {locale === 'en' ? 'Any format works - we\'ll crop it perfectly!' : 'N\'importe quel format - nous l\'ajusterons parfaitement !'}</div>
                     <div>📁 {locale === 'en' ? 'Formats: JPG, PNG, WebP, GIF' : 'Formats : JPG, PNG, WebP, GIF'}</div>
                     <div>💾 {locale === 'en' ? 'Max: 5 MB' : 'Max : 5 MB'}</div>
                   </div>
