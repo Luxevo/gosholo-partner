@@ -575,12 +575,12 @@ export const TRANSLATIONS = {
       upgradeToPLUS: "Passer au PLUS",
       
       // Base plan features
-      maxOneContent: "Maximum 1 offre ou 1 événement actif à la fois",
+      maxOneContent: "Maximum de 2 publications actives en même temps (1 offre et 1 événement).",
       realtimeStats: "Accès à vos statistiques en temps réel", 
       businessOnMap: "Votre entreprise affichée sur la carte interactive gosholo",
       
       // Plus plan features
-      upTo5Content: "Jusqu'à 5 offres ou 5 événements actifs en même temps",
+      upTo5Content: "Jusqu'à 10 publications actives en même temps (5 offres ou 5 événements actifs en même temps)",
       everythingInBase: "Tout ce que l'offre gosholo Base inclut",
       monthlyVedette: "1 Boost Vedette par mois (mettez en avant une offre ou un événement pendant 72h)",
       monthlyVisibility: "1 Boost Visibilité par mois (mettez votre commerce en avant sur la carte interactive)",
@@ -1419,12 +1419,12 @@ export const TRANSLATIONS = {
       upgradeToPLUS: "Upgrade to PLUS",
       
       // Base plan features
-      maxOneContent: "Maximum 1 offer or 1 event active at a time",
+      maxOneContent: "Maximum 2 active publications at the same time (1 offer and 1 event).",
       realtimeStats: "Access to your real-time statistics", 
       businessOnMap: "Your business displayed on the gosholo interactive map",
       
       // Plus plan features
-      upTo5Content: "Up to 5 offers or 5 events active at the same time",
+      upTo5Content: "Up to 10 active publications at the same time (5 offers or 5 events active at the same time)",
       everythingInBase: "Everything the gosholo Base offer includes",
       monthlyVedette: "1 Featured Boost per month (highlight an offer or event for 72h)",
       monthlyVisibility: "1 Visibility Boost per month (highlight your business on the interactive map)",
