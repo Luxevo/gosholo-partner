@@ -7,23 +7,18 @@ import { t } from "@/lib/category-translations"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Input } from "@/components/ui/input"
-import { 
-  Zap, 
-  Sparkles, 
-  Eye, 
-  Star, 
-  TrendingUp, 
+import {
+  Zap,
+  Sparkles,
+  Eye,
+  Star,
+  TrendingUp,
   Crown,
   Calendar,
   Tag,
   CheckCircle,
-  AlertCircle,
   ArrowRight,
-  CreditCard,
-  X,
-  Check
+  CreditCard
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { applyBoost, removeBoost, formatBoostRemainingTime, isBoostExpired } from "@/lib/boost-utils"
@@ -70,16 +65,6 @@ export default function BoostsPage() {
   
   // Auto-expire old boosts every 30 minutes
   useBoostExpiry(30)
-  
-  // Code promo states
-  const [promoCode, setPromoCode] = useState("")
-  const [isValidatingCode, setIsValidatingCode] = useState(false)
-  const [codeValidationResult, setCodeValidationResult] = useState<{
-    isValid: boolean
-    message: string
-    discount?: number
-  } | null>(null)
-  const [showStripeForm, setShowStripeForm] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -345,13 +330,10 @@ export default function BoostsPage() {
       const response = await fetch('/api/stripe/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          promoCode: codeValidationResult?.isValid ? promoCode : undefined 
-        }),
       })
-      
+
       const { url } = await response.json()
-      
+
       if (url) {
         window.location.href = url
       }
@@ -359,56 +341,6 @@ export default function BoostsPage() {
       console.error('Error creating subscription:', error)
       alert(t('boostsPage.subscriptionError', locale))
     }
-  }
-
-  // Validate promo code
-  const validatePromoCode = async () => {
-    if (!promoCode.trim()) return
-    
-    setIsValidatingCode(true)
-    setCodeValidationResult(null)
-    
-    try {
-      // Simulate API call to validate promo code
-      // In real implementation, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock validation logic - replace with actual API call
-      const isValid = promoCode.toLowerCase() === 'jmq2025'
-      
-      if (isValid) {
-        setCodeValidationResult({
-          isValid: true,
-          message: t('boostsPage.validPromoCode', locale),
-          discount: 0
-        })
-        setShowStripeForm(true)
-      } else {
-        setCodeValidationResult({
-          isValid: false,
-          message: t('boostsPage.invalidPromoCode', locale)
-        })
-      }
-    } catch (error) {
-      setCodeValidationResult({
-        isValid: false,
-        message: t('boostsPage.validationError', locale)
-      })
-    } finally {
-      setIsValidatingCode(false)
-    }
-  }
-
-  // Handle Stripe payment for subscription
-  const handleStripePayment = async () => {
-    await purchaseSubscription()
-  }
-
-  // Clear promo code validation
-  const clearPromoCode = () => {
-    setPromoCode("")
-    setCodeValidationResult(null)
-    setShowStripeForm(false)
   }
 
   if (isLoading) {
@@ -891,141 +823,6 @@ export default function BoostsPage() {
                 )}
               </div>
             )}
-          </CardContent>
-        </Card>
-
-
-        {/* Code Promo Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('boostsPage.promoCode', locale)}</CardTitle>
-            <CardDescription>
-              {t('boostsPage.havePromoCode', locale)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Code Input */}
-              <div className="flex space-x-2">
-                <Input
-                  type="text"
-                  placeholder={t('placeholders.enterPromoCode', locale)}
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="flex-1"
-                  disabled={isValidatingCode}
-                />
-                <Button 
-                  onClick={validatePromoCode}
-                  disabled={!promoCode.trim() || isValidatingCode}
-                >
-                  {isValidatingCode ? t('placeholders.validating', locale) : t('placeholders.apply', locale)}
-                </Button>
-                {promoCode && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={clearPromoCode}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-
-              {/* Validation Result */}
-              {codeValidationResult && (
-                <Alert className={codeValidationResult.isValid ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-                  {codeValidationResult.isValid ? (
-                    <Check className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  )}
-                  <AlertDescription className={codeValidationResult.isValid ? "text-green-800" : "text-red-800"}>
-                    {codeValidationResult.message}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Stripe Payment Form */}
-              {showStripeForm && (
-                <Card className="border-green-200 bg-green-50">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2 text-green-800">
-                      <CreditCard className="h-5 w-5" />
-                      <span>{t('boostsPage.securePayment', locale)}</span>
-                    </CardTitle>
-                                         <CardDescription className="text-green-700">
-                       {t('boostsPage.freeMonthThanks', locale)}
-                     </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="bg-white p-4 rounded-lg border">
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {t('boostsPage.cardNumber', locale)}
-                          </label>
-                          <Input 
-                            type="text" 
-                            placeholder="1234 5678 9012 3456"
-                            className="font-mono"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {t('boostsPage.expirationDate', locale)}
-                            </label>
-                            <Input 
-                              type="text" 
-                              placeholder="MM/AA"
-                              className="font-mono"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              CVC
-                            </label>
-                            <Input 
-                              type="text" 
-                              placeholder="123"
-                              className="font-mono"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                                         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                       <div className="flex items-center space-x-2 text-sm text-blue-800">
-                         <Check className="h-4 w-4" />
-                         <span>{t('boostsPage.freeMonth', locale)}</span>
-                       </div>
-                       <div className="flex items-center space-x-2 text-sm text-blue-800 mt-1">
-                         <Check className="h-4 w-4" />
-                         <span>{t('boostsPage.thenNormalRate', locale)}</span>
-                       </div>
-                     </div>
-
-                    <div className="flex space-x-2">
-                      <Button 
-                        onClick={handleStripePayment}
-                        className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        {t('boostsPage.paySecurely', locale)}
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        onClick={() => setShowStripeForm(false)}
-                      >
-                        {t('boostsPage.cancel', locale)}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
           </CardContent>
         </Card>
         

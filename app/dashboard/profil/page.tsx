@@ -199,6 +199,8 @@ export default function ProfilPage() {
   const handleProfileUpdated = () => {
     setIsProfileEditOpen(false)
     loadUserData()
+    // Refresh dashboard context to update header
+    refreshCounts()
   }
 
   const handlePasswordChanged = () => {
@@ -207,6 +209,39 @@ export default function ProfilPage() {
       title: t('messages.success', locale),
       description: t('messages.passwordUpdated', locale),
     })
+    // Refresh the page to update the session
+    setTimeout(() => {
+      window.location.reload()
+    }, 1000) // Wait 1 second to show the success message
+  }
+
+  const handleManageSubscription = async () => {
+    try {
+      const response = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        toast({
+          title: t('messages.error', locale),
+          description: errorData.error || t('profile.portalError', locale),
+          variant: "destructive"
+        })
+        return
+      }
+
+      const { url } = await response.json()
+      window.location.href = url // Redirect to Stripe Customer Portal
+
+    } catch (error) {
+      console.error('Error opening customer portal:', error)
+      toast({
+        title: t('messages.error', locale),
+        description: t('profile.portalError', locale),
+        variant: "destructive"
+      })
+    }
   }
 
   const handleSubscriptionUpdated = () => {
@@ -485,23 +520,7 @@ export default function ProfilPage() {
                 </div>
               </div>
 
-              {/* Boost Credits */}
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
-                    <span className="font-medium text-sm sm:text-base">{t('profile.boostCredits', locale)}</span>
-                  </div>
-                  <Badge variant="outline">
-                    {stats?.boostCredits || 0} {(stats?.boostCredits || 0) > 1 ? t('profile.availablePlural', locale) : t('profile.available', locale)}
-                  </Badge>
-                </div>
-                {subscription?.plan_type === 'free' && (
-                  <p className="text-xs text-primary/70 mt-1">
-{t('profile.upgradeToProBoosts', locale)}
-                  </p>
-                )}
-              </div>
+     
             </CardContent>
           </Card>
 
@@ -547,7 +566,7 @@ export default function ProfilPage() {
                   <Lock className="h-4 w-4 mr-2" />
 {t('profile.changePassword', locale)}
                 </Button>
-                <Button variant="outline" onClick={() => setIsSubscriptionManagementOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
+                <Button variant="outline" onClick={handleManageSubscription} className="h-12 sm:h-10 w-full sm:w-auto">
                   <CreditCard className="h-4 w-4 mr-2" />
                   {t('profile.manageSubscription', locale)}
                 </Button>
