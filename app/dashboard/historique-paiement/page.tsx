@@ -44,8 +44,8 @@ interface SubscriptionTransaction {
 }
 
 
-const getBoostLabel = (boostType: 'en_vedette' | 'visibilite', locale: string) => {
-  return boostType === 'en_vedette' ? t('boosts.vedette', locale) : t('boosts.visibility', locale)
+const getBoostLabel = (boostType: 'en_vedette' | 'visibilite') => {
+  return boostType === 'en_vedette' ? t('boosts.vedette') : t('boosts.visibility')
 }
 
 
@@ -296,6 +296,20 @@ export default function PaymentHistoryPage() {
               <Settings className="h-4 w-4 mr-2" />
               {isLoadingPortal ? t('paymentHistory.loading', locale) : t('paymentHistory.manageCards', locale)}
             </Button>
+
+            <Button
+              onClick={openCustomerPortal}
+              disabled={isLoadingPortal}
+              variant="outline"
+              size="sm"
+              className="h-12 sm:h-8 w-full sm:w-auto"
+            >
+              <Receipt className="h-4 w-4 mr-2" />
+              {isLoadingPortal
+                ? (locale === 'fr' ? 'Chargement...' : 'Loading...')
+                : (locale === 'fr' ? 'Factures' : 'Receipts')
+              }
+            </Button>
             
             <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground">
               <Receipt className="h-4 w-4" />
@@ -303,6 +317,7 @@ export default function PaymentHistoryPage() {
             </div>
           </div>
         </div>
+
 
         {/* Loading State */}
         {isLoading && (
@@ -382,7 +397,7 @@ export default function PaymentHistoryPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base mb-1">
                             {isBoost 
-                              ? `Boost ${getBoostLabel(boostTransaction!.boost_type, locale)}`
+                              ? `Boost ${getBoostLabel(boostTransaction!.boost_type)}`
                               : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
                             }
                           </h3>
@@ -451,7 +466,7 @@ export default function PaymentHistoryPage() {
                           <div className="space-y-1">
                             <h3 className="font-semibold text-lg">
                               {isBoost 
-                                ? `Boost ${getBoostLabel(boostTransaction!.boost_type, locale)}`
+                                ? `Boost ${getBoostLabel(boostTransaction!.boost_type)}`
                                 : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
                               }
                             </h3>
