@@ -70,7 +70,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
      postal_code: event?.postal_code || "",
      conditions: event?.condition || "",
      start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
-     end_date: event?.end_date || format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 7 days later by default
+     end_date: event?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 30 days later by default
      selectedCommerceId: event?.commerce_id || commerceId || "",
      image_url: event?.image_url || "",
    })

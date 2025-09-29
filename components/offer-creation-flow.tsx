@@ -74,7 +74,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     postal_code: offer?.postal_code || "",
     conditions: offer?.condition || "",
     start_date: offer?.start_date || format(new Date(), "yyyy-MM-dd"),
-    end_date: offer?.end_date || format(new Date() , "yyyy-MM-dd"),
+    end_date: offer?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     selectedCommerceId: offer?.commerce_id || commerceId || "",
     image_url: offer?.image_url || "",
   })
