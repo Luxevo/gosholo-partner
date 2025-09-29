@@ -161,7 +161,14 @@ export default function SubscriptionManagementFlow({
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create portal session')
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.details || errorMessage
+        } catch (jsonError) {
+          console.log('Could not parse error response as JSON')
+        }
+        throw new Error(errorMessage)
       }
 
       const { url } = await response.json()
@@ -169,9 +176,17 @@ export default function SubscriptionManagementFlow({
 
     } catch (error) {
       console.error('Error creating portal session:', error)
+
+      // Try to get the actual error message from the response
+      let errorMessage = "Impossible d'accéder au portail de facturation"
+
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+
       toast({
         title: "Erreur",
-        description: "Impossible d'accéder au portail de facturation",
+        description: errorMessage,
         variant: "destructive"
       })
     } finally {
