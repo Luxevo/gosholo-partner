@@ -55,8 +55,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   // Determine if we're in edit mode
   const isEditMode = !!event
   
-  // Preview and confirmation mode states
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  // Confirmation mode state
   const [isConfirmationMode, setIsConfirmationMode] = useState(false)
   const [isSuccessMode, setIsSuccessMode] = useState(false)
   const [createdEventId, setCreatedEventId] = useState<string | null>(null)
@@ -150,17 +149,16 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     }
   }
 
-  const handlePreviewEvent = () => {
+  const handleCreateEvent = async () => {
     const validation = validateForm()
     if (!validation.isValid) {
       alert(`${t('events.correctErrors', locale)}\n${validation.errors.join('\n')}`)
       return
     }
-    setIsPreviewMode(true)
+    await handleSaveEvent()
   }
 
   const handleBackToEdit = () => {
-    setIsPreviewMode(false)
     setIsConfirmationMode(false)
   }
 
@@ -168,9 +166,6 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     setIsConfirmationMode(true)
   }
 
-  const handleBackToPreview = () => {
-    setIsConfirmationMode(false)
-  }
 
   const handleSaveEvent = async () => {
     const validation = validateForm()
@@ -376,8 +371,8 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToPreview}>
-            ← {t('events.backToPreview', locale)}
+          <Button variant="outline" onClick={handleBackToEdit}>
+            ← {t('events.backToEdit', locale)}
           </Button>
           <Button 
             className="bg-green-600 hover:bg-green-700 text-white" 
@@ -391,185 +386,6 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     )
   }
 
-  // Preview Component
-  const EventPreview = () => {
-    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
-
-    // Format dates for event display
-    const formatEventDate = (dateString: string) => {
-      if (!dateString) return t('events.dateNotDefined', locale)
-      const date = new Date(dateString)
-      return date.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-      })
-    }
-
-    const formatEventTime = (dateString: string) => {
-      if (!dateString) return ""
-      const date = new Date(dateString)
-      return date.toLocaleTimeString(locale === 'fr' ? 'fr-FR' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
-    }
-
-    const getEventTimeRange = () => {
-      if (!form.start_date || !form.end_date) return t('events.scheduleToDefine', locale)
-      return `${formatEventTime(form.start_date)}-${formatEventTime(form.end_date)}`
-    }
-
-    const getEventCategory = () => {
-      // Try to categorize based on title/description keywords
-      const text = (form.title + " " + form.short_description).toLowerCase()
-      if (text.includes('food') || text.includes('cuisine') || text.includes('restaurant')) return 'Food Fest'
-      if (text.includes('music') || text.includes('concert') || text.includes('musique')) return 'Music'
-      if (text.includes('art') || text.includes('expo') || text.includes('gallery')) return 'Art'
-      if (text.includes('sport') || text.includes('fitness')) return 'Sport'
-      if (text.includes('market') || text.includes('marché')) return 'Market'
-      return 'Event'
-    }
-
-    return (
-      <div className="space-y-4">
-        <div className="text-center mb-4">
-          <h2 className="text-lg font-semibold text-primary mb-1">
-            {t('events.eventPreview', locale)}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t('events.howEventAppears', locale)}
-          </p>
-        </div>
-
-        {/* User-facing Event Card Preview */}
-        <div className="max-w-sm mx-auto">
-          <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
-            {/* Image Section */}
-            <div className="relative h-48">
-              {form.image_url ? (
-                <img 
-                  src={form.image_url} 
-                  alt={form.title}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center top' }}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <Calendar className="h-12 w-12 mx-auto mb-2 opacity-80" />
-                    <p className="text-sm opacity-80">{t('events.eventImage', locale)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Trending Badge */}
-              <div className="absolute top-3 left-3">
-                <div className="px-3 py-1 rounded-full text-xs font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  Trending
-                </div>
-              </div>
-
-              {/* Heart Icon */}
-              <div className="absolute top-3 right-3">
-                <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Date and Category Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm">
-                    {form.start_date && (
-                      <>
-                        <span className="font-medium">
-                          {formatEventDate(form.start_date)}
-                        </span>
-                        <span className="mx-2">•</span>
-                        <span>{getEventTimeRange()}</span>
-                      </>
-                    )}
-                  </div>
-                  <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
-                    {getEventCategory()}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Content Section */}
-            <div className="p-4">
-              {/* Event Title and Price */}
-              <div className="flex items-start justify-between mb-1">
-                <h3 className="text-lg font-bold text-gray-900 line-clamp-1 flex-1">
-                  {form.title}
-                </h3>
-                <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
-                  {form.conditions || t('events.freeEntry', locale)}
-                </span>
-              </div>
-
-              {/* Event Location */}
-              <div className="mb-2">
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  <span className="truncate">
-                    {form.business_address || selectedCommerce?.address || t('events.venueToConfirm', locale)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Event Stats */}
-              <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-                <div className="flex items-center">
-                  <Users className="h-3 w-3 mr-1 text-orange-500" />
-                  <span className="text-orange-500 font-medium">1.2k+ {t('events.interested', locale)}</span>
-                </div>
-                <span>•</span>
-                <span>Outdoor</span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 w-1/2">
-                <button className="text-white font-semibold py-1 px-3 rounded-full hover:opacity-90 transition-colors text-sm flex-1" style={{ backgroundColor: '#FF6233' }}>
-                  {t('events.participate', locale)}
-                </button>
-                <button className="border border-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full hover:bg-gray-50 transition-colors text-sm flex-1">
-                  {t('events.details', locale)}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-          <div className="text-blue-800 text-sm">
-            <div className="font-medium mb-1">{t('events.userExperiencePreview', locale)}</div>
-            <p className="text-xs">{t('events.exactlyHowAppears', locale)}</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between gap-3 pt-3 border-t">
-          <Button variant="outline" onClick={handleBackToEdit} size="sm">
-            ← {t('events.backToEdit', locale)}
-          </Button>
-          <Button 
-            className="bg-accent hover:bg-accent/80 text-white" 
-            onClick={handleConfirmPublish}
-            disabled={isLoading}
-            size="sm"
-          >
-            {t('events.continueToPublication', locale)}
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   // Success with Boost Offers Component
   const SuccessWithBoosts = () => {
@@ -751,8 +567,6 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         <SuccessWithBoosts />
       ) : isConfirmationMode ? (
         <EventConfirmation />
-      ) : isPreviewMode ? (
-        <EventPreview />
       ) : (
         <>
           <CardHeader className="pb-4">
@@ -928,10 +742,10 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               )}
               <Button 
                 className="bg-accent hover:bg-accent/80 text-white flex-1" 
-                onClick={isEditMode ? handleSaveEvent : handlePreviewEvent}
+                onClick={isEditMode ? handleSaveEvent : handleCreateEvent}
                 disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
               >
-                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
+                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.create', locale))}
               </Button>
             </div>
           </CardContent>

@@ -71,7 +71,7 @@ interface CustomerEventCardProps {
 const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: CustomerEventCardProps) => {
   // Format dates for event display
   const formatEventDate = (dateString: string) => {
-    if (!dateString) return t('eventsPage.dateNotDefined', locale)
+    if (!dateString) return t('eventsPage.dateNotDefined', locale as 'fr' | 'en')
     const date = new Date(dateString)
     return date.toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', {
       weekday: 'short',
@@ -91,7 +91,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
   }
 
   const getEventTimeRange = () => {
-    if (!event.start_date || !event.end_date) return t('eventsPage.scheduleToDefine', locale)
+    if (!event.start_date || !event.end_date) return t('eventsPage.scheduleToDefine', locale as 'fr' | 'en')
     return `${formatEventTime(event.start_date)}-${formatEventTime(event.end_date)}`
   }
 
@@ -107,10 +107,10 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
   }
 
   return (
-    <div className="relative max-w-sm">
+    <div className="relative max-w-md">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-48">
+        <div className="relative h-64">
           {event.image_url ? (
             <img 
               src={event.image_url} 
@@ -176,44 +176,26 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
         </div>
 
         {/* Content Section */}
-        <div className="p-4">
-          {/* Event Title and Price */}
-          <div className="flex items-start justify-between mb-1">
-            <h3 className="text-lg font-bold text-gray-900 line-clamp-1 flex-1">
-              {event.title}
-            </h3>
-            <span className="font-medium whitespace-nowrap ml-2 px-2 py-1 rounded-full text-xs" style={{ color: '#016167', backgroundColor: 'rgba(1, 97, 103, 0.1)' }}>
-              {event.condition || t('eventsPage.freeEntry', locale)}
+        <div className="text-orange-600 p-4 bg-white">
+          <h3 className="text-lg font-bold mb-2 line-clamp-1 text-orange-600">
+            {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
+          </h3>
+          <div className="flex items-center text-sm mb-2 text-orange-600">
+            <MapPin className="h-3 w-3 mr-1 text-orange-600" />
+            <span className="text-xs text-orange-600">
+              {event.custom_location || commerce?.name || t('eventsPage.venueToConfirm', locale as 'fr' | 'en')}
             </span>
           </div>
-
-          {/* Event Location */}
-          <div className="mb-2">
-            <div className="flex items-center text-sm text-gray-600">
-              <MapPin className="h-3 w-3 mr-1" />
-              <span className="truncate">
-                {event.custom_location || commerce?.name || t('eventsPage.venueToConfirm', locale)}
-              </span>
-            </div>
+          <div className="text-sm mb-3 h-16 overflow-hidden text-black">
+            <p className="line-clamp-3">
+              {event.description}
+            </p>
           </div>
 
-          {/* Event Stats */}
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
-            <div className="flex items-center">
-              <Users className="h-3 w-3 mr-1 text-orange-500" />
-              <span className="text-orange-500 font-medium">1.2k+ intéressés</span>
-            </div>
-            <span>•</span>
-            <span>Outdoor</span>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-2 w-1/2">
-            <button className="text-white font-semibold py-1 px-3 rounded-full hover:opacity-90 transition-colors text-sm flex-1" style={{ backgroundColor: '#FF6233' }}>
-              Participer
-            </button>
-            <button className="border border-gray-300 text-gray-700 font-semibold py-1 px-3 rounded-full hover:bg-gray-50 transition-colors text-sm flex-1">
-              Details
+          {/* Action Button */}
+          <div className="flex justify-end">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-full transition-colors w-auto">
+              {locale === 'fr' ? 'Voir' : 'View'}
             </button>
           </div>
         </div>
@@ -316,7 +298,7 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
                 className="h-10 sm:h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
-                <span className="sm:hidden">{t('buttons.delete', locale)}</span>
+                <span className="sm:hidden">{t('buttons.delete', locale as 'fr' | 'en')}</span>
               </Button>
             </div>
           </div>
@@ -330,18 +312,18 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
             {event.condition && (
               <div className="flex items-start gap-2 text-sm">
                 <Users className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <span className="font-medium">{t('eventsPage.condition', locale)}:</span>
+                <span className="font-medium">{t('eventsPage.condition', locale as 'fr' | 'en')}:</span>
                 <span className="text-muted-foreground">{event.condition}</span>
               </div>
             )}
             
             <div className="flex items-start gap-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <span className="font-medium">{t('eventsPage.location', locale)}:</span>
+              <span className="font-medium">{t('eventsPage.location', locale as 'fr' | 'en')}:</span>
               <span>
                 {event.uses_commerce_location 
-                  ? t('eventsPage.commerceLocation', locale) 
-                  : event.custom_location || t('eventsPage.notSpecified', locale)
+                  ? t('eventsPage.commerceLocation', locale as 'fr' | 'en')
+                  : event.custom_location || t('eventsPage.notSpecified', locale as 'fr' | 'en')
                 }
               </span>
             </div>
@@ -351,14 +333,14 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
           <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium">{t('eventsPage.createdOn', locale)}:</span>
+              <span className="font-medium">{t('eventsPage.createdOn', locale as 'fr' | 'en')}:</span>
               <span>{event.created_at ? formatDate(event.created_at) : "N/A"}</span>
             </div>
             
             {event.updated_at && event.updated_at !== event.created_at && (
               <div className="flex items-center gap-2 text-sm">
                 <BarChart3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('eventsPage.modifiedOn', locale)}:</span>
+                <span className="font-medium">{t('eventsPage.modifiedOn', locale as 'fr' | 'en')}:</span>
                 <span className="text-blue-600 font-medium">{formatDate(event.updated_at)}</span>
               </div>
             )}
@@ -366,7 +348,7 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
             {event.start_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('eventsPage.startDate', locale)}:</span>
+                <span className="font-medium">{t('eventsPage.startDate', locale as 'fr' | 'en')}:</span>
                 <span className="text-green-600 font-medium">{formatDate(event.start_date)}</span>
               </div>
             )}
@@ -374,7 +356,7 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
             {event.end_date && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="font-medium">{t('eventsPage.endDate', locale)}:</span>
+                <span className="font-medium">{t('eventsPage.endDate', locale as 'fr' | 'en')}:</span>
                 <span className="text-red-600 font-medium">{formatDate(event.end_date)}</span>
               </div>
             )}
@@ -404,22 +386,22 @@ const FilterButtons = ({ filterActive, onFilterChange, events, locale }: FilterB
         size="sm"
         onClick={() => onFilterChange('all')}
       >
-{t('eventsPage.allEvents', locale)} ({events.length})
+{t('eventsPage.allEvents', locale as 'fr' | 'en')} ({events.length})
       </Button>
       <Button
         variant={filterActive === 'active' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('active')}
       >
-{t('eventsPage.activeEvents', locale)} ({activeCount})
+{t('eventsPage.activeEvents', locale as 'fr' | 'en')} ({activeCount})
       </Button>
       <Button
         variant={filterActive === 'inactive' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('inactive')}
       >
-{t('eventsPage.finishedEvents', locale)} ({inactiveCount})
-      </Button>
+{t('eventsPage.finishedEvents', locale as 'fr' | 'en')} ({inactiveCount})
+      </Button>2
     </div>
   )
 }
@@ -441,7 +423,7 @@ const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <List className="h-4 w-4" />
-        {t('eventsPage.management', locale)}
+        {t('eventsPage.management', locale as 'fr' | 'en')}
       </Button>
       <Button
         variant={viewType === 'customer' ? 'default' : 'ghost'}
@@ -450,7 +432,7 @@ const ViewToggle = ({ viewType, onViewChange, locale }: ViewToggleProps) => {
         className="flex items-center gap-2"
       >
         <LayoutGrid className="h-4 w-4" />
-        {t('eventsPage.customerPreview', locale)}
+        {t('eventsPage.customerPreview', locale as 'fr' | 'en')}
       </Button>
     </div>
   )
@@ -468,13 +450,13 @@ const CommerceFilter = ({ commerces, selectedCommerce, onCommerceChange, locale 
   return (
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">{t('eventsPage.commerce', locale)}:</span>
+      <span className="text-sm font-medium">{t('eventsPage.commerce', locale as 'fr' | 'en')}:</span>
       <Select value={selectedCommerce} onValueChange={onCommerceChange}>
         <SelectTrigger className="w-48">
-          <SelectValue placeholder={t('eventsPage.allCommerces', locale)} />
+          <SelectValue placeholder={t('eventsPage.allCommerces', locale as 'fr' | 'en')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{t('eventsPage.allCommerces', locale)}</SelectItem>
+          <SelectItem value="all">{t('eventsPage.allCommerces', locale as 'fr' | 'en')}</SelectItem>
           {commerces.map((commerce) => (
             <SelectItem key={commerce.id} value={commerce.id}>
               {commerce.name}
@@ -491,7 +473,7 @@ const LoadingSpinner = ({ locale }: { locale: string }) => (
   <div className="flex items-center justify-center py-12">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-      <p className="text-muted-foreground">{t('eventsPage.loadingEvents', locale)}</p>
+      <p className="text-muted-foreground">{t('eventsPage.loadingEvents', locale as 'fr' | 'en')}</p>
     </div>
   </div>
 )
@@ -502,9 +484,9 @@ const EmptyState = ({ locale }: { locale: string }) => (
     <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
       <Calendar className="h-12 w-12 text-muted-foreground" />
     </div>
-    <h3 className="text-lg font-semibold text-primary mb-2">{t('eventsPage.noEventsFound', locale)}</h3>
+    <h3 className="text-lg font-semibold text-primary mb-2">{t('eventsPage.noEventsFound', locale as 'fr' | 'en')}</h3>
     <p className="text-muted-foreground mb-4">
-      {t('eventsPage.createFirstEvent', locale)}
+      {t('eventsPage.createFirstEvent', locale as 'fr' | 'en')}
     </p>
   </div>
 )
@@ -693,9 +675,9 @@ function EvenementsPageContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('eventsPage.title', locale)}</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('eventsPage.title', locale as 'fr' | 'en')}</h1>
           <p className="text-muted-foreground text-sm lg:text-base">
-            {t('eventsPage.subtitle', locale)}
+            {t('eventsPage.subtitle', locale as 'fr' | 'en')}
           </p>
         </div>
         
@@ -704,17 +686,17 @@ function EvenementsPageContent() {
             <Button 
               className="bg-accent hover:bg-accent/80 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={!counts.canCreateContent}
-              title={!counts.canCreateContent ? t('eventsPage.contentLimitReached', locale) : ''}
+              title={!counts.canCreateContent ? t('eventsPage.contentLimitReached', locale as 'fr' | 'en') : ''}
             >
               <Plus className="h-4 w-4 mr-2" />
-              {t('eventsPage.addEvent', locale)}
+              {t('eventsPage.addEvent', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{t('eventsPage.createNewEvent', locale)}</DialogTitle>
+              <DialogTitle>{t('eventsPage.createNewEvent', locale as 'fr' | 'en')}</DialogTitle>
               <DialogDescription>
-                {t('eventsPage.createNewEventDesc', locale)}
+                {t('eventsPage.createNewEventDesc', locale as 'fr' | 'en')}
               </DialogDescription>
             </DialogHeader>
             <EventCreationFlow onCancel={handleEventCreated} />
@@ -729,10 +711,10 @@ function EvenementsPageContent() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
               <span className="font-medium">
-                {counts.subscriptionPlan === 'pro' ? t('eventsPage.proPlan', locale) : t('eventsPage.freePlan', locale)}
-              </span> {counts.totalContent}/{counts.contentLimit} {t('eventsPage.contentUsed', locale)}
+                {counts.subscriptionPlan === 'pro' ? t('eventsPage.proPlan', locale as 'fr' | 'en') : t('eventsPage.freePlan', locale as 'fr' | 'en')}
+              </span> {counts.totalContent}/{counts.contentLimit} {t('eventsPage.contentUsed', locale as 'fr' | 'en')}
               {!counts.canCreateContent && (
-                <span className="text-amber-700 ml-2">- {t('eventsPage.limitReached', locale)}</span>
+                <span className="text-amber-700 ml-2">- {t('eventsPage.limitReached', locale as 'fr' | 'en')}</span>
               )}
             </div>
             {counts.subscriptionPlan === 'free' && (
@@ -743,7 +725,7 @@ function EvenementsPageContent() {
                 onClick={() => router.push('/dashboard/boosts')}
               >
                 <Crown className="h-4 w-4 mr-1" />
-                {t('eventsPage.upgradeToPro', locale)}
+                {t('eventsPage.upgradeToPro', locale as 'fr' | 'en')}
               </Button>
             )}
           </div>

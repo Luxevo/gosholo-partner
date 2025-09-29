@@ -101,10 +101,10 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
 
 
   return (
-    <div className="relative max-w-sm">
+    <div className="relative max-w-md">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-48 bg-gradient-to-br from-orange-400 to-orange-500">
+        <div className="relative h-64 bg-gradient-to-br from-orange-400 to-orange-500">
           {offer.image_url ? (
             <img 
               src={offer.image_url} 
@@ -162,26 +162,28 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
         </div>
 
         {/* Content Section */}
-        <div className="text-white p-4" style={{ backgroundColor: '#FF6233' }}>
-          <h3 className="text-lg font-bold mb-1 line-clamp-1">
-            {offer.title}
+        <div className="text-orange-600 p-4 bg-white">
+          <h3 className="text-lg font-bold mb-2 line-clamp-1 text-orange-600">
+            {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
           </h3>
-          <div className="flex items-center text-sm opacity-90 mb-1">
-            <span>{commerce?.category || t('placeholders.restaurant', locale as 'fr' | 'en')}</span>
-            <span className="mx-2">•</span>
-            <span>{commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}</span>
-          </div>
-          <div className="flex items-center text-sm opacity-90 mb-3">
-            <MapPin className="h-3 w-3 mr-1" />
-            <span className="text-xs">
+          <div className="flex items-center text-sm mb-2 text-orange-600">
+            <MapPin className="h-3 w-3 mr-1 text-orange-600" />
+            <span className="text-xs text-orange-600">
               {offer.custom_location || commerce?.name || t('offersPage.commerceLocation', locale as 'fr' | 'en')}
             </span>
           </div>
+          <div className="text-sm mb-3 h-16 overflow-hidden text-black">
+            <p className="line-clamp-3">
+              {offer.description}
+            </p>
+          </div>
 
           {/* Action Button */}
-          <button className="bg-white font-semibold py-2 px-4 rounded-full hover:bg-orange-50 transition-colors w-auto" style={{ color: '#FF6233' }}>
-            {t('offersPage.claimOffer', locale as 'fr' | 'en')}
-          </button>
+          <div className="flex justify-end">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-full transition-colors w-auto">
+              {locale === 'fr' ? 'Voir' : 'View'}
+            </button>
+          </div>
         </div>
       </div>
 

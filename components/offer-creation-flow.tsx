@@ -56,8 +56,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   // Determine if we're in edit mode
   const isEditMode = !!offer
   
-  // Preview and confirmation mode states
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  // Confirmation mode state
   const [isConfirmationMode, setIsConfirmationMode] = useState(false)
   const [isSuccessMode, setIsSuccessMode] = useState(false)
   const [createdOfferId, setCreatedOfferId] = useState<string | null>(null)
@@ -183,17 +182,16 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     }
   }
 
-  const handlePreviewOffer = () => {
+  const handleCreateOffer = async () => {
     const validation = validateForm()
     if (!validation.isValid) {
       alert(`${t('offers.correctErrors', locale)}\n${validation.errors.join('\n')}`)
       return
     }
-    setIsPreviewMode(true)
+    await handleSaveOffer()
   }
 
   const handleBackToEdit = () => {
-    setIsPreviewMode(false)
     setIsConfirmationMode(false)
   }
 
@@ -201,9 +199,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     setIsConfirmationMode(true)
   }
 
-  const handleBackToPreview = () => {
-    setIsConfirmationMode(false)
-  }
 
   const handleSaveOffer = async () => {
     const validation = validateForm()
@@ -411,7 +406,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToPreview}>
+          <Button variant="outline" onClick={handleBackToEdit}>
             ← {t('offers.backToPreview', locale)}
           </Button>
           <Button 
@@ -426,142 +421,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     )
   }
 
-  // Preview Component
-  const OfferPreview = () => {
-    const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
-    
-    // Calculate time remaining
-    const getTimeRemaining = () => {
-      if (!form.end_date) return t('placeholders.notDefined', locale)
-      const endDate = new Date(form.end_date)
-      const now = new Date()
-      const diffTime = endDate.getTime() - now.getTime()
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      
-      if (diffDays <= 1) {
-        const diffHours = Math.ceil(diffTime / (1000 * 60 * 60))
-        return diffHours > 0 ? `${t('placeholders.endsIn', locale)} ${diffHours}${t('placeholders.endsHours', locale)}` : t('placeholders.expired', locale)
-      }
-      return `${t('placeholders.endsIn', locale)} ${diffDays}${t('placeholders.endsDays', locale)}`
-    }
-
-    // Extract discount percentage from title if present
-    const getDiscountFromTitle = () => {
-      const match = form.title.match(/(\d+)%/)
-      return match ? match[1] : "25" // Default to 25% if no percentage found
-    }
-
-
-    return (
-      <div className="space-y-4">
-        <div className="text-center mb-4">
-          <h2 className="text-lg font-semibold text-primary mb-1">
-            {t('offers.offerPreview', locale)}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t('offers.howOfferAppears', locale)}
-          </p>
-        </div>
-
-        {/* User-facing Offer Card Preview */}
-        <div className="max-w-xs mx-auto">
-          <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
-            {/* Image Section */}
-            <div className="relative h-36 bg-gradient-to-br from-orange-400 to-orange-500">
-              {form.image_url ? (
-                <img 
-                  src={form.image_url} 
-                  alt={form.title}
-                  className="w-full h-full object-cover"
-                  style={{ objectPosition: 'center top' }}
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <Store className="h-8 w-8 mx-auto mb-1 opacity-80" />
-                    <p className="text-xs opacity-80">{t('offers.offerImage', locale)}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Discount Badge */}
-              <div className="absolute top-2 left-2">
-                <div className="px-2 py-1 rounded-full text-xs font-bold flex items-center text-green-800" style={{ backgroundColor: '#B2FD9D' }}>
-                  <Tag className="h-2 w-2 mr-1" />
-                  {getDiscountFromTitle()}% OFF
-                </div>
-              </div>
-
-              {/* Heart Icon */}
-              <div className="absolute top-2 right-2">
-                <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center">
-                  <Heart className="w-3 h-3 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Bottom Info Bar */}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-2">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="truncate">
-                    {selectedCommerce?.category || t('placeholders.restaurant', locale)}
-                  </span>
-                  <div className="text-white px-1 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
-                    {getTimeRemaining()}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Content Section */}
-            <div className="text-white p-3" style={{ backgroundColor: '#FF6233' }}>
-              <h3 className="text-sm font-bold mb-1 line-clamp-1">
-                {form.title}
-              </h3>
-              <div className="flex items-center text-xs opacity-90 mb-1">
-                <span className="truncate">{selectedCommerce?.category || t('placeholders.restaurant', locale)}</span>
-                <span className="mx-1">•</span>
-                <span className="truncate">{selectedCommerce?.name || t('placeholders.commerce', locale)}</span>
-              </div>
-              <div className="flex items-center text-xs opacity-90 mb-2">
-                <MapPin className="h-2 w-2 mr-1 flex-shrink-0" />
-                <span className="text-xs truncate">
-                  {form.business_address || selectedCommerce?.address || t('placeholders.commerceLocation', locale)}
-                </span>
-              </div>
-
-              {/* Action Button */}
-              <div className="text-orange-500  px-1 py-0.5 rounded-full text-xs font-medium bg-white w-20" >
-                Claim Offer
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-          <div className="text-blue-800 text-sm">
-            <div className="font-medium mb-1">{t('offers.userExperiencePreview', locale)}</div>
-            <p className="text-xs">{t('offers.exactlyHowAppears', locale)}</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between gap-3 pt-3 border-t">
-          <Button variant="outline" onClick={handleBackToEdit} size="sm">
-            ← {t('offers.backToEdit', locale)}
-          </Button>
-          <Button 
-            className="bg-accent hover:bg-accent/80 text-white" 
-            onClick={handleConfirmPublish}
-            disabled={isLoading}
-            size="sm"
-          >
-            {t('offers.continueToPublication', locale)}
-          </Button>
-        </div>
-      </div>
-    )
-  }
 
   // Success with Boost Offers Component
   const SuccessWithBoosts = () => {
@@ -744,8 +603,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         <SuccessWithBoosts />
       ) : isConfirmationMode ? (
         <OfferConfirmation />
-      ) : isPreviewMode ? (
-        <OfferPreview />
       ) : (
         <>
           <CardHeader className="pb-4">
@@ -938,12 +795,12 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
               {t('buttons.cancel', locale)}
             </Button>
           )}
-          <Button 
-            className="bg-accent hover:bg-accent/80 text-white flex-1" 
-            onClick={isEditMode ? handleSaveOffer : handlePreviewOffer}
+          <Button
+            className="bg-accent hover:bg-accent/80 text-white flex-1"
+            onClick={isEditMode ? handleSaveOffer : handleCreateOffer}
             disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
           >
-            {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
+            {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.create', locale))}
           </Button>
         </div>
           </CardContent>
