@@ -401,7 +401,7 @@ const FilterButtons = ({ filterActive, onFilterChange, events, locale }: FilterB
         onClick={() => onFilterChange('inactive')}
       >
 {t('eventsPage.finishedEvents', locale as 'fr' | 'en')} ({inactiveCount})
-      </Button>2
+      </Button>
     </div>
   )
 }

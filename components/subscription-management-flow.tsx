@@ -152,6 +152,33 @@ export default function SubscriptionManagementFlow({
     }
   }
 
+  const handleManageBilling = async () => {
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session')
+      }
+
+      const { url } = await response.json()
+      window.location.href = url // Redirect to Stripe Customer Portal
+
+    } catch (error) {
+      console.error('Error creating portal session:', error)
+      toast({
+        title: "Erreur",
+        description: "Impossible d'accéder au portail de facturation",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <Card className="max-w-4xl w-full mx-auto border-primary/20 shadow-none">
       <CardHeader className="pb-4">
@@ -283,7 +310,29 @@ export default function SubscriptionManagementFlow({
           })}
         </div>
 
-      
+        {/* Stripe Billing Management */}
+        {currentPlan === 'pro' && (
+          <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+            <div className="space-y-3">
+              <div>
+                <h3 className="font-medium text-orange-800">Gestion de la facturation</h3>
+                <p className="text-sm text-orange-700">
+                  Gérez vos paiements, annulez votre abonnement, ou consultez votre historique de facturation.
+                </p>
+              </div>
+              <Button
+                onClick={handleManageBilling}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full sm:w-auto border-orange-300 text-orange-700 hover:bg-orange-100"
+              >
+                {isLoading ? "Chargement..." : "Gérer la facturation"}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        )}
+
       </CardContent>
     </Card>
   )
