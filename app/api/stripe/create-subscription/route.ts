@@ -70,16 +70,9 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: user.id,
         type: 'subscription',
-        promoCode: promoCode || '',
       },
-      // Apply promo code if provided
-      ...(promoCode === 'jmq2025' && {
-        discounts: [
-          {
-            coupon: 'first_month_free', // You'll need to create this coupon in Stripe
-          },
-        ],
-      }),
+      // Allow users to enter promo codes directly in Stripe checkout
+      allow_promotion_codes: true,
     })
 
     return NextResponse.json({
