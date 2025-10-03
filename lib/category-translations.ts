@@ -13,6 +13,17 @@ export const TRANSLATIONS = {
       support: "Support"
     },
     
+    // Authentication
+    auth: {
+      registrationSuccess: "Inscription réussie !",
+      accountCreated: "Votre compte a été créé avec succès.",
+      checkEmail: "📧 Vérifiez votre boîte email",
+      confirmationSent: "Nous avons envoyé un lien de confirmation à",
+      loginAfterConfirmation: "Vous pourrez vous connecter une fois votre email confirmé.",
+      signIn: "Se connecter",
+      checkEmailError: "Vérifiez votre boîte email pour confirmer votre compte avant de vous connecter."
+    },
+    
     // Dashboard
     dashboard: {
       welcome: "Bienvenue",
@@ -114,9 +125,9 @@ export const TRANSLATIONS = {
       buy5dollars: "Acheter 5$",
       featured: "En Vedette",
       premiumVisibility72h: "72h de visibilité premium",
-      featuredBadgeVisible: "Badge \"En Vedette\" visible",
-      priorityInSearch: "Priorité dans les recherches",
-      highlightedOnMap: "Mise en avant sur la carte"
+      featuredBadgeVisible: "Badge Vedette pour vous démarquer",
+      priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
+      highlightedOnMap: "Apparition en haut des résultats de recherche"
     },
     
     // Commerce forms
@@ -225,9 +236,9 @@ export const TRANSLATIONS = {
       skipForNow: "Passer pour le moment",
       featuredBoost: "En Vedette",
       premiumVisibility72h: "72h de visibilité premium",
-      featuredBadgeVisible: "Badge \"En Vedette\" visible",
-      priorityInSearch: "Priorité dans les recherches",
-      highlightedOnMap: "Mise en avant sur la carte",
+      featuredBadgeVisible: "Badge Vedette pour vous démarquer",
+      priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
+      highlightedOnMap: "Apparition en haut des résultats de recherche",
       useCredit: "Utiliser crédit",
       available: "dispo",
       buy5dollars: "Acheter 5$",
@@ -395,9 +406,9 @@ export const TRANSLATIONS = {
       skipForNow: "Passer pour le moment",
       featuredBoost: "En Vedette",
       premiumVisibility72h: "72h de visibilité premium",
-      featuredBadgeVisible: "Badge \"En Vedette\" visible",
-      priorityInSearch: "Priorité dans les recherches",
-      highlightedOnMap: "Mise en avant sur la carte",
+      featuredBadgeVisible: "Badge Vedette pour vous démarquer",
+      priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
+      highlightedOnMap: "Apparition en haut des résultats de recherche",
       useCredit: "Utiliser crédit",
       available: "dispo",
       buy5dollars: "Acheter 5$",
@@ -575,12 +586,12 @@ export const TRANSLATIONS = {
       upgradeToPLUS: "Passer au PLUS",
       
       // Base plan features
-      maxOneContent: "Maximum de 2 publications actives en même temps (1 offre et 1 événement).",
+      maxOneContent: "Maximum de 2 publications actives en même temps (1 offre et/ou 1 événement).",
       realtimeStats: "Accès à vos statistiques en temps réel", 
       businessOnMap: "Votre entreprise affichée sur la carte interactive gosholo",
       
       // Plus plan features
-      upTo5Content: "Jusqu'à 10 publications actives en même temps (5 offres ou 5 événements actifs en même temps)",
+      upTo5Content: "Jusqu'à 10 publications actives en même temps (5 offres et/ou 5 événements actifs en même temps)",
       everythingInBase: "Tout ce que l'offre gosholo Base inclut",
       monthlyVedette: "1 Boost Vedette par mois (mettez en avant une offre ou un événement pendant 72h)",
       monthlyVisibility: "1 Boost Visibilité par mois (mettez votre commerce en avant sur la carte interactive)",
@@ -644,6 +655,8 @@ export const TRANSLATIONS = {
       boostRemoveError: "Erreur lors de la suppression du boost",
       subscriptionError: "Erreur lors de la création de l'abonnement",
       remainingTime: "restantes",
+      duration: "Durée",
+      remaining: "Reste",
       
       // Boost purchase form
       purchaseBoostTitle: "Achat Boost",
@@ -857,6 +870,17 @@ export const TRANSLATIONS = {
       support: "Support"
     },
     
+    // Authentication
+    auth: {
+      registrationSuccess: "Registration successful!",
+      accountCreated: "Your account has been created successfully.",
+      checkEmail: "📧 Check your email",
+      confirmationSent: "We have sent a confirmation link to",
+      loginAfterConfirmation: "You will be able to log in once your email is confirmed.",
+      signIn: "Sign in",
+      checkEmailError: "Check your email to confirm your account before signing in."
+    },
+    
     // Dashboard
     dashboard: {
       welcome: "Welcome",
@@ -958,9 +982,9 @@ export const TRANSLATIONS = {
       buy5dollars: "Buy $5",
       featured: "Featured",
       premiumVisibility72h: "72h premium visibility",
-      featuredBadgeVisible: "\"Featured\" badge visible",
-      priorityInSearch: "Priority in searches",
-      highlightedOnMap: "Highlighted on map"
+      featuredBadgeVisible: "Featured badge to stand out",
+      priorityInSearch: "Priority placement in offers/events list",
+      highlightedOnMap: "Appears at the top of search results"
     },
     
     // Commerce forms
@@ -1069,9 +1093,9 @@ export const TRANSLATIONS = {
       skipForNow: "Skip for now",
       featuredBoost: "Featured",
       premiumVisibility72h: "72h premium visibility",
-      featuredBadgeVisible: "\"Featured\" badge visible",
-      priorityInSearch: "Priority in searches",
-      highlightedOnMap: "Highlighted on map",
+      featuredBadgeVisible: "Featured badge to stand out",
+      priorityInSearch: "Priority placement in offers/events list",
+      highlightedOnMap: "Appears at the top of search results",
       useCredit: "Use credit",
       available: "available",
       buy5dollars: "Buy $5",
@@ -1239,9 +1263,9 @@ export const TRANSLATIONS = {
       skipForNow: "Skip for now",
       featuredBoost: "Featured",
       premiumVisibility72h: "72h premium visibility",
-      featuredBadgeVisible: "\"Featured\" badge visible",
-      priorityInSearch: "Priority in searches",
-      highlightedOnMap: "Highlighted on map",
+      featuredBadgeVisible: "Featured badge to stand out",
+      priorityInSearch: "Priority placement in offers/events list",
+      highlightedOnMap: "Appears at the top of search results",
       useCredit: "Use credit",
       available: "available",
       buy5dollars: "Buy $5",
@@ -1419,12 +1443,12 @@ export const TRANSLATIONS = {
       upgradeToPLUS: "Upgrade to PLUS",
       
       // Base plan features
-      maxOneContent: "Maximum 2 active publications at the same time (1 offer and 1 event).",
+      maxOneContent: "Maximum 2 active publications at the same time (1 offer and/or 1 event).",
       realtimeStats: "Access to your real-time statistics", 
       businessOnMap: "Your business displayed on the gosholo interactive map",
       
       // Plus plan features
-      upTo5Content: "Up to 10 active publications at the same time (5 offers or 5 events active at the same time)",
+      upTo5Content: "Up to 10 active publications at the same time (5 offers and/or 5 events active at the same time)",
       everythingInBase: "Everything the gosholo Base offer includes",
       monthlyVedette: "1 Featured Boost per month (highlight an offer or event for 72h)",
       monthlyVisibility: "1 Visibility Boost per month (highlight your business on the interactive map)",
@@ -1488,6 +1512,8 @@ export const TRANSLATIONS = {
       boostRemoveError: "Error removing boost",
       subscriptionError: "Error creating subscription",
       remainingTime: "remaining",
+      duration: "Duration",
+      remaining: "Remaining",
       
       // Boost purchase form
       purchaseBoostTitle: "Purchase Boost",

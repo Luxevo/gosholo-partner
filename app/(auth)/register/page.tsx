@@ -22,13 +22,17 @@ import {
   Phone,
   ArrowRight,
   CheckCircle,
+  MailCheck,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { TermsOfUse } from "@/components/terms-of-use";
 import { PrivacyPolicy } from "@/components/privacy-policy";
+import { useLanguage } from "@/contexts/language-context";
+import { t } from "@/lib/category-translations";
 
 function RegisterForm() {
+  const { locale } = useLanguage();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -94,8 +98,7 @@ function RegisterForm() {
     if (!signUpData.user) {
       setIsLoading(false);
       setErrors({
-        email:
-          "Aucun utilisateur créé. Vérifiez votre email pour confirmer votre compte.",
+        email: t('auth.checkEmailError', locale),
       });
       return;
     }
@@ -116,23 +119,35 @@ function RegisterForm() {
     <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4 py-8 sm:py-4 overflow-auto">
       <div className="w-full max-w-md space-y-4 sm:space-y-6 animate-in fade-in-50 duration-300">
           <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
-            <CardContent className="text-center p-4 sm:p-8 space-y-3 sm:space-y-4">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
+            <CardContent className="text-center p-4 sm:p-8 space-y-4 sm:space-y-5">
+              <div className="mx-auto w-16 h-16 bg-brand-secondary/10 rounded-full flex items-center justify-center">
+                <MailCheck className="h-8 w-8 text-brand-secondary" />
               </div>
               <h2 className="text-lg sm:text-xl font-bold text-brand-primary">
-                Inscription réussie !
+                {t('auth.registrationSuccess', locale)}
               </h2>
-              <p className="text-brand-primary/70 text-sm">
-                Votre compte a été créé avec succès. Vous pouvez maintenant vous
-                connecter.
-              </p>
+              <div className="space-y-3">
+                <p className="text-brand-primary/70 text-sm">
+                  {t('auth.accountCreated', locale)}
+                </p>
+                <div className="bg-brand-secondary/10 border border-brand-secondary/30 rounded-lg p-3">
+                  <p className="text-brand-primary text-sm font-medium">
+                    {t('auth.checkEmail', locale)}
+                  </p>
+                  <p className="text-brand-primary/80 text-xs mt-1">
+                    {t('auth.confirmationSent', locale)} <strong>{formData.email}</strong>.
+                  </p>
+                </div>
+                <p className="text-brand-primary/60 text-xs">
+                  {t('auth.loginAfterConfirmation', locale)}
+                </p>
+              </div>
               <Button
                 asChild
                 className="w-full h-9 sm:h-11 bg-brand-primary hover:bg-brand-primary/90"
               >
                 <Link href="/login">
-                  Se connecter
+                  {t('auth.signIn', locale)}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

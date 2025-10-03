@@ -32,17 +32,14 @@ export function getBoostRemainingHours(boostedAt: string | null): number {
 /**
  * Format remaining time as human readable string
  */
-export function formatBoostRemainingTime(boostedAt: string | null): string {
+export function formatBoostRemainingTime(boostedAt: string | null, locale: string = 'fr'): string {
   const remainingHours = getBoostRemainingHours(boostedAt)
   
-  if (remainingHours === 0) return "Expiré"
-  if (remainingHours < 24) return `${remainingHours}h restantes`
+  if (remainingHours === 0) {
+    return '0h'
+  }
   
-  const days = Math.floor(remainingHours / 24)
-  const hours = remainingHours % 24
-  
-  if (hours === 0) return `${days}j restantes`
-  return `${days}j ${hours}h restantes`
+  return `${remainingHours}h`
 }
 
 /**

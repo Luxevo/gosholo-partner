@@ -526,30 +526,30 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         </div>
 
         {/* Boost Offers */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl p-4">
+        <div className="bg-brand-light/20 border border-brand-primary/30 rounded-xl p-4">
           <div className="text-center mb-3">
-            <Zap className="h-6 w-6 text-orange-500 mx-auto mb-1" />
-            <h3 className="text-base font-semibold text-orange-800">
+            <Zap className="h-6 w-6 text-brand-primary mx-auto mb-1" />
+            <h3 className="text-base font-semibold text-brand-primary">
               {t('offers.boostOfferNow', locale)}
             </h3>
-            <p className="text-xs text-orange-700 mt-1">
+            <p className="text-xs text-brand-primary/80 mt-1">
               {t('offers.increaseVisibility72h', locale)}
             </p>
           </div>
 
           <div className="mb-4">
             {/* En Vedette Boost */}
-            <div className="bg-white rounded-lg p-4 border border-orange-200">
+            <div className="bg-white rounded-lg p-4 border border-brand-primary/30">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-orange-100 rounded-full">
-                  <Sparkles className="h-5 w-5 text-orange-600" />
+                <div className="p-2 bg-brand-light/20 rounded-full">
+                  <Sparkles className="h-5 w-5 text-brand-primary" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-orange-800">{t('offers.featuredBoost', locale)}</h4>
-                  <p className="text-xs text-orange-600">{t('offers.premiumVisibility72h', locale)}</p>
+                  <h4 className="font-medium text-brand-primary">{t('offers.featuredBoost', locale)}</h4>
+                  <p className="text-xs text-brand-primary/80">{t('offers.premiumVisibility72h', locale)}</p>
                 </div>
               </div>
-              <ul className="text-xs text-orange-700 space-y-1 mb-3">
+              <ul className="text-xs text-brand-primary/80 space-y-1 mb-3">
                 <li>• {t('offers.featuredBadgeVisible', locale)}</li>
                 <li>• {t('offers.priorityInSearch', locale)}</li>
                 <li>• {t('offers.highlightedOnMap', locale)}</li>
@@ -557,7 +557,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
               <Button
                 onClick={() => handleApplyBoost('en_vedette')}
                 disabled={isLoading}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm py-2"
+                className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white text-sm py-2"
                 size="sm"
               >
                 {boostCredits?.available_en_vedette ? 
@@ -569,11 +569,11 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           </div>
 
           {/* Skip Option */}
-          <div className="text-center pt-3 border-t border-orange-200">
+          <div className="text-center pt-3 border-t border-brand-primary/30">
             <Button
               variant="ghost"
               onClick={handleSkipBoost}
-              className="text-orange-700 hover:text-orange-800 text-sm"
+              className="text-brand-primary hover:text-brand-primary/80 text-sm"
               disabled={isLoading}
             >
 {t('offers.skipForNow', locale)}

@@ -164,7 +164,7 @@ export default function BoostsPage() {
                 boosted: isBoosted,
                 boost_type: isBoosted ? offer.boost_type : undefined,
                 boosted_at: offer.boosted_at,
-                remaining_time: isBoosted ? formatBoostRemainingTime(offer.boosted_at) : undefined
+                remaining_time: isBoosted ? formatBoostRemainingTime(offer.boosted_at, locale) : undefined
               })
             })
           }
@@ -182,7 +182,7 @@ export default function BoostsPage() {
                 boosted: isBoosted,
                 boost_type: isBoosted ? event.boost_type : undefined,
                 boosted_at: event.boosted_at,
-                remaining_time: isBoosted ? formatBoostRemainingTime(event.boosted_at) : undefined
+                remaining_time: isBoosted ? formatBoostRemainingTime(event.boosted_at, locale) : undefined
               })
             })
           }
@@ -201,7 +201,7 @@ export default function BoostsPage() {
               boosted: isBoosted,
               boost_type: isBoosted ? commerce.boost_type : undefined,
               boosted_at: commerce.boosted_at,
-              remaining_time: isBoosted ? formatBoostRemainingTime(commerce.boosted_at) : undefined
+              remaining_time: isBoosted ? formatBoostRemainingTime(commerce.boosted_at, locale) : undefined
             })
           })
         }
@@ -248,7 +248,7 @@ export default function BoostsPage() {
                 boosted: true, 
                 boost_type: boostType, 
                 boosted_at: new Date().toISOString(),
-                remaining_time: `72h ${t('boostsPage.remainingTime', locale)}`
+                remaining_time: formatBoostRemainingTime(new Date().toISOString(), locale)
               }
             : content
         ))
@@ -603,7 +603,6 @@ export default function BoostsPage() {
             <CardDescription>
               <div className="space-y-1">
                 <p>{t('boostsPage.contentReadyToBoost', locale)}</p>
-                
               </div>
             </CardDescription>
           </CardHeader>
@@ -612,11 +611,6 @@ export default function BoostsPage() {
               <div className="text-center py-8">
                 <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">{t('boostsPage.noContent', locale)}</h3>
-                <p className="text-gray-600 mb-4">{t('boostsPage.createContentToBoost', locale)}</p>
-                <Button variant="outline" className="h-12 sm:h-10">
-                  <ArrowRight className="h-4 w-4 mr-2" />
-                  {t('boostsPage.goToBusinesses', locale)}
-                </Button>
               </div>
             ) : (
               <div className="space-y-6">
@@ -641,11 +635,8 @@ export default function BoostsPage() {
                             {content.boosted && (
                               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
                                 <Badge variant="secondary" className="w-fit">
-                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
+                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)} {content.remaining_time}</>
                                 </Badge>
-                                {content.remaining_time && (
-                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
-                                )}
                               </div>
                             )}
                           </div>
@@ -706,11 +697,8 @@ export default function BoostsPage() {
                             {content.boosted && (
                               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
                                 <Badge variant="secondary" className="w-fit">
-                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)}</>
+                                  <><Sparkles className="h-3 w-3 mr-1" />{t('boosts.vedette', locale)} {content.remaining_time}</>
                                 </Badge>
-                                {content.remaining_time && (
-                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
-                                )}
                               </div>
                             )}
                           </div>
@@ -770,11 +758,8 @@ export default function BoostsPage() {
                             {content.boosted && (
                               <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-1">
                                 <Badge variant="secondary" className="w-fit">
-                                  <><TrendingUp className="h-3 w-3 mr-1" />{t('boosts.visibility', locale)}</>
+                                  <><TrendingUp className="h-3 w-3 mr-1" />{t('boosts.visibility', locale)} {content.remaining_time}</>
                                 </Badge>
-                                {content.remaining_time && (
-                                  <span className="text-xs text-gray-500">{content.remaining_time}</span>
-                                )}
                               </div>
                             )}
                           </div>

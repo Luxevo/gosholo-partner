@@ -408,7 +408,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                      {t('commerceCard.visibilityBoost', locale)}
                    </Badge>
                    <span className="text-sm font-medium" style={{ color: 'rgb(70,130,180)' }}>
-                     {formatBoostRemainingTime(commerce.boosted_at)}
+                     {formatBoostRemainingTime(commerce.boosted_at, locale)}
                    </span>
                  </div>
                )}
