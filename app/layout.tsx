@@ -15,7 +15,34 @@ export const metadata: Metadata = {
   title: "gosholo  - dashboard",
   description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
   manifest: "/manifest.json",
-  generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: '/logopwa.png',
+    shortcut: '/logopwa.png',
+    apple: '/logopwa.png',
+  },
+  openGraph: {
+    title: "gosholo - dashboard",
+    description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
+    url: "https://partner.gosholo.com",
+    siteName: "gosholo",
+    images: [
+      {
+        url: "/logopwa.png",
+        width: 512,
+        height: 512,
+        alt: "gosholo logo",
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "gosholo - dashboard",
+    description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
+    images: ["/logopwa.png"],
+  },
 }
 
 export const viewport: Viewport = {

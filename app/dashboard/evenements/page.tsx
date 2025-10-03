@@ -98,12 +98,12 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
   const getEventCategory = () => {
     // Try to categorize based on title/description keywords
     const text = (event.title + " " + event.description).toLowerCase()
-    if (text.includes('food') || text.includes('cuisine') || text.includes('restaurant')) return 'Food Fest'
-    if (text.includes('music') || text.includes('concert') || text.includes('musique')) return 'Music'
-    if (text.includes('art') || text.includes('expo') || text.includes('gallery')) return 'Art'
-    if (text.includes('sport') || text.includes('fitness')) return 'Sport'
-    if (text.includes('market') || text.includes('marché')) return 'Market'
-    return 'Event'
+    if (text.includes('food') || text.includes('cuisine') || text.includes('restaurant')) return locale === 'fr' ? 'Food Fest' : 'Food Fest'
+    if (text.includes('music') || text.includes('concert') || text.includes('musique')) return locale === 'fr' ? 'Musique' : 'Music'
+    if (text.includes('art') || text.includes('expo') || text.includes('gallery')) return locale === 'fr' ? 'Art' : 'Art'
+    if (text.includes('sport') || text.includes('fitness')) return locale === 'fr' ? 'Sport' : 'Sport'
+    if (text.includes('market') || text.includes('marché')) return locale === 'fr' ? 'Marché' : 'Market'
+    return locale === 'fr' ? 'Événement' : 'Event'
   }
 
   return (
@@ -154,48 +154,45 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
             </div>
           </div>
 
-          {/* Date and Category Overlay */}
+          {/* Bottom Info Bar - Address */}
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3">
-            <div className="flex justify-between items-center">
-              <div className="text-sm">
-                {event.start_date && (
-                  <>
-                    <span className="font-medium">
-                      {formatEventDate(event.start_date)}
-                    </span>
-                    <span className="mx-2">•</span>
-                    <span>{getEventTimeRange()}</span>
-                  </>
-                )}
-              </div>
-              <div className="text-white px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FF6233' }}>
-                {getEventCategory()}
-              </div>
+            <div className="flex items-center text-sm">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span>
+                {event.custom_location || commerce?.name || t('eventsPage.venueToConfirm', locale as 'fr' | 'en')}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="text-orange-600 p-4 bg-white">
-          <h3 className="text-lg font-bold mb-2 line-clamp-1 text-orange-600">
-            {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
-          </h3>
-          <div className="flex items-center text-sm mb-2 text-orange-600">
-            <MapPin className="h-3 w-3 mr-1 text-orange-600" />
-            <span className="text-xs text-orange-600">
-              {event.custom_location || commerce?.name || t('eventsPage.venueToConfirm', locale as 'fr' | 'en')}
-            </span>
+        <div className="p-4 bg-white">
+          {/* Business Name + Category */}
+          <div className="flex items-center mb-3">
+            <h3 className="text-lg font-bold text-orange-600">
+              {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
+            </h3>
+            <div className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+              {getEventCategory()}
+            </div>
           </div>
-          <div className="text-sm mb-3 h-16 overflow-hidden text-black">
-            <p className="line-clamp-3">
+
+          {/* Event Title */}
+          <h4 className="text-xl font-semibold mb-3 text-black">
+            {event.title}
+          </h4>
+
+          {/* Description */}
+          <div className="text-sm mb-4 text-gray-700">
+            <p className="line-clamp-2">
               {event.description}
             </p>
           </div>
 
           {/* Action Button */}
-          <div className="flex justify-end">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-full transition-colors w-auto">
-              {locale === 'fr' ? 'Voir' : 'View'}
+          <div className="flex justify-start">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-1.5 px-3 rounded-full transition-colors">
+              {locale === 'fr' ? 'Voir l\'événement' : 'View Event'}
             </button>
           </div>
         </div>
