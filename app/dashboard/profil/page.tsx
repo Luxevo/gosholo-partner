@@ -550,8 +550,8 @@ export default function ProfilPage() {
                 <div>
                   <label className="text-sm font-medium text-primary/70">{t('profile.memberSince', locale)}</label>
                   <p className="font-medium text-sm sm:text-base">
-                    {subscription?.starts_at 
-                      ? new Date(subscription.starts_at).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
+                    {user?.created_at 
+                      ? new Date(user.created_at).toLocaleDateString(locale === 'en' ? 'en-US' : 'fr-FR')
                       : 'N/A'
                     }
                   </p>
