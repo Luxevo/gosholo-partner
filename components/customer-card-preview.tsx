@@ -71,7 +71,7 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
       
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200 w-full h-full">
         {/* Image Section */}
-        <div className={`relative h-64 ${type === 'offer' ? 'bg-gradient-to-br from-orange-400 to-orange-500' : ''}`}>
+        <div className="relative h-64">
           {item.image_url ? (
             <img 
               src={item.image_url} 

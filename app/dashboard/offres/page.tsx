@@ -104,7 +104,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
     <div className="relative max-w-md">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-64 bg-gradient-to-br from-orange-400 to-orange-500">
+        <div className="relative h-64">
           {offer.image_url ? (
             <img 
               src={offer.image_url} 
