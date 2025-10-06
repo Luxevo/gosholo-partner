@@ -781,10 +781,9 @@ function EvenementsPageContent() {
                     <LayoutGrid className="h-4 w-4 text-blue-600" />
                   </div>
                   <div className="text-blue-800">
-                    <div className="font-medium mb-1">👀 Aperçu de l'expérience utilisateur</div>
+                    <div className="font-medium mb-1">{t('eventsPage.userExperiencePreview', locale as 'fr' | 'en')}</div>
                     <p className="text-sm">
-                      Voici exactement comment vos événements apparaissent aux utilisateurs dans l'application Gosholo. 
-                      Les petites icônes d'édition en haut à droite vous permettent de modifier vos événements directement depuis cette vue.
+                      {t('eventsPage.userExperienceDesc', locale as 'fr' | 'en')}
                     </p>
                   </div>
                 </div>

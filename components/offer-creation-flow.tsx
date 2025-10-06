@@ -693,6 +693,9 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                   console.error('Image upload error:', error)
                   alert(`${t('offers.imageUploadError', locale)} ${error}`)
                 }}
+                previewData={{
+                  type: 'offer'
+                }}
               />
             </div>
 

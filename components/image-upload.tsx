@@ -5,9 +5,9 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react"
-import Image from "next/image"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
+import CustomerCardPreview from "@/components/customer-card-preview"
 
 interface ImageUploadProps {
   bucket: string // e.g., "images"
@@ -17,6 +17,10 @@ interface ImageUploadProps {
   currentImage?: string | null
   onRemoveImage?: () => void
   className?: string
+  // Preview data for live card preview
+  previewData?: {
+    type?: 'offer' | 'event'
+  }
 }
 
 export default function ImageUpload({
@@ -26,7 +30,8 @@ export default function ImageUpload({
   onUploadError,
   currentImage,
   onRemoveImage,
-  className = ""
+  className = "",
+  previewData
 }: ImageUploadProps) {
   const supabase = createClient()
   const { locale } = useLanguage()
@@ -127,10 +132,6 @@ export default function ImageUpload({
     }
   }
 
-  const handleRemoveImage = () => {
-    onRemoveImage?.()
-  }
-
   return (
     <div className={`space-y-2 ${className}`}>
       <input
@@ -142,29 +143,19 @@ export default function ImageUpload({
       />
 
       {currentImage ? (
-        // Show current image
-        <Card className="relative overflow-hidden">
-          <div className="w-48 h-24 relative bg-gray-50 mx-auto" style={{ aspectRatio: '2/1' }}>
-            <Image
-              src={currentImage}
-              alt="Image téléchargée"
-              fill
-              className="object-cover rounded"
-            />
-            {onRemoveImage && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={handleRemoveImage}
-                disabled={isUploading}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </Card>
+        // Show live card preview
+        <div className="space-y-3">
+          <h4 className="text-sm font-medium text-gray-900">
+            {locale === 'fr' ? 'Prévisualisation avec fausses données' : 'Preview with mock data'}
+          </h4>
+          
+          {/* Live Client Card Preview - Exact copy of real customer card */}
+          <CustomerCardPreview 
+            imageUrl={currentImage}
+            type={previewData?.type || 'offer'}
+            onRemove={onRemoveImage}
+          />
+        </div>
       ) : (
         // Upload area
         <Card

@@ -262,7 +262,10 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Description courte (max 250 caractères)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Rue Saint-Paul Est",
-      imageUploadError: "Erreur:"
+      imageUploadError: "Erreur:",
+      preview: "Aperçu",
+      willAppearLikeThis: "C'est ainsi qu'elle apparaîtra dans votre carte",
+      livePreview: "Aperçu client"
     },
 
     // Offers page
@@ -433,7 +436,10 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Description courte (max 250 caractères)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Rue Saint-Paul Est",
-      imageUploadError: "Erreur:"
+      imageUploadError: "Erreur:",
+      preview: "Aperçu",
+      willAppearLikeThis: "C'est ainsi qu'elle apparaîtra dans votre carte",
+      livePreview: "Aperçu client"
     },
 
     // Events page
@@ -1119,7 +1125,10 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Short description (max 250 characters)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Saint-Paul Street East",
-      imageUploadError: "Error:"
+      imageUploadError: "Error:",
+      preview: "Preview",
+      willAppearLikeThis: "This is how it will appear in your card",
+      livePreview: "Client Preview"
     },
 
     // Offers page
@@ -1290,7 +1299,10 @@ export const TRANSLATIONS = {
       shortDescriptionPlaceholder: "Short description (max 250 characters)",
       postalCodePlaceholder: "Ex: H2X 1Y4, M5V 3A8, V6B 1A1",
       specificAddressPlaceholder: "Ex: 123 Saint-Paul Street East",
-      imageUploadError: "Error:"
+      imageUploadError: "Error:",
+      preview: "Preview",
+      willAppearLikeThis: "This is how it will appear in your card",
+      livePreview: "Client Preview"
     },
 
     // Events page

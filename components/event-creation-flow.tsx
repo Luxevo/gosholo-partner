@@ -657,6 +657,9 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                       console.error('Image upload error:', error)
                       alert(`${t('events.imageUploadError', locale)} ${error}`)
                     }}
+                    previewData={{
+                      type: 'event'
+                    }}
                   />
                 </div>
 
