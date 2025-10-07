@@ -101,10 +101,10 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
 
 
   return (
-    <div className="relative max-w-md">
+    <div className="relative w-[356px] h-[480px]">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-64">
+        <div className="relative h-[267px]">
           {offer.image_url ? (
             <img 
               src={offer.image_url} 
@@ -172,13 +172,13 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
           </div>
 
           {/* Offer Title */}
-          <h4 className="text-xl font-semibold mb-3 text-black">
+          <h4 className="text-xl font-semibold mb-3 text-black overflow-hidden line-clamp-2 break-words">
             {offer.title}
           </h4>
 
           {/* Description */}
           <div className="text-sm mb-4 text-gray-700">
-            <p className="line-clamp-2">
+            <p className="overflow-hidden line-clamp-2 break-words">
               {offer.description}
             </p>
           </div>

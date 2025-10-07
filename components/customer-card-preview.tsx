@@ -56,7 +56,7 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
   }
 
   return (
-    <div className="relative w-[356px] h-[450px]">
+    <div className="relative w-[356px] h-[480px]">
       {onRemove && (
         <Button
           type="button"
@@ -71,7 +71,7 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
       
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200 w-full h-full">
         {/* Image Section */}
-        <div className="relative h-64">
+        <div className="relative h-[267px]">
           {item.image_url ? (
             <img 
               src={item.image_url} 

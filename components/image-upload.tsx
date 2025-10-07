@@ -43,7 +43,7 @@ export default function ImageUpload({
     if (!file) return
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
     console.log('File type detected:', file.type, 'File name:', file.name)
     
     if (!allowedTypes.includes(file.type)) {
@@ -51,12 +51,10 @@ export default function ImageUpload({
       const fileName = file.name.toLowerCase()
       const hasValidExtension = fileName.endsWith('.jpg') || 
                                fileName.endsWith('.jpeg') || 
-                               fileName.endsWith('.png') || 
-                               fileName.endsWith('.webp') || 
-                               fileName.endsWith('.gif')
+                               fileName.endsWith('.png')
       
       if (!hasValidExtension) {
-        onUploadError?.(`Type de fichier non supporté (${file.type}). Utilisez JPG, PNG, WebP ou GIF.`)
+        onUploadError?.(locale === 'en' ? `Unsupported file type (${file.type}). Use JPG or PNG.` : `Type de fichier non supporté (${file.type}). Utilisez JPG ou PNG.`)
         return
       }
     }
@@ -188,9 +186,10 @@ export default function ImageUpload({
                     {locale === 'en' ? 'or drag and drop your file here' : 'ou glissez-déposez votre fichier ici'}
                   </p>
                   <div className="mt-3 text-xs text-gray-500 space-y-1 text-center">
-                    <div>📐 {locale === 'en' ? 'Any format works - we\'ll crop it perfectly!' : 'N\'importe quel format - nous l\'ajusterons parfaitement !'}</div>
-                    <div>📁 {locale === 'en' ? 'Formats: JPG, PNG, WebP, GIF' : 'Formats : JPG, PNG, WebP, GIF'}</div>
-                    <div>💾 {locale === 'en' ? 'Max: 5 MB' : 'Max : 5 MB'}</div>
+                    <div className="font-medium text-brand-primary">
+                      {locale === 'en' ? '📐 Recommended: 1200 × 900 px (4:3 ratio)' : '📐 Recommandé : 1200 × 900 px (ratio 4:3)'}
+                    </div>
+                    <div>📁 {locale === 'en' ? 'Formats: JPG, PNG' : 'Formats : JPG, PNG'}</div>
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
