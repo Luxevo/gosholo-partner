@@ -468,7 +468,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                   <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1">
                     {offer.image_url && (
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-12 h-9 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
                           src={offer.image_url}
                           alt={offer.title}
@@ -541,7 +541,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
                   <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1">
                     {event.image_url && (
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-12 h-9 sm:w-16 sm:h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
                           src={event.image_url}
                           alt={event.title}

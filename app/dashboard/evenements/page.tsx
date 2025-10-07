@@ -238,7 +238,7 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-0">
           <div className="flex items-start space-x-3 flex-1">
             {event.image_url && (
-              <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              <div className="w-20 h-[60px] rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                 <img
                   src={event.image_url}
                   alt={event.title}
@@ -247,10 +247,16 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg font-semibold text-primary">
+              <CardTitle className="text-lg font-semibold text-primary overflow-hidden line-clamp-1 break-words">
                 {event.title}
               </CardTitle>
-              <CardDescription className="mt-1 text-sm text-muted-foreground">
+              <CardDescription className="mt-1 text-sm text-muted-foreground" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                wordBreak: 'break-word'
+              }}>
                 {event.description}
               </CardDescription>
             </div>
