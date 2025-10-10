@@ -15,7 +15,8 @@ import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
 import ImageUpload from "@/components/image-upload"
 import BoostPurchaseForm from "@/components/boost-purchase-form"
-import { geocodePostalCode, validateCanadianPostalCode } from "@/lib/mapbox-geocoding"
+import { AddressSuggestion } from "@/lib/mapbox-geocoding"
+import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
 
 interface Offer {
@@ -79,31 +80,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     image_url: offer?.image_url || "",
   })
 
-  const [isGeocoding, setIsGeocoding] = useState(false)
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
-
-  const handlePostalCodeChange = async (value: string) => {
-    setForm(f => ({ ...f, postal_code: value }))
-    
-    if (validateCanadianPostalCode(value)) {
-      setIsGeocoding(true)
-      try {
-        const result = await geocodePostalCode(value)
-        setGeoData({ latitude: result.latitude, longitude: result.longitude, address: result.address })
-        setForm(f => ({ 
-          ...f, 
-          postal_code: result.postal_code 
-        }))
-      } catch (error) {
-        console.error('Geocoding failed:', error)
-        setGeoData(null)
-      } finally {
-        setIsGeocoding(false)
-      }
-    } else {
-      setGeoData(null)
-    }
-  }
 
   // Load user's commerces and boost credits
   useEffect(() => {
@@ -717,35 +694,49 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
+                {t('offers.specificAddress', locale)}
+              </label>
+              <AddressAutocomplete
+                value={form.business_address}
+                onChange={(value) => setForm(f => ({ ...f, business_address: value }))}
+                onSelect={(suggestion: AddressSuggestion) => {
+                  setForm(f => ({ 
+                    ...f, 
+                    business_address: suggestion.place_name,
+                    postal_code: suggestion.postal_code 
+                  }))
+                  setGeoData({ 
+                    latitude: suggestion.latitude, 
+                    longitude: suggestion.longitude, 
+                    address: suggestion.place_name 
+                  })
+                }}
+                placeholder={t('offers.specificAddressPlaceholder', locale)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {t('offers.ifDifferentFromMain', locale)}
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary mb-2">
                 {t('offers.postalCodeOptional', locale)}
               </label>
               <Input
                 placeholder={t('offers.postalCodePlaceholder', locale)}
                 value={form.postal_code}
-                onChange={e => handlePostalCodeChange(e.target.value)}
-                disabled={isGeocoding}
+                onChange={e => setForm(f => ({ ...f, postal_code: e.target.value }))}
+                className="bg-gray-50"
               />
-              {isGeocoding && (
-                <p className="text-sm text-gray-500 mt-1">{t('offers.searchingSector', locale)}</p>
-              )}
-              {geoData && (
+              {form.postal_code && (
                 <p className="text-sm text-green-600 mt-1">
-                  {t('offers.sectorFound', locale)} {geoData.address}
+                  ✅ {t('offers.postalCode', locale)}: {form.postal_code}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-primary mb-2">
-                {t('offers.specificAddress', locale)}
-              </label>
-              <Input
-                placeholder={t('offers.specificAddressPlaceholder', locale)}
-                value={form.business_address}
-                onChange={e => setForm(f => ({ ...f, business_address: e.target.value }))}
-              />
               <p className="text-xs text-gray-500 mt-1">
-                {t('offers.ifDifferentFromMain', locale)}
+                {locale === 'fr' 
+                  ? 'Auto-rempli lors de la sélection d\'adresse ou saisissez manuellement' 
+                  : 'Auto-filled when selecting an address or enter manually'}
               </p>
             </div>
 
