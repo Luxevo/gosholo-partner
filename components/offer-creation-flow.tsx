@@ -694,7 +694,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                {t('offers.specificAddress', locale)}
+                {locale === 'fr' ? 'Adresse spécifique' : 'Specific address'}
               </label>
               <AddressAutocomplete
                 value={form.business_address}
@@ -720,7 +720,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                {t('offers.postalCodeOptional', locale)}
+                {locale === 'fr' ? 'Code postal' : 'Postal code'}
               </label>
               <Input
                 placeholder={t('offers.postalCodePlaceholder', locale)}
