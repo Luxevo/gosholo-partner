@@ -141,19 +141,45 @@ export default function ImageUpload({
       />
 
       {currentImage ? (
-        // Show live card preview
-        <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-900">
-            {locale === 'fr' ? 'Prévisualisation avec fausses données' : 'Preview with mock data'}
-          </h4>
-          
-          {/* Live Client Card Preview - Exact copy of real customer card */}
-          <CustomerCardPreview 
-            imageUrl={currentImage}
-            type={previewData?.type || 'offer'}
-            onRemove={onRemoveImage}
-          />
-        </div>
+        // Show live card preview only for offers and events
+        previewData?.type ? (
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-900">
+              {locale === 'fr' ? 'Prévisualisation avec fausses données' : 'Preview with mock data'}
+            </h4>
+            
+            {/* Live Client Card Preview - Exact copy of real customer card */}
+            <CustomerCardPreview 
+              imageUrl={currentImage}
+              type={previewData.type}
+              onRemove={onRemoveImage}
+            />
+          </div>
+        ) : (
+          // Simple image preview for commerce
+          <div className="space-y-3">
+            <div className="relative">
+              <div className="aspect-square w-full max-w-xs mx-auto relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                <img
+                  src={currentImage}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              {onRemoveImage && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={onRemoveImage}
+                  className="absolute top-2 right-2"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        )
       ) : (
         // Upload area
         <Card
