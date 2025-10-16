@@ -62,6 +62,18 @@ export async function POST(request: NextRequest) {
       console.log('✅ [API] New Stripe customer created:', customer.id)
     }
 
+    // Verify price ID is configured
+    if (!STRIPE_PRICES.subscription) {
+      console.error('❌ [API] STRIPE_SUBSCRIPTION_PRICE_ID is not configured')
+      return NextResponse.json(
+        { 
+          error: 'Configuration Stripe incomplète',
+          details: 'STRIPE_SUBSCRIPTION_PRICE_ID manquant dans les variables d\'environnement'
+        },
+        { status: 500 }
+      )
+    }
+
     console.log('🔵 [API] Creating checkout session with price:', STRIPE_PRICES.subscription)
 
     // Create checkout session for subscription
@@ -95,9 +107,24 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('❌ [API] Error creating subscription:', error)
-    console.error('❌ [API] Error details:', error instanceof Error ? error.message : 'Unknown error')
+    
+    // Detailed error logging
+    if (error instanceof Error) {
+      console.error('❌ [API] Error message:', error.message)
+      console.error('❌ [API] Error stack:', error.stack)
+    }
+    
+    // Check if it's a Stripe error
+    if (error && typeof error === 'object' && 'type' in error) {
+      console.error('❌ [API] Stripe error type:', (error as any).type)
+      console.error('❌ [API] Stripe error code:', (error as any).code)
+    }
+    
     return NextResponse.json(
-      { error: 'Erreur lors de la création de l\'abonnement' },
+      { 
+        error: 'Erreur lors de la création de l\'abonnement',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }

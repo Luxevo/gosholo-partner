@@ -327,19 +327,38 @@ export default function BoostsPage() {
   // Handle subscription purchase
   const purchaseSubscription = async () => {
     try {
+      console.log('🔵 [FRONTEND] Starting subscription purchase...')
+      
       const response = await fetch('/api/stripe/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
 
-      const { url } = await response.json()
+      console.log('🔵 [FRONTEND] Response status:', response.status)
 
-      if (url) {
-        window.location.href = url
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('❌ [FRONTEND] API returned error:', errorData)
+        const errorMessage = errorData.details 
+          ? `${errorData.error}\n\nDétails: ${errorData.details}` 
+          : errorData.error || 'Erreur inconnue'
+        alert(`❌ Erreur ${response.status}:\n\n${errorMessage}\n\n📋 Vérifiez les logs Vercel pour plus de détails.`)
+        return
+      }
+
+      const data = await response.json()
+      console.log('🔵 [FRONTEND] Response data:', data)
+
+      if (data.url) {
+        console.log('✅ [FRONTEND] Redirecting to Stripe checkout:', data.url)
+        window.location.href = data.url
+      } else {
+        console.error('❌ [FRONTEND] No checkout URL in response')
+        alert('❌ Erreur: Aucune URL de paiement reçue.\n\nVérifiez la configuration Stripe dans Vercel.')
       }
     } catch (error) {
-      console.error('Error creating subscription:', error)
-      alert(t('boostsPage.subscriptionError', locale))
+      console.error('❌ [FRONTEND] Unexpected error:', error)
+      alert('❌ ' + t('boostsPage.subscriptionError', locale) + '\n\n🔍 Vérifiez:\n- Console navigateur (F12)\n- Logs Vercel Runtime')
     }
   }
 
