@@ -4,8 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { promoCode } = await request.json() as {
-      promoCode?: string
+    // Parse JSON body safely (may be empty)
+    let promoCode: string | undefined
+    try {
+      const body = await request.json()
+      promoCode = body.promoCode
+    } catch (e) {
+      // Body is empty or invalid, that's ok
+      promoCode = undefined
     }
 
     // Get user from Supabase
