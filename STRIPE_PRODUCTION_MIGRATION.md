@@ -39,13 +39,23 @@
 6. **Click "Save product"**
 7. **📝 Copy the Price ID** (starts with `price_live_...`) → Save this!
 
-#### Product 3: Abonnement Pro
+#### Product 3: Abonnement Pro Mensuel
 1. **Add product**
-2. **Name**: `Abonnement Pro Gosholo`
+2. **Name**: `Abonnement Pro Mensuel Gosholo`
 3. **Description**: `1 boost En Vedette + 1 boost Visibilité par mois + fonctionnalités Pro`
 4. **Pricing model**: Recurring
 5. **Price**: `$8.00` USD
 6. **Billing period**: Monthly
+7. **Click "Save product"**
+8. **📝 Copy the Price ID** (starts with `price_live_...`) → Save this!
+
+#### Product 4: Abonnement Pro Annuel
+1. **Add product**
+2. **Name**: `Abonnement Pro Annuel Gosholo`
+3. **Description**: `1 boost En Vedette + 1 boost Visibilité par mois + fonctionnalités Pro (facturation annuelle, économisez 17%)`
+4. **Pricing model**: Recurring
+5. **Price**: `$88.00` USD
+6. **Billing period**: Yearly
 7. **Click "Save product"**
 8. **📝 Copy the Price ID** (starts with `price_live_...`) → Save this!
 
@@ -117,7 +127,8 @@ Click **"Select events"** and add:
 |---------------|----------------|-------|
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_...` | From Step 2.1 |
 | `STRIPE_SECRET_KEY` | `sk_live_...` | From Step 2.2 |
-| `STRIPE_SUBSCRIPTION_PRICE_ID` | `price_live_...` | From Step 1.2 (Product 3) |
+| `STRIPE_SUBSCRIPTION_PRICE_ID` | `price_live_...` | From Step 1.2 (Product 3 - Mensuel) |
+| `STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID` | `price_live_...` | From Step 1.2 (Product 4 - Annuel) |
 | `STRIPE_BOOST_VISIBILITE_PRICE_ID` | `price_live_...` | From Step 1.2 (Product 2) |
 | `STRIPE_BOOST_EN_VEDETTE_PRICE_ID` | `price_live_...` | From Step 1.2 (Product 1) |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | From Step 3.3 |
@@ -152,12 +163,21 @@ For each variable:
 - [ ] Verify transaction in Stripe Dashboard
 - [ ] Check database: `boost_transactions` table has new record
 
-#### Test Subscription ($8.00/month)
-- [ ] Click "S'abonner 8€/mois"
+#### Test Subscription Mensuel ($8.00/month)
+- [ ] Click "S'abonner" et sélectionner "Mensuel"
 - [ ] Complete Stripe Checkout with test card
 - [ ] Verify subscription shows as active
 - [ ] Check monthly boosts appear (1 each type)
 - [ ] Verify subscription in Stripe Dashboard
+- [ ] Check database: `profiles.is_subscribed = true`
+
+#### Test Subscription Annuel ($88.00/year)
+- [ ] Click "S'abonner" et sélectionner "Annuel"
+- [ ] Verify price shows "$88/an" with "-17%" badge
+- [ ] Complete Stripe Checkout with test card
+- [ ] Verify subscription shows as active (yearly billing)
+- [ ] Check monthly boosts appear (1 each type)
+- [ ] Verify subscription in Stripe Dashboard with "Yearly" interval
 - [ ] Check database: `profiles.is_subscribed = true`
 
 #### Test Webhook

@@ -18,9 +18,29 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 // Price IDs
 export const STRIPE_PRICES = {
-  subscription: process.env.STRIPE_SUBSCRIPTION_PRICE_ID!,
+  subscriptionMonthly: process.env.STRIPE_SUBSCRIPTION_PRICE_ID!,
+  subscriptionAnnual: process.env.STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID!,
   boostEnVedette: process.env.STRIPE_BOOST_EN_VEDETTE_PRICE_ID!,
   boostVisibilite: process.env.STRIPE_BOOST_VISIBILITE_PRICE_ID!,
+} as const
+
+// Subscription plan types
+export type SubscriptionInterval = 'monthly' | 'annual'
+
+export const SUBSCRIPTION_PLANS = {
+  monthly: {
+    priceId: STRIPE_PRICES.subscriptionMonthly,
+    price: 8,
+    interval: 'month' as const,
+    displayPrice: '$8/mois',
+  },
+  annual: {
+    priceId: STRIPE_PRICES.subscriptionAnnual,
+    price: 88,
+    interval: 'year' as const,
+    displayPrice: '$88/an',
+    savings: 'Économisez $8 (2 mois gratuits)',
+  },
 } as const
 
 // Boost type mapping

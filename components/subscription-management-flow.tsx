@@ -50,6 +50,8 @@ const plans = {
     bgColor: "bg-orange-50",
     borderColor: "border-orange-200",
     price: "$8/mois",
+    priceAnnual: "$88/an",
+    savings: "Économisez $8 (2 mois gratuits)",
     features: [
       "10 publications totaux (offres ET événements)",
       "1 crédit boost par mois (auto-renouvelé)",
@@ -71,9 +73,48 @@ export default function SubscriptionManagementFlow({
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'pro' | null>(null)
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly')
 
   const currentPlan = currentSubscription?.plan_type || 'free'
   const isCurrentPlan = (plan: 'free' | 'pro') => plan === currentPlan
+
+  const handleUpgradeToPro = async () => {
+    setIsLoading(true)
+
+    try {
+      // Call Stripe API to create subscription with selected interval
+      const response = await fetch('/api/stripe/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          interval: billingInterval,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la création de l\'abonnement')
+      }
+
+      const { url } = await response.json()
+      
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url
+      }
+
+    } catch (error) {
+      console.error('Error creating subscription:', error)
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la création de l'abonnement",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handlePlanChange = async (newPlan: 'free' | 'pro') => {
     if (newPlan === currentPlan) {
@@ -88,31 +129,9 @@ export default function SubscriptionManagementFlow({
 
     try {
       if (newPlan === 'pro') {
-        // Upgrade to Pro
-        const { error } = await supabase
-          .from('subscriptions')
-          .update({
-            plan_type: 'pro',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', currentSubscription.id)
-
-        if (error) {
-          console.error('Error upgrading subscription:', error)
-          toast({
-            title: "Erreur",
-            description: "Erreur lors du changement de plan",
-            variant: "destructive"
-          })
-          return
-        }
-
-        toast({
-          title: "Succès",
-          description: "Plan changé vers le plan Plus",
-        })
-
-        onSubscriptionUpdated()
+        // Redirect to Stripe checkout for upgrade
+        await handleUpgradeToPro()
+        return
       } else {
         // Downgrade to Free
         const { error } = await supabase
@@ -253,16 +272,57 @@ export default function SubscriptionManagementFlow({
                     </div>
                     <div className="text-right">
                       <div className={`text-xl font-bold ${planData.color}`}>
-                        {planData.price}
+                        {plan === 'pro' 
+                          ? (billingInterval === 'monthly' ? planData.price : planData.priceAnnual)
+                          : planData.price
+                        }
                       </div>
                       {plan === 'pro' && (
-                        <div className="text-xs text-orange-500">par mois</div>
+                        <div className="text-xs text-orange-500">
+                          {billingInterval === 'monthly' ? 'par mois' : 'par an'}
+                        </div>
                       )}
                     </div>
                   </div>
                 </CardHeader>
                 
                 <CardContent className="space-y-4">
+                  {/* Billing Interval Toggle (Pro Plan Only) */}
+                  {plan === 'pro' && !isCurrent && (
+                    <div className="bg-white p-3 rounded-lg border border-orange-200">
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => setBillingInterval('monthly')}
+                          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                            billingInterval === 'monthly'
+                              ? 'bg-orange-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          Mensuel
+                        </button>
+                        <button
+                          onClick={() => setBillingInterval('annual')}
+                          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors relative ${
+                            billingInterval === 'annual'
+                              ? 'bg-orange-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          Annuel
+                          <Badge className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-1">
+                            -17%
+                          </Badge>
+                        </button>
+                      </div>
+                      {billingInterval === 'annual' && planData.savings && (
+                        <p className="text-xs text-green-600 font-medium text-center mt-2">
+                          💰 {planData.savings}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Features */}
                   <div className="space-y-2">
                     <h4 className={`font-medium ${plan === 'pro' ? 'text-orange-600' : 'text-gray-900'}`}>Fonctionnalités incluses</h4>

@@ -4,13 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse JSON body safely (may be empty)
+    // Parse JSON body to get interval (monthly or annual)
+    let interval: 'monthly' | 'annual' = 'monthly'
     let promoCode: string | undefined
     try {
       const body = await request.json()
+      interval = body.interval || 'monthly'
       promoCode = body.promoCode
     } catch (e) {
-      // Body is empty or invalid, that's ok
+      // Body is empty or invalid, default to monthly
+      interval = 'monthly'
       promoCode = undefined
     }
 
@@ -60,13 +63,18 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Determine which price ID to use based on interval
+    const priceId = interval === 'annual' 
+      ? STRIPE_PRICES.subscriptionAnnual 
+      : STRIPE_PRICES.subscriptionMonthly
+
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       payment_method_types: ['card'],
       line_items: [
         {
-          price: STRIPE_PRICES.subscription,
+          price: priceId,
           quantity: 1,
         },
       ],
@@ -76,6 +84,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         userId: user.id,
         type: 'subscription',
+        interval: interval,
       },
       // Allow users to enter promo codes directly in Stripe checkout
       allow_promotion_codes: true,
