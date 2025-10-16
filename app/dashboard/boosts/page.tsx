@@ -415,6 +415,7 @@ export default function BoostsPage() {
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">{t('boostsPage.current', locale)}</Badge>}
                   </div>
                   <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8${t('boostsPage.perMonth', locale)}</div>
+                  <p className="text-xs text-gray-500 -mt-1">{locale === 'fr' ? '(offre et quantité à durée limitée)' : '(limited time offer and quantity)'}</p>
                   <p className="text-sm text-gray-600">{t('boostsPage.upgradeSpeed', locale)}</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">

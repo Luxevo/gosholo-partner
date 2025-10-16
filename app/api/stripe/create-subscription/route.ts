@@ -4,12 +4,15 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🔵 [API] Starting subscription creation...')
+    
     const { promoCode } = await request.json() as {
       promoCode?: string
     }
 
     // Get user from Supabase
     const supabase = await createClient()
+    console.log('🔵 [API] Supabase client created')
     
     if (!supabase) {
       console.error('Failed to create Supabase client')
@@ -30,11 +33,14 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
+      console.error('❌ [API] User authentication failed:', userError)
       return NextResponse.json(
         { error: 'Utilisateur non authentifié' },
         { status: 401 }
       )
     }
+
+    console.log('✅ [API] User authenticated:', user.email)
 
     // Get or create Stripe customer
     let customer
@@ -45,6 +51,7 @@ export async function POST(request: NextRequest) {
 
     if (existingCustomers.data.length > 0) {
       customer = existingCustomers.data[0]
+      console.log('✅ [API] Existing Stripe customer found:', customer.id)
     } else {
       customer = await stripe.customers.create({
         email: user.email || undefined,
@@ -52,7 +59,10 @@ export async function POST(request: NextRequest) {
           userId: user.id,
         },
       })
+      console.log('✅ [API] New Stripe customer created:', customer.id)
     }
+
+    console.log('🔵 [API] Creating checkout session with price:', STRIPE_PRICES.subscription)
 
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
@@ -75,13 +85,17 @@ export async function POST(request: NextRequest) {
       allow_promotion_codes: true,
     })
 
+    console.log('✅ [API] Checkout session created:', session.id)
+    console.log('✅ [API] Redirect URL:', session.url)
+
     return NextResponse.json({
       sessionId: session.id,
       url: session.url,
     })
 
   } catch (error) {
-    console.error('Error creating subscription:', error)
+    console.error('❌ [API] Error creating subscription:', error)
+    console.error('❌ [API] Error details:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Erreur lors de la création de l\'abonnement' },
       { status: 500 }
