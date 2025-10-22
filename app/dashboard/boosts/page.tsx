@@ -424,8 +424,16 @@ export default function BoostsPage() {
                     <h3 className="text-lg sm:text-xl font-bold text-brand-accent">{t('boostsPage.gosholoPLUS', locale)}</h3>
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">{t('boostsPage.current', locale)}</Badge>}
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">
-                    {billingInterval === 'monthly' ? `8${t('boostsPage.perMonth', locale)}` : `88${locale === 'fr' ? '/an' : '/year'}`}
+                  <div className="space-y-2">
+                    <div className="text-2xl sm:text-3xl text-gray-400 line-through font-semibold">
+                      {billingInterval === 'monthly' ? `16$${t('boostsPage.perMonth', locale)}` : `176$${locale === 'fr' ? '/an' : '/year'}`}
+                    </div>
+                    <Badge className="bg-orange-500 text-white text-sm font-bold px-3 py-1 animate-pulse">
+                      {locale === 'fr' ? 'OFFRE DE LANCEMENT -50%' : 'LAUNCH OFFER -50%'}
+                    </Badge>
+                    <div className="text-3xl sm:text-4xl font-bold text-brand-accent">
+                      {billingInterval === 'monthly' ? `8$${t('boostsPage.perMonth', locale)}` : `88$${locale === 'fr' ? '/an' : '/year'}`}
+                    </div>
                   </div>
                   <p className="text-xs text-gray-500 -mt-1">{locale === 'fr' ? '(offre et quantité à durée limitée)' : '(limited time offer and quantity)'}</p>
                   
