@@ -336,6 +336,12 @@ export default function BoostsPage() {
         }),
       })
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Subscription error:', errorData)
+        throw new Error(errorData.error || 'Failed to create subscription')
+      }
+
       const { url } = await response.json()
 
       if (url) {

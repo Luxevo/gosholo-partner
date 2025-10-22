@@ -16,12 +16,36 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
 })
 
+// Validate required environment variables
+const validateEnvVars = () => {
+  const required = {
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_SUBSCRIPTION_PRICE_ID: process.env.STRIPE_SUBSCRIPTION_PRICE_ID,
+    STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID: process.env.STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID,
+    STRIPE_BOOST_EN_VEDETTE_PRICE_ID: process.env.STRIPE_BOOST_EN_VEDETTE_PRICE_ID,
+    STRIPE_BOOST_VISIBILITE_PRICE_ID: process.env.STRIPE_BOOST_VISIBILITE_PRICE_ID,
+  }
+
+  const missing = Object.entries(required)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key)
+
+  if (missing.length > 0) {
+    console.error('❌ Missing required Stripe environment variables:', missing)
+  }
+}
+
+// Run validation in development
+if (process.env.NODE_ENV === 'development') {
+  validateEnvVars()
+}
+
 // Price IDs
 export const STRIPE_PRICES = {
-  subscriptionMonthly: process.env.STRIPE_SUBSCRIPTION_PRICE_ID!,
-  subscriptionAnnual: process.env.STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID!,
-  boostEnVedette: process.env.STRIPE_BOOST_EN_VEDETTE_PRICE_ID!,
-  boostVisibilite: process.env.STRIPE_BOOST_VISIBILITE_PRICE_ID!,
+  subscriptionMonthly: process.env.STRIPE_SUBSCRIPTION_PRICE_ID || '',
+  subscriptionAnnual: process.env.STRIPE_SUBSCRIPTION_ANNUAL_PRICE_ID || '',
+  boostEnVedette: process.env.STRIPE_BOOST_EN_VEDETTE_PRICE_ID || '',
+  boostVisibilite: process.env.STRIPE_BOOST_VISIBILITE_PRICE_ID || '',
 } as const
 
 // Subscription plan types

@@ -68,6 +68,17 @@ export async function POST(request: NextRequest) {
       ? STRIPE_PRICES.subscriptionAnnual 
       : STRIPE_PRICES.subscriptionMonthly
 
+    console.log('Creating subscription:', { interval, priceId, userId: user.id })
+
+    // Validate price ID
+    if (!priceId) {
+      console.error(`Missing price ID for interval: ${interval}`)
+      return NextResponse.json(
+        { error: `Configuration error: Missing ${interval} price ID` },
+        { status: 500 }
+      )
+    }
+
     // Create checkout session for subscription
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
