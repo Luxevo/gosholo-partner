@@ -453,7 +453,7 @@ export default function BoostsPage() {
                         >
                           {locale === 'fr' ? 'Annuel' : 'Annual'}
                           <Badge className="absolute -top-2 -right-1 bg-green-500 text-white text-xs px-1 py-0">
-                            -17%
+                            -8%
                           </Badge>
                         </button>
                       </div>
