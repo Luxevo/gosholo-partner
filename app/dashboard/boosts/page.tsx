@@ -58,6 +58,7 @@ export default function BoostsPage() {
   const [stats, setStats] = useState<UserStats | null>(null)
   const [boostCredits, setBoostCredits] = useState<BoostCredits | null>(null)
   const [subscription, setSubscription] = useState<any>(null)
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'annual'>('monthly')
   const [isLoading, setIsLoading] = useState(true)
   const [isApplyingBoost, setIsApplyingBoost] = useState<string | null>(null)
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
@@ -330,6 +331,9 @@ export default function BoostsPage() {
       const response = await fetch('/api/stripe/create-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interval: billingInterval,
+        }),
       })
 
       const { url } = await response.json()
@@ -414,8 +418,42 @@ export default function BoostsPage() {
                     <h3 className="text-lg sm:text-xl font-bold text-brand-accent">{t('boostsPage.gosholoPLUS', locale)}</h3>
                     {subscription?.is_subscribed && <Badge className="bg-brand-accent">{t('boostsPage.current', locale)}</Badge>}
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">8${t('boostsPage.perMonth', locale)}</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-brand-accent">
+                    {billingInterval === 'monthly' ? `8${t('boostsPage.perMonth', locale)}` : `88${locale === 'fr' ? '/an' : '/year'}`}
+                  </div>
                   <p className="text-xs text-gray-500 -mt-1">{locale === 'fr' ? '(offre et quantité à durée limitée)' : '(limited time offer and quantity)'}</p>
+                  
+                  {/* Billing Interval Toggle (only show if not subscribed) */}
+                  {!subscription?.is_subscribed && (
+                    <div className="bg-white p-3 rounded-lg border border-brand-accent/30">
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          onClick={() => setBillingInterval('monthly')}
+                          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                            billingInterval === 'monthly'
+                              ? 'bg-brand-accent text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {locale === 'fr' ? 'Mensuel' : 'Monthly'}
+                        </button>
+                        <button
+                          onClick={() => setBillingInterval('annual')}
+                          className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors relative ${
+                            billingInterval === 'annual'
+                              ? 'bg-brand-accent text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {locale === 'fr' ? 'Annuel' : 'Annual'}
+                          <Badge className="absolute -top-2 -right-1 bg-green-500 text-white text-xs px-1 py-0">
+                            -17%
+                          </Badge>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
                   <p className="text-sm text-gray-600">{t('boostsPage.upgradeSpeed', locale)}</p>
                   <ul className="text-sm space-y-2 text-left">
                     <li className="flex items-center">
