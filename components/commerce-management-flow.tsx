@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram, Clock } from "lucide-react"
 import ImageUpload from "@/components/image-upload"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -35,6 +35,8 @@ interface Commerce {
   facebook_url: string | null
   instagram_url: string | null
   status: string | null
+  open_at: string | null
+  close_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -71,6 +73,8 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     facebook_url: commerce.facebook_url || "",
     instagram_url: commerce.instagram_url || "",
     image_url: commerce.image_url || "",
+    open_at: commerce.open_at || "09:00",
+    close_at: commerce.close_at || "17:00",
   })
 
   const [isGeocoding, setIsGeocoding] = useState(false)
@@ -160,13 +164,23 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
   const validateForm = () => {
     const errors = []
     if (!form.name.trim()) errors.push('Nom du commerce requis')
-    if (!form.description.trim()) errors.push('Description requise')
+    // Description is now optional when editing
     if (!form.postal_code.trim()) errors.push('Code postal requis')
     if (form.postal_code.trim() && !validateCanadianPostalCode(form.postal_code)) {
       errors.push('Code postal invalide (format: H2X 1Y4)')
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category) errors.push('Catégorie requise')
+    
+    // Validate opening hours
+    if (form.open_at && form.close_at) {
+      const openTime = new Date(`2000-01-01T${form.open_at}`)
+      const closeTime = new Date(`2000-01-01T${form.close_at}`)
+      if (openTime >= closeTime) {
+        errors.push('L\'heure de fermeture doit être après l\'heure d\'ouverture')
+      }
+    }
+    
     // Email is optional - removed validation
     
     // Validate social media URLs
@@ -232,6 +246,8 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           facebook_url: form.facebook_url.trim() || null,
           instagram_url: form.instagram_url.trim() || null,
           image_url: form.image_url.trim() || null,
+          open_at: form.open_at || null,
+          close_at: form.close_at || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', commerce.id)
@@ -298,13 +314,12 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              {t('commerce.description', locale)} * <span className="text-red-500">*</span>
+              {t('commerce.description', locale)} (optionnel)
             </label>
             <Textarea
               placeholder="Description de votre commerce"
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-              required
               rows={3}
             />
           </div>
@@ -445,6 +460,39 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
                   onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
                   className="pl-10"
                 />
+              </div>
+            </div>
+
+            {/* Opening Hours */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  {locale === 'fr' ? 'Heure d\'ouverture' : 'Opening time'} (optionnel)
+                </label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                  <Input
+                    type="time"
+                    value={form.open_at}
+                    onChange={e => setForm(f => ({ ...f, open_at: e.target.value }))}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  {locale === 'fr' ? 'Heure de fermeture' : 'Closing time'} (optionnel)
+                </label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                  <Input
+                    type="time"
+                    value={form.close_at}
+                    onChange={e => setForm(f => ({ ...f, close_at: e.target.value }))}
+                    className="pl-10"
+                  />
+                </div>
               </div>
             </div>
 

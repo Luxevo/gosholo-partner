@@ -226,8 +226,8 @@ interface OfferCardProps {
 }
 
 const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
-  const status = getOfferStatus(offer.is_active, offer.created_at || '')
-  const daysRemaining = getDaysRemaining(offer.created_at || '')
+  const status = getOfferStatus(offer.is_active, offer.end_date || null)
+  const daysRemaining = getDaysRemaining(offer.end_date || null)
   
   return (
     <Card className="hover:shadow-md transition-shadow">

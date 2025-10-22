@@ -75,7 +75,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     postal_code: offer?.postal_code || "",
     conditions: offer?.condition || "",
     start_date: offer?.start_date || format(new Date(), "yyyy-MM-dd"),
-    end_date: offer?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+    end_date: offer?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // Default 30 days, but user can extend up to 365 days
     selectedCommerceId: offer?.commerce_id || commerceId || "",
     image_url: offer?.image_url || "",
   })
@@ -143,13 +143,13 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         errors.push(t('offers.endDateAfterStart', locale))
       }
       
-      // Maximum 30 days duration
+      // Maximum 365 days (1 year) duration
       const startDate = new Date(form.start_date)
       const endDate = new Date(form.end_date)
       const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      if (diffDays > 30) {
-        errors.push(t('offers.maxDuration30Days', locale))
+      if (diffDays > 365) {
+        errors.push(locale === 'fr' ? 'La durée maximale est de 1 an (365 jours)' : 'Maximum duration is 1 year (365 days)')
       }
     }
     
@@ -773,7 +773,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                   type="date"
                   value={form.end_date}
                   min={form.start_date || format(new Date(), "yyyy-MM-dd")}
-                  max={form.start_date ? format(new Date(new Date(form.start_date).getTime() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd") : ""}
+                  max={form.start_date ? format(new Date(new Date(form.start_date).getTime() + 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd") : ""}
                   onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
                   required
                 />

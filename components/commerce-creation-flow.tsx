@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Check, Building2, Facebook, Instagram } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Check, Building2, Facebook, Instagram, Clock } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
@@ -35,6 +35,8 @@ interface Commerce {
   facebook_url: string | null
   instagram_url: string | null
   status: string
+  open_at: string | null
+  close_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -77,7 +79,9 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     website: commerce?.website || "",
     facebook_url: commerce?.facebook_url || "",
     instagram_url: commerce?.instagram_url || "",
-    image_url: commerce?.image_url || ""
+    image_url: commerce?.image_url || "",
+    open_at: commerce?.open_at || "09:00",
+    close_at: commerce?.close_at || "17:00"
   })
   
   const [isGeocoding, setIsGeocoding] = useState(false)
@@ -101,6 +105,15 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     }
     if (!form.address.trim()) errors.push(t('validation.addressRequired', locale))
     if (!form.category) errors.push(t('validation.categoryRequired', locale))
+    
+    // Validate opening hours
+    if (form.open_at && form.close_at) {
+      const openTime = new Date(`2000-01-01T${form.open_at}`)
+      const closeTime = new Date(`2000-01-01T${form.close_at}`)
+      if (openTime >= closeTime) {
+        errors.push(locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time')
+      }
+    }
     
     // Validate social media URLs
     const socialValidation = validateSocialMediaLinks({
@@ -250,6 +263,8 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         facebook_url: form.facebook_url.trim() || null,
         instagram_url: form.instagram_url.trim() || null,
         image_url: form.image_url.trim() || null,
+        open_at: form.open_at.trim() || null,
+        close_at: form.close_at.trim() || null,
         status: 'active'
       }
 
@@ -317,7 +332,9 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
           website: "",
           facebook_url: "",
           instagram_url: "",
-          image_url: ""
+          image_url: "",
+          open_at: "09:00",
+          close_at: "17:00"
         })
       }
       
@@ -386,11 +403,28 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 <span>{COMMERCE_CATEGORIES.find(c => c.value === form.category)?.label || form.category}</span>
               </div>
               
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{t('commerce.addressLabel', locale)}</span>
-                <span>{form.address}</span>
+              <div className="flex items-start gap-2 text-sm">
+                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="font-medium block">{t('commerce.addressLabel', locale)}</span>
+                  <span className="text-sm leading-relaxed break-words">{form.address}</span>
+                </div>
               </div>
+
+              {(form.open_at || form.close_at) && (
+                <div className="flex items-start gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <span className="font-medium block">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</span>
+                    <span className="text-sm leading-relaxed">
+                      {form.open_at && form.close_at 
+                        ? `${form.open_at} - ${form.close_at}`
+                        : form.open_at || form.close_at || ''
+                      }
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <div className="space-y-2 text-sm text-blue-800">
@@ -471,7 +505,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
               </div>
             )}
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
               {/* Commerce Details */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
@@ -487,11 +521,28 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   </span>
                 </div>
                 
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{t('commerce.addressLabel', locale)}</span>
-                  <span>{form.address}</span>
+                <div className="flex items-start gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <span className="font-medium block">{t('commerce.addressLabel', locale)}</span>
+                    <span className="text-sm leading-relaxed break-words">{form.address}</span>
+                  </div>
                 </div>
+                
+                {(form.open_at || form.close_at) && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <span className="font-medium block">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</span>
+                      <span className="text-sm leading-relaxed">
+                        {form.open_at && form.close_at 
+                          ? `${form.open_at} - ${form.close_at}`
+                          : form.open_at || form.close_at || ''
+                        }
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               
               {/* Contact Information */}
@@ -766,6 +817,43 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                       onChange={e => setForm(f => ({ ...f, instagram_url: e.target.value }))}
                       className="pl-10"
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* Opening Hours */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-primary">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      {locale === 'fr' ? 'Heure d\'ouverture' : 'Opening Time'}
+                    </label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                      <Input
+                        type="time"
+                        value={form.open_at}
+                        onChange={e => setForm(f => ({ ...f, open_at: e.target.value }))}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">
+                      {locale === 'fr' ? 'Heure de fermeture' : 'Closing Time'}
+                    </label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
+                      <Input
+                        type="time"
+                        value={form.close_at}
+                        onChange={e => setForm(f => ({ ...f, close_at: e.target.value }))}
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

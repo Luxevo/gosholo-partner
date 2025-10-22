@@ -1,28 +1,27 @@
 import { createClient } from "@/lib/supabase/client"
 
 /**
- * Checks and deactivates offers that are older than 30 days
+ * Checks and deactivates offers that have passed their end_date
  * This function can be called from any part of the application
  */
 export const checkAndDeactivateOffers = async () => {
   const supabase = createClient()
   
   try {
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    const now = new Date().toISOString()
     
-    // Update offers that are older than 30 days and still active
+    // Update offers where end_date has passed and still active
     const { error } = await supabase
       .from('offers')
       .update({ is_active: false })
-      .lt('created_at', thirtyDaysAgo.toISOString())
+      .lt('end_date', now)
       .eq('is_active', true)
 
     if (error) {
-      console.error('Error deactivating old offers:', error)
+      console.error('Error deactivating expired offers:', error)
       return { success: false, error }
     } else {
-      console.log('Old offers deactivated successfully')
+      console.log('Expired offers deactivated successfully')
       return { success: true }
     }
   } catch (error) {
@@ -32,20 +31,23 @@ export const checkAndDeactivateOffers = async () => {
 }
 
 /**
- * Calculates days remaining for an offer based on its creation date
+ * Calculates days remaining for an offer based on its end_date
  */
-export const getDaysRemaining = (createdAt: string): number => {
-  const createdDate = new Date(createdAt)
+export const getDaysRemaining = (endDate: string | null): number => {
+  if (!endDate) return 0
+  
+  const end = new Date(endDate)
   const now = new Date()
-  const daysSinceCreation = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24))
-  const daysRemaining = 30 - daysSinceCreation
+  const diffTime = end.getTime() - now.getTime()
+  const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
   return Math.max(0, daysRemaining)
 }
 
 /**
  * Gets the status badge for an offer based on its active status and days remaining
  */
-export const getOfferStatus = (isActive: boolean, createdAt: string) => {
+export const getOfferStatus = (isActive: boolean, endDate: string | null) => {
   if (!isActive) {
     return { 
       label: 'Expirée', 
@@ -54,15 +56,21 @@ export const getOfferStatus = (isActive: boolean, createdAt: string) => {
     }
   }
   
-  const daysRemaining = getDaysRemaining(createdAt)
+  const daysRemaining = getDaysRemaining(endDate)
   
-  if (daysRemaining <= 7) {
+  if (daysRemaining === 0) {
+    return { 
+      label: 'Expire aujourd\'hui', 
+      variant: 'destructive' as const,
+      color: 'text-red-600'
+    }
+  } else if (daysRemaining <= 7) {
     return { 
       label: `Expire bientôt (${daysRemaining}j)`, 
       variant: 'destructive' as const,
       color: 'text-red-600'
     }
-  } else if (daysRemaining <= 14) {
+  } else if (daysRemaining <= 30) {
     return { 
       label: `Actif (${daysRemaining}j)`, 
       variant: 'secondary' as const,
