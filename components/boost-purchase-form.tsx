@@ -86,6 +86,7 @@ function CheckoutForm({
         }, 3000); // 3 secondes
       }
     } catch (err) {
+      console.error('Boost purchase error:', err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsProcessing(false);
