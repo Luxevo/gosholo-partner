@@ -345,7 +345,7 @@ export default function BoostsPage() {
       const { url } = await response.json()
 
       if (url) {
-        window.location.href = url
+        window.open(url, '_blank')
       }
     } catch (error) {
       console.error('Error creating subscription:', error)
