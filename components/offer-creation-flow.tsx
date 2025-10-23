@@ -18,6 +18,7 @@ import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
+import CategorySelector from "@/components/category-selector"
 
 interface Offer {
   id: string
@@ -37,7 +38,8 @@ interface Offer {
   created_at: string | null
   updated_at: string | null
   start_date: string | null
-  end_date: string | null 
+  end_date: string | null
+  category_id: number | null
 }
 
 interface OfferCreationFlowProps {
@@ -78,6 +80,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     end_date: offer?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // Default 30 days, but user can extend up to 365 days
     selectedCommerceId: offer?.commerce_id || commerceId || "",
     image_url: offer?.image_url || "",
+    category_id: offer?.category_id || null,
   })
 
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
@@ -121,6 +124,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     if (!form.title) errors.push(t('offers.titleRequired', locale))
     if (!form.short_description) errors.push(t('offers.descriptionRequired', locale))
     if (!form.selectedCommerceId) errors.push(t('offers.commerceRequired', locale))
+    if (!form.category_id) errors.push("Veuillez sélectionner une catégorie")
     if (!form.start_date) errors.push(t('offers.startDateRequired', locale))
     if (!form.end_date) errors.push(t('offers.endDateRequired', locale))
     
@@ -223,6 +227,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         postal_code: form.postal_code || null,
         latitude: geoData?.latitude || null,
         longitude: geoData?.longitude || null,
+        category_id: form.category_id,
         condition: form.conditions || null,
         start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
         end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
@@ -626,6 +631,18 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 </SelectContent>
               </Select>
             )}
+          </div>
+
+          {/* Category Selection */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-2">
+              Catégorie <span className="text-red-500">*</span>
+            </label>
+            <CategorySelector
+              value={form.category_id}
+              onValueChange={(value) => setForm(f => ({ ...f, category_id: value }))}
+              placeholder="Sélectionner une catégorie"
+            />
           </div>
 
           {/* Offer Details */}

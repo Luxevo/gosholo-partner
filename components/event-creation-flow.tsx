@@ -18,6 +18,7 @@ import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
+import CategoryEventsSelector from "@/components/category-events-selector"
 
 interface Event {
   id: string
@@ -37,6 +38,7 @@ interface Event {
   updated_at: string | null
   start_date: string | null
   end_date: string | null
+  category_events_id: number | null
 }
 
 interface EventCreationFlowProps {
@@ -64,17 +66,18 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
   
      // Initialize form with event data if editing, otherwise with defaults
-   const [form, setForm] = useState({
-     title: event?.title || "",
-     short_description: event?.description || "",
-     business_address: event?.custom_location || "",
-     postal_code: event?.postal_code || "",
-     conditions: event?.condition || "",
-     start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
-     end_date: event?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 30 days later by default
-     selectedCommerceId: event?.commerce_id || commerceId || "",
-     image_url: event?.image_url || "",
-   })
+  const [form, setForm] = useState({
+    title: event?.title || "",
+    short_description: event?.description || "",
+    business_address: event?.custom_location || "",
+    postal_code: event?.postal_code || "",
+    conditions: event?.condition || "",
+    start_date: event?.start_date || format(new Date(), "yyyy-MM-dd"),
+    end_date: event?.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"), // 30 days later by default
+    selectedCommerceId: event?.commerce_id || commerceId || "",
+    image_url: event?.image_url || "",
+    category_events_id: event?.category_events_id || null,
+  })
 
    const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
 
@@ -117,6 +120,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     if (!form.title) errors.push(t('events.titleRequired', locale))
     if (!form.short_description) errors.push(t('events.descriptionRequired', locale))
     if (!form.selectedCommerceId) errors.push(t('events.commerceRequired', locale))
+    if (!form.category_events_id) errors.push("Veuillez sélectionner une catégorie")
     if (!form.start_date) errors.push(t('events.startDateRequired', locale))
     if (!form.end_date) errors.push(t('events.endDateRequired', locale))
     
@@ -191,6 +195,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
          condition: form.conditions || null,
          start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
          end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
+         category_events_id: form.category_events_id,
        }
 
       console.log('Saving event with data:', eventData)
@@ -590,6 +595,18 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     </SelectContent>
                   </Select>
                 )}
+              </div>
+
+              {/* Category Selection */}
+              <div>
+                <label className="block text-sm font-medium text-primary mb-2">
+                  Catégorie <span className="text-red-500">*</span>
+                </label>
+                <CategoryEventsSelector
+                  value={form.category_events_id}
+                  onValueChange={(value) => setForm(f => ({ ...f, category_events_id: value }))}
+                  placeholder="Sélectionner une catégorie"
+                />
               </div>
 
               {/* Event Details */}

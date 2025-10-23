@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +16,7 @@ import { formatSocialMediaUrl, validateSocialMediaLinks } from "@/lib/social-med
 import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
 import AddressAutocomplete from "@/components/address-autocomplete"
+import CategorySelector from "@/components/category-selector"
 
 interface Commerce {
   id: string
@@ -24,6 +25,7 @@ interface Commerce {
   description: string | null
   address: string
   category: string
+  category_id: number | null
   sub_category: string | null
   email: string | null
   phone: string | null
@@ -73,6 +75,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     address: commerce?.address || "",
     postal_code: commerce?.postal_code || "",
     category: commerce?.category || "",
+    category_id: commerce?.category_id || null,
     sub_category: commerce?.sub_category || "",
     email: commerce?.email || "",
     phone: commerce?.phone || "",
@@ -86,6 +89,38 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
+  const [categories, setCategories] = useState<Array<{id: number, name_fr: string | null, name_en: string | null}>>([])
+
+  // Load categories on component mount
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
+  const loadCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('category')
+        .select('id, name_fr, name_en')
+        .order('name_fr', { ascending: true })
+
+      if (error) {
+        console.error('Error loading categories:', error)
+        return
+      }
+
+      setCategories(data || [])
+    } catch (error) {
+      console.error('Unexpected error loading categories:', error)
+    }
+  }
+
+  // Get category name by ID
+  const getCategoryName = (categoryId: number | null) => {
+    if (!categoryId) return 'Non sélectionnée'
+    const category = categories.find(c => c.id === categoryId)
+    if (!category) return 'Catégorie inconnue'
+    return locale === 'en' && category.name_en ? category.name_en : category.name_fr || 'Catégorie sans nom'
+  }
 
   // Handle category change to clear sub_category if not Restaurant
   const handleCategoryChange = (value: string) => {
@@ -104,7 +139,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       errors.push(t('validation.invalidPostalCode', locale))
     }
     if (!form.address.trim()) errors.push(t('validation.addressRequired', locale))
-    if (!form.category) errors.push(t('validation.categoryRequired', locale))
+    if (!form.category_id) errors.push("Veuillez sélectionner une catégorie")
     
     // Validate opening hours
     if (form.open_at && form.close_at) {
@@ -255,7 +290,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         postal_code: form.postal_code.trim(),
         latitude: geoData?.latitude || null,
         longitude: geoData?.longitude || null,
-        category: form.category,
+        category_id: form.category_id,
         sub_category: form.sub_category.trim() || null,
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
@@ -269,6 +304,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       }
 
       console.log('Saving commerce with data:', commerceData)
+      console.log('Category ID being saved:', form.category_id)
 
       let result
       
@@ -326,6 +362,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
           address: "",
           postal_code: "",
           category: "",
+          category_id: null,
           sub_category: "",
           email: "",
           phone: "",
@@ -343,6 +380,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       }
     } catch (error) {
       console.error('Unexpected error saving commerce:', error)
+      console.error('Full error details:', JSON.stringify(error, null, 2))
     } finally {
       setIsLoading(false)
     }
@@ -400,7 +438,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
               <div className="flex items-center gap-2 text-sm">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">{t('commerce.categoryLabel', locale)}</span>
-                <span>{COMMERCE_CATEGORIES.find(c => c.value === form.category)?.label || form.category}</span>
+                <span>{getCategoryName(form.category_id)}</span>
               </div>
               
               <div className="flex items-start gap-2 text-sm">
@@ -512,8 +550,8 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{t('commerce.categoryLabel', locale)}</span>
                   <span>
-                    {COMMERCE_CATEGORIES.find(c => c.value === form.category)?.label || form.category}
-                    {form.category === "Restaurant" && form.sub_category && (
+                    {getCategoryName(form.category_id)}
+                    {form.sub_category && (
                       <span className="text-muted-foreground ml-1">
                         - {RESTAURANT_SUBCATEGORIES.find(sc => sc.value === form.sub_category)?.label || form.sub_category}
                       </span>
@@ -701,18 +739,11 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 <label className="block text-sm font-medium text-primary mb-2">
                   {t('commerce.category', locale)} * <span className="text-red-500">*</span>
                 </label>
-                <Select value={form.category} onValueChange={handleCategoryChange}>
-                  <SelectTrigger className={!form.category ? "border-red-300 focus:border-red-500" : ""}>
-                    <SelectValue placeholder={t('commerce.categoryPlaceholder', locale)} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COMMERCE_CATEGORIES.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CategorySelector
+                  value={form.category_id}
+                  onValueChange={(value) => setForm(f => ({ ...f, category_id: value }))}
+                  placeholder={t('commerce.categoryPlaceholder', locale)}
+                />
               </div>
 
               {/* Sub-category dropdown - only show for restaurants */}
@@ -869,7 +900,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
               <Button 
                 className="bg-accent hover:bg-accent/80 text-white flex-1" 
                 onClick={isEditMode ? handleSaveCommerce : handlePreviewCommerce}
-                disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category}
+                disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id}
               >
                 {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
               </Button>
