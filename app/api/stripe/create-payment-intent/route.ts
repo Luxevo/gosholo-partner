@@ -54,9 +54,8 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error creating payment intent:', error)
-    console.error('Error details:', JSON.stringify(error, null, 2))
     return NextResponse.json(
-      { error: 'Erreur lors de la création du paiement', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Erreur lors de la création du paiement' },
       { status: 500 }
     )
   }
