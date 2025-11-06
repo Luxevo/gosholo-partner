@@ -54,7 +54,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   const { toast } = useToast()
   const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
-  const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
+  const [commerces, setCommerces] = useState<Array<{id: string, name: string, address: string, category_id: number | null}>>([])
   
   // Determine if we're in edit mode
   const isEditMode = !!offer
@@ -90,34 +90,75 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     const loadData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          // Load commerces
-          const { data: commercesData } = await supabase
-            .from('commerces')
-            .select('id, name, category, address')
-            .eq('user_id', user.id)
-          setCommerces(commercesData || [])
-          
-          // Auto-select commerce if only one available and no commerceId provided
-          if (commercesData && commercesData.length === 1 && !commerceId && !offer) {
-            setForm(f => ({ ...f, selectedCommerceId: commercesData[0].id }))
-          }
-
-          // Load boost credits
-          const { data: boostCreditsData } = await supabase
-            .from('user_boost_credits')
-            .select('available_en_vedette, available_visibilite')
-            .eq('user_id', user.id)
-            .single()
-          
-          setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
+        if (!user) {
+          console.warn('No user found')
+          return
         }
+
+        // Load commerces - try with category_id first, fallback to basic query if it fails
+        let commercesData = null
+        let commercesError = null
+        
+        // Load commerces with category_id
+        const result = await supabase
+          .from('commerces')
+          .select('id, name, address, category_id')
+          .eq('user_id', user.id)
+        
+        if (result.error) {
+          commercesError = result.error
+        } else {
+          commercesData = result.data
+        }
+        
+        if (commercesError) {
+          // Don't use console.error to avoid triggering AuthErrorHandler
+          console.warn('Error loading commerces:', commercesError.message || commercesError)
+          toast({
+            title: locale === 'fr' ? 'Erreur' : 'Error',
+            description: locale === 'fr' 
+              ? `Impossible de charger les commerces: ${commercesError.message || 'Erreur inconnue'}` 
+              : `Unable to load businesses: ${commercesError.message || 'Unknown error'}`,
+            variant: 'destructive'
+          })
+          return
+        }
+        
+        setCommerces(commercesData || [])
+        
+        // Auto-select commerce if only one available and no commerceId provided
+        if (commercesData && commercesData.length === 1 && !commerceId && !offer) {
+          setForm(f => ({ 
+            ...f, 
+            selectedCommerceId: commercesData[0].id,
+            category_id: commercesData[0].category_id
+          }))
+        }
+
+        // Load boost credits
+        const { data: boostCreditsData } = await supabase
+          .from('user_boost_credits')
+          .select('available_en_vedette, available_visibilite')
+          .eq('user_id', user.id)
+          .single()
+        
+        setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
       } catch (error) {
-        console.error('Error loading data:', error)
+        console.warn('Error loading data:', error)
       }
     }
     loadData()
   }, [commerceId, offer])
+
+  // Auto-fill category_id when commerce is selected
+  useEffect(() => {
+    if (form.selectedCommerceId && commerces.length > 0) {
+      const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
+      if (selectedCommerce && selectedCommerce.category_id && !form.category_id) {
+        setForm(f => ({ ...f, category_id: selectedCommerce.category_id }))
+      }
+    }
+  }, [form.selectedCommerceId, commerces])
 
   const validateForm = () => {
     const errors = []
@@ -624,7 +665,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                     <SelectItem key={commerce.id} value={commerce.id}>
                       <div className="flex flex-col">
                         <span className="font-medium">{commerce.name}</span>
-                        <span className="text-xs text-secondary">{commerce.category} • {commerce.address}</span>
+                        <span className="text-xs text-secondary">{commerce.address}</span>
                       </div>
                     </SelectItem>
                   ))}

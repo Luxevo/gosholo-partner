@@ -100,16 +100,23 @@ gosholo-partner/
   id: string
   user_id: string
   commerce_id: string
+  category_id: number | null  // Links to category table
   title: string
   description: string
   offer_type: "in_store" | "online" | "both"
   condition: string | null
-  picture: string | null
+  image_url: string | null
   is_active: boolean | null
   uses_commerce_location: boolean
   custom_location: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
   start_date: string | null
   end_date: string | null
+  boosted: boolean | null
+  boost_type: "en_vedette" | "visibilite" | null
+  boosted_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -121,15 +128,25 @@ gosholo-partner/
   id: string
   user_id: string
   commerce_id: string
+  category_events_id: number | null  // Links to category_events table
   title: string
   description: string
   condition: string | null
-  picture: string | null
-  is_active: boolean
+  image_url: string | null
+  is_active: boolean | null
   uses_commerce_location: boolean
   custom_location: string | null
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
+  facebook_url: string | null
+  instagram_url: string | null
+  linkedin_url: string | null
   start_date: string | null
   end_date: string | null
+  boosted: boolean | null
+  boost_type: "en_vedette" | "visibilite" | null
+  boosted_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -208,6 +225,45 @@ subscription_plan_enum: "free" | "pro"
 - `use_boost_credits(user_uuid, credits_to_use)` - Manages boost credit usage
 - `user_has_credits(user_uuid, required_credits)` - Checks credit availability
 - `expire_old_boosts()` - Cleans up expired boosts
+
+### Category System
+
+The application uses a two-tier category system:
+
+#### 1. Commerce Categories (`category` table)
+- Each commerce has a `category_id` (foreign key to `category` table)
+- Also stores a legacy `category` field (enum) for backward compatibility
+- Categories are multilingual (French & English) and stored in the database
+- Used for filtering and displaying commerces by type
+
+#### 2. Offer Categories (`category` table)
+- Each offer has a `category_id` that should link to a category
+- **Auto-fill behavior**: When creating an offer, if a commerce is selected and has a `category_id`, it will be automatically used
+- Categories help users discover relevant offers
+- The `category_id` field is **required** when creating offers
+
+#### 3. Event Categories (`category_events` table)
+- Each event has a `category_events_id` linking to event-specific categories
+- Event categories are separate from commerce/offer categories
+- Allows for event-specific classification (concerts, workshops, sales, etc.)
+
+#### Category Loading Best Practices
+When loading commerces for offer/event creation:
+```typescript
+// Always include category_id in queries
+const { data } = await supabase
+  .from('commerces')
+  .select('id, name, category, address, category_id')
+  .eq('user_id', user.id)
+
+// For backward compatibility, handle missing category_id gracefully
+// Use fallback query if category_id field doesn't exist
+```
+
+#### Error Handling
+- Use `console.warn()` instead of `console.error()` for non-critical errors to avoid triggering `AuthErrorHandler`
+- Always provide user-friendly toast messages when category loading fails
+- Handle null/undefined `category_id` values gracefully in the UI
 
 ## 🎯 Core Features
 

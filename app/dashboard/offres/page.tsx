@@ -45,7 +45,7 @@ interface Offer {
 interface Commerce {
   id: string
   name: string
-  category: string | null
+  category_id: number | null
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
@@ -161,14 +161,11 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
 
         {/* Content Section */}
         <div className="p-4 bg-white">
-          {/* Business Name + Category */}
+          {/* Business Name */}
           <div className="flex items-center mb-3">
             <h3 className="text-lg font-bold text-orange-600">
               {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
             </h3>
-            <div className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
-              {commerce?.category || t('placeholders.restaurant', locale as 'fr' | 'en')}
-            </div>
           </div>
 
           {/* Offer Title */}
@@ -561,11 +558,11 @@ function OffresPageContent() {
       // First get user's commerces
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
-        .select('id, name, category')
+        .select('id, name, category_id')
         .eq('user_id', user.id)
 
       if (commercesError) {
-        console.error('Error loading commerces:', commercesError)
+        console.warn('Error loading commerces:', commercesError)
         setIsLoadingOffers(false)
         return
       }
@@ -578,12 +575,12 @@ function OffresPageContent() {
         return
       }
 
-              const commerces = commercesData.map(c => ({ 
-          id: c.id, 
-          name: c.name, 
-          category: c.category 
-        }))
-        setCommerces(commerces) // Set commerces state
+      const commerces = commercesData.map(c => ({ 
+        id: c.id, 
+        name: c.name, 
+        category_id: c.category_id 
+      }))
+      setCommerces(commerces) // Set commerces state
 
       // Query offers for user's commerces
       const { data: offersData, error } = await supabase

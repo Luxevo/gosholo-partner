@@ -53,7 +53,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   const { toast } = useToast()
   const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
-  const [commerces, setCommerces] = useState<Array<{id: string, name: string, category: string, address: string}>>([])
+  const [commerces, setCommerces] = useState<Array<{id: string, name: string, address: string}>>([])
   
   // Determine if we're in edit mode
   const isEditMode = !!event
@@ -90,7 +90,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
           // Load commerces
           const { data: commercesData } = await supabase
             .from('commerces')
-            .select('id, name, category, address')
+            .select('id, name, address')
             .eq('user_id', user.id)
           setCommerces(commercesData || [])
           
@@ -588,7 +588,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                         <SelectItem key={commerce.id} value={commerce.id}>
                           <div className="flex flex-col">
                             <span className="font-medium">{commerce.name}</span>
-                            <span className="text-xs text-secondary">{commerce.category} • {commerce.address}</span>
+                            <span className="text-xs text-secondary">{commerce.address}</span>
                           </div>
                         </SelectItem>
                       ))}

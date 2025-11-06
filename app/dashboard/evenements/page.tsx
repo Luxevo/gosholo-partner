@@ -43,7 +43,7 @@ interface Event {
 interface Commerce {
   id: string
   name: string
-  category: string | null
+  category_id: number | null
 }
 
 type FilterType = 'all' | 'active' | 'inactive'
@@ -541,11 +541,11 @@ function EvenementsPageContent() {
       // First get user's commerces
       const { data: commercesData, error: commercesError } = await supabase
         .from('commerces')
-        .select('id, name, category')
+        .select('id, name, category_id')
         .eq('user_id', user.id)
 
       if (commercesError) {
-        console.error('Error loading commerces:', commercesError)
+        console.warn('Error loading commerces:', commercesError)
         setIsLoadingEvents(false)
         return
       }
@@ -561,7 +561,7 @@ function EvenementsPageContent() {
       const commerces = commercesData.map(c => ({ 
         id: c.id, 
         name: c.name, 
-        category: c.category 
+        category_id: c.category_id 
       }))
       setCommerces(commerces)
 
