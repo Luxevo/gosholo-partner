@@ -31,12 +31,20 @@ interface Commerce {
   name: string
   description: string | null
   address: string
-  category: string
+  category_id: number | null
+  sub_category: string | null
   email: string | null
   phone: string | null
   website: string | null
   image_url: string | null
   status: string
+  postal_code: string | null
+  latitude: number | null
+  longitude: number | null
+  facebook_url: string | null
+  instagram_url: string | null
+  open_at: string | null
+  close_at: string | null
   created_at: string | null
   updated_at: string | null
   boosted?: boolean
