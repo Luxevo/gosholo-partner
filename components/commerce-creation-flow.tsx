@@ -17,6 +17,8 @@ import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/ca
 import { useLanguage } from "@/contexts/language-context"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import CategorySelector from "@/components/category-selector"
+import WeeklyScheduleEditor, { DaySchedule } from "@/components/weekly-schedule-editor"
+import SpecialHoursEditor, { SpecialHour } from "@/components/special-hours-editor"
 
 interface Commerce {
   id: string
@@ -37,8 +39,6 @@ interface Commerce {
   facebook_url: string | null
   instagram_url: string | null
   status: string
-  open_at: string | null
-  close_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -64,10 +64,20 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   // Determine if we're in edit mode
   const isEditMode = !!commerce
   
-  // Preview and confirmation mode states
-  const [isPreviewMode, setIsPreviewMode] = useState(false)
+  // Confirmation mode state
   const [isConfirmationMode, setIsConfirmationMode] = useState(false)
   
+  // Initialize default weekly schedule (Monday=0 to Sunday=6)
+  const DEFAULT_SCHEDULE: DaySchedule[] = [
+    { day_of_week: 0, open_time: "09:00", close_time: "18:00", is_closed: false }, // Monday
+    { day_of_week: 1, open_time: "09:00", close_time: "18:00", is_closed: false }, // Tuesday
+    { day_of_week: 2, open_time: "09:00", close_time: "18:00", is_closed: false }, // Wednesday
+    { day_of_week: 3, open_time: "09:00", close_time: "18:00", is_closed: false }, // Thursday
+    { day_of_week: 4, open_time: "09:00", close_time: "18:00", is_closed: false }, // Friday
+    { day_of_week: 5, open_time: "10:00", close_time: "17:00", is_closed: false }, // Saturday
+    { day_of_week: 6, open_time: "", close_time: "", is_closed: true }, // Sunday - closed by default
+  ]
+
   // Initialize form with commerce data if editing, otherwise with defaults
   const [form, setForm] = useState({
     name: commerce?.name || "",
@@ -82,11 +92,12 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     website: commerce?.website || "",
     facebook_url: commerce?.facebook_url || "",
     instagram_url: commerce?.instagram_url || "",
-    image_url: commerce?.image_url || "",
-    open_at: commerce?.open_at || "09:00",
-    close_at: commerce?.close_at || "17:00"
+    image_url: commerce?.image_url || ""
   })
-  
+
+  const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>(DEFAULT_SCHEDULE)
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([])
+
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
   const [categories, setCategories] = useState<Array<{id: number, name_fr: string | null, name_en: string | null}>>([])
@@ -95,6 +106,8 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   useEffect(() => {
     loadCategories()
   }, [])
+
+
 
   const loadCategories = async () => {
     try {
@@ -140,27 +153,62 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     }
     if (!form.address.trim()) errors.push(t('validation.addressRequired', locale))
     if (!form.category_id) errors.push("Veuillez sélectionner une catégorie")
-    
-    // Validate opening hours
-    if (form.open_at && form.close_at) {
-      const openTime = new Date(`2000-01-01T${form.open_at}`)
-      const closeTime = new Date(`2000-01-01T${form.close_at}`)
-      if (openTime >= closeTime) {
-        errors.push(locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time')
-      }
+
+    // Validate weekly schedule
+    const hasAtLeastOneOpenDay = weeklySchedule.some(day => !day.is_closed)
+    if (!hasAtLeastOneOpenDay) {
+      errors.push(locale === 'fr' ? 'Au moins un jour doit être ouvert' : 'At least one day must be open')
     }
-    
+
+    // Validate time ranges for open days
+    weeklySchedule.forEach((day, idx) => {
+      if (!day.is_closed) {
+        if (!day.open_time || !day.close_time) {
+          const dayNames = locale === 'fr'
+            ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+            : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+          errors.push(`${dayNames[idx]}: ${locale === 'fr' ? 'Veuillez entrer les heures' : 'Please enter hours'}`)
+        } else {
+          const openTime = new Date(`2000-01-01T${day.open_time}`)
+          const closeTime = new Date(`2000-01-01T${day.close_time}`)
+          if (openTime >= closeTime) {
+            const dayNames = locale === 'fr'
+              ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+              : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            errors.push(`${dayNames[idx]}: ${locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time'}`)
+          }
+        }
+      }
+    })
+
+    // Validate special hours
+    specialHours.forEach((hour, idx) => {
+      if (!hour.date) {
+        errors.push(`${locale === 'fr' ? 'Horaire spécial' : 'Special hour'} ${idx + 1}: ${locale === 'fr' ? 'Date requise' : 'Date required'}`)
+      }
+      if (!hour.is_closed && (!hour.open_time || !hour.close_time)) {
+        errors.push(`${locale === 'fr' ? 'Horaire spécial' : 'Special hour'} ${idx + 1}: ${locale === 'fr' ? 'Heures requises' : 'Hours required'}`)
+      }
+      if (!hour.is_closed && hour.open_time && hour.close_time) {
+        const openTime = new Date(`2000-01-01T${hour.open_time}`)
+        const closeTime = new Date(`2000-01-01T${hour.close_time}`)
+        if (openTime >= closeTime) {
+          errors.push(`${locale === 'fr' ? 'Horaire spécial' : 'Special hour'} ${idx + 1}: ${locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time'}`)
+        }
+      }
+    })
+
     // Validate social media URLs
     const socialValidation = validateSocialMediaLinks({
       facebook_url: form.facebook_url,
       instagram_url: form.instagram_url,
       website: form.website
     })
-    
+
     if (!socialValidation.isValid) {
       errors.push(...socialValidation.errors)
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors
@@ -235,26 +283,69 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     }
   }
 
-  const handlePreviewCommerce = () => {
+  const handleShowConfirmation = () => {
     const validation = validateForm()
     if (!validation.isValid) {
       alert(`Veuillez corriger les erreurs suivantes :\n${validation.errors.join('\n')}`)
       return
     }
-    setIsPreviewMode(true)
-  }
-
-  const handleBackToEdit = () => {
-    setIsPreviewMode(false)
-    setIsConfirmationMode(false)
-  }
-
-  const handleConfirmPublish = () => {
     setIsConfirmationMode(true)
   }
 
-  const handleBackToPreview = () => {
+  const handleBackToEdit = () => {
     setIsConfirmationMode(false)
+  }
+
+  // Format weekly schedule for display - groups consecutive days with same hours
+  const formatWeeklySchedule = (): { days: string; hours: string; isClosed: boolean }[] => {
+    const dayNames = locale === 'fr'
+      ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+      : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    const shortDayNames = locale === 'fr'
+      ? ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+      : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+    interface ScheduleGroup {
+      start: number
+      end: number
+      hours: string
+      isClosed: boolean
+    }
+
+    const groups: { days: string; hours: string; isClosed: boolean }[] = []
+    let currentGroup: ScheduleGroup | undefined
+
+    const addGroup = (group: ScheduleGroup) => {
+      const dayRange = group.start === group.end
+        ? dayNames[group.start]
+        : `${shortDayNames[group.start]} - ${shortDayNames[group.end]}`
+      groups.push({ days: dayRange, hours: group.hours, isClosed: group.isClosed })
+    }
+
+    weeklySchedule.forEach((day, idx) => {
+      const hours = day.is_closed
+        ? (locale === 'fr' ? 'Fermé' : 'Closed')
+        : `${day.open_time} - ${day.close_time}`
+
+      if (!currentGroup) {
+        currentGroup = { start: idx, end: idx, hours, isClosed: day.is_closed }
+      } else if (currentGroup.hours === hours) {
+        // Same hours, extend the group
+        currentGroup.end = idx
+      } else {
+        // Different hours, save current group and start new one
+        addGroup(currentGroup)
+        currentGroup = { start: idx, end: idx, hours, isClosed: day.is_closed }
+      }
+    })
+
+    // Add the last group
+    if (currentGroup) {
+      addGroup(currentGroup)
+    }
+
+    return groups
   }
 
   const handleSaveCommerce = async () => {
@@ -298,15 +389,13 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         facebook_url: form.facebook_url.trim() || null,
         instagram_url: form.instagram_url.trim() || null,
         image_url: form.image_url.trim() || null,
-        open_at: form.open_at.trim() || null,
-        close_at: form.close_at.trim() || null,
         status: 'active'
       }
 
       console.log('Saving commerce with data:', commerceData)
       console.log('Category ID being saved:', form.category_id)
 
-      let result
+      let result: { id: string } | null = null
       
       if (isEditMode && commerce) {
         // Update existing commerce
@@ -344,8 +433,55 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
         result = insertData
         console.log('Commerce created:', result)
+
+        // Create weekly hours for the new commerce
+        if (result && result.id) {
+          const commerceId = result.id
+          const hoursData = weeklySchedule.map(day => ({
+            commerce_id: commerceId,
+            day_of_week: day.day_of_week,
+            open_time: day.is_closed ? null : day.open_time,
+            close_time: day.is_closed ? null : day.close_time,
+            is_closed: day.is_closed
+          }))
+
+          const { error: hoursError } = await supabase
+            .from('commerce_hours')
+            .insert(hoursData)
+
+          if (hoursError) {
+            console.error('Error creating commerce hours:', hoursError)
+            // Note: Commerce was created successfully, but hours failed
+            // Could add retry logic or show warning to user
+          } else {
+            console.log('Commerce hours created successfully')
+          }
+
+          // Create special hours if any
+          if (specialHours.length > 0) {
+            const specialHoursData = specialHours.map(hour => ({
+              commerce_id: commerceId,
+              date: hour.date,
+              open_time: hour.is_closed ? null : hour.open_time,
+              close_time: hour.is_closed ? null : hour.close_time,
+              is_closed: hour.is_closed,
+              label_fr: hour.label_fr || null,
+              label_en: hour.label_en || null
+            }))
+
+            const { error: specialHoursError } = await supabase
+              .from('commerce_special_hours')
+              .insert(specialHoursData)
+
+            if (specialHoursError) {
+              console.error('Error creating special hours:', specialHoursError)
+            } else {
+              console.log('Special hours created successfully')
+            }
+          }
+        }
       }
-      
+
       // Refresh dashboard counts
       refreshCounts()
       
@@ -369,12 +505,12 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
           website: "",
           facebook_url: "",
           instagram_url: "",
-          image_url: "",
-          open_at: "09:00",
-          close_at: "17:00"
+          image_url: ""
         })
+        setWeeklySchedule(DEFAULT_SCHEDULE)
+        setSpecialHours([])
       }
-      
+
       if (onCancel) {
         onCancel()
       }
@@ -449,20 +585,60 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 </div>
               </div>
 
-              {(form.open_at || form.close_at) && (
-                <div className="flex items-start gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <span className="font-medium block">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</span>
-                    <span className="text-sm leading-relaxed">
-                      {form.open_at && form.close_at 
-                        ? `${form.open_at} - ${form.close_at}`
-                        : form.open_at || form.close_at || ''
-                      }
-                    </span>
+              <div className="flex items-start gap-2 text-sm">
+                <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <span className="font-medium block mb-2">{locale === 'fr' ? 'Horaires' : 'Schedule'}</span>
+                  <div className="space-y-1.5">
+                    {formatWeeklySchedule().map((group, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center justify-between py-1.5 px-2 rounded ${
+                          group.isClosed ? 'bg-gray-100' : 'bg-green-50'
+                        }`}
+                      >
+                        <span className="text-sm font-medium text-primary">{group.days}</span>
+                        <span className={`text-sm ${
+                          group.isClosed ? 'text-muted-foreground italic' : 'text-green-700 font-medium'
+                        }`}>
+                          {group.hours}
+                        </span>
+                      </div>
+                    ))}
                   </div>
+                  {specialHours.length > 0 && (
+                    <div className="mt-3 pt-3 border-t">
+                      <span className="font-medium text-xs text-muted-foreground block mb-1.5">
+                        {locale === 'fr' ? 'Horaires spéciaux' : 'Special hours'}
+                      </span>
+                      <div className="space-y-1">
+                        {specialHours.map((hour, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs py-1 px-2 bg-blue-50 rounded">
+                            <span className="font-medium">
+                              {new Date(hour.date).toLocaleDateString(locale, {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                              {(hour.label_fr || hour.label_en) && (
+                                <span className="text-muted-foreground ml-1">
+                                  ({locale === 'fr' ? hour.label_fr : hour.label_en})
+                                </span>
+                              )}
+                            </span>
+                            <span className={hour.is_closed ? 'text-muted-foreground italic' : 'text-blue-700'}>
+                              {hour.is_closed
+                                ? (locale === 'fr' ? 'Fermé' : 'Closed')
+                                : `${hour.open_time} - ${hour.close_time}`
+                              }
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                 <div className="space-y-2 text-sm text-blue-800">
@@ -483,7 +659,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToPreview}>
+          <Button variant="outline" onClick={handleBackToEdit}>
             ← {t('buttons.back', locale)}
           </Button>
           <Button 
@@ -498,144 +674,10 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     )
   }
 
-  // Preview Component
-  const CommercePreview = () => {
-    return (
-      <div className="space-y-6">
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-semibold text-primary mb-2">
-            {t('commerce.previewTitle', locale)}
-          </h2>
-          <p className="text-muted-foreground">
-            {t('commerce.previewDesc', locale)}
-          </p>
-        </div>
-
-        {/* Preview Card */}
-        <Card className="border-2 border-blue-200 bg-blue-50/30">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-lg font-semibold text-primary">
-                  {form.name}
-                </CardTitle>
-                <CardDescription className="mt-1 text-sm text-muted-foreground">
-                  {form.description || t('commerce.noDescription', locale)}
-                </CardDescription>
-              </div>
-              <Badge variant="secondary" className="text-xs">
-                {t('commerce.preview', locale)}
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="pt-0">
-            {/* Commerce Image */}
-            {form.image_url && (
-              <div className="mb-4">
-                <div className="aspect-square w-32 h-32 relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200 mx-auto">
-                  <img
-                    src={form.image_url}
-                    alt={form.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            )}
-            
-            <div className="space-y-4">
-              {/* Commerce Details */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{t('commerce.categoryLabel', locale)}</span>
-                  <span>
-                    {getCategoryName(form.category_id)}
-                    {form.sub_category && (
-                      <span className="text-muted-foreground ml-1">
-                        - {RESTAURANT_SUBCATEGORIES.find(sc => sc.value === form.sub_category)?.label || form.sub_category}
-                      </span>
-                    )}
-                  </span>
-                </div>
-                
-                <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <span className="font-medium block">{t('commerce.addressLabel', locale)}</span>
-                    <span className="text-sm leading-relaxed break-words">{form.address}</span>
-                  </div>
-                </div>
-                
-                {(form.open_at || form.close_at) && (
-                  <div className="flex items-start gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <span className="font-medium block">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</span>
-                      <span className="text-sm leading-relaxed">
-                        {form.open_at && form.close_at 
-                          ? `${form.open_at} - ${form.close_at}`
-                          : form.open_at || form.close_at || ''
-                        }
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Contact Information */}
-              <div className="space-y-3">
-                {form.email && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Email:</span>
-                    <span className="text-blue-600">{form.email}</span>
-                  </div>
-                )}
-                
-                {form.phone && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Téléphone:</span>
-                    <span className="text-blue-600">{form.phone}</span>
-                  </div>
-                )}
-                
-                {form.website && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Globe className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Site web:</span>
-                    <span className="text-blue-600">{form.website}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToEdit}>
-            ← {t('buttons.back', locale)}
-          </Button>
-          <Button 
-            className="bg-accent hover:bg-accent/80 text-white" 
-            onClick={handleConfirmPublish}
-            disabled={isLoading}
-          >
-            {t('buttons.next', locale)}
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
       {isConfirmationMode ? (
         <CommerceConfirmation />
-      ) : isPreviewMode ? (
-        <CommercePreview />
       ) : (
         <>
           <CardHeader className="pb-4">
@@ -852,42 +894,17 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 </div>
               </div>
 
-              {/* Opening Hours */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium text-primary">{locale === 'fr' ? 'Heures d\'ouverture' : 'Opening Hours'}</h3>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-primary mb-2">
-                      {locale === 'fr' ? 'Heure d\'ouverture' : 'Opening Time'}
-                    </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                      <Input
-                        type="time"
-                        value={form.open_at}
-                        onChange={e => setForm(f => ({ ...f, open_at: e.target.value }))}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
+              {/* Weekly Schedule */}
+              <WeeklyScheduleEditor
+                schedule={weeklySchedule}
+                onChange={setWeeklySchedule}
+              />
 
-                  <div>
-                    <label className="block text-sm font-medium text-primary mb-2">
-                      {locale === 'fr' ? 'Heure de fermeture' : 'Closing Time'}
-                    </label>
-                    <div className="relative">
-                      <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                      <Input
-                        type="time"
-                        value={form.close_at}
-                        onChange={e => setForm(f => ({ ...f, close_at: e.target.value }))}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Special Hours */}
+              <SpecialHoursEditor
+                specialHours={specialHours}
+                onChange={setSpecialHours}
+              />
             </div>
 
             {/* Action Buttons */}
@@ -897,12 +914,12 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                   {t('buttons.cancel', locale)}
                 </Button>
               )}
-              <Button 
-                className="bg-accent hover:bg-accent/80 text-white flex-1" 
-                onClick={isEditMode ? handleSaveCommerce : handlePreviewCommerce}
+              <Button
+                className="bg-accent hover:bg-accent/80 text-white flex-1"
+                onClick={isEditMode ? handleSaveCommerce : handleShowConfirmation}
                 disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id}
               >
-                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.preview', locale))}
+                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.next', locale))}
               </Button>
             </div>
           </CardContent>

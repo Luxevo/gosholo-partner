@@ -64,7 +64,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Footer */}
       <div className="p-4 border-t border-brand-primary/20">
-        <div className="text-xs text-brand-primary/50 text-center">© 2024 Gosholo Partner</div>
+        <div className="text-xs text-brand-primary/50 text-center">© 2024 gosholo dashboard</div>
       </div>
     </div>
   )

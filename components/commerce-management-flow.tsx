@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram, Clock } from "lucide-react"
+import { Store, MapPin, Phone, Mail, Globe, Facebook, Instagram } from "lucide-react"
 import ImageUpload from "@/components/image-upload"
 import { createClient } from "@/lib/supabase/client"
 import { useDashboard } from "@/contexts/dashboard-context"
@@ -17,6 +17,8 @@ import { getRestaurantSubcategories, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import CategorySelector from "@/components/category-selector"
+import WeeklyScheduleEditor, { DaySchedule } from "@/components/weekly-schedule-editor"
+import SpecialHoursEditor, { SpecialHour } from "@/components/special-hours-editor"
 
 interface Commerce {
   id: string
@@ -36,8 +38,6 @@ interface Commerce {
   facebook_url: string | null
   instagram_url: string | null
   status: string | null
-  open_at: string | null
-  close_at: string | null
   created_at: string | null
   updated_at: string | null
 }
@@ -48,6 +48,16 @@ interface CommerceManagementFlowProps {
   onCommerceUpdated?: () => void
 }
 
+const DEFAULT_SCHEDULE: DaySchedule[] = [
+  { day_of_week: 0, open_time: "09:00", close_time: "18:00", is_closed: false }, // Monday
+  { day_of_week: 1, open_time: "09:00", close_time: "18:00", is_closed: false }, // Tuesday
+  { day_of_week: 2, open_time: "09:00", close_time: "18:00", is_closed: false }, // Wednesday
+  { day_of_week: 3, open_time: "09:00", close_time: "18:00", is_closed: false }, // Thursday
+  { day_of_week: 4, open_time: "09:00", close_time: "18:00", is_closed: false }, // Friday
+  { day_of_week: 5, open_time: "10:00", close_time: "17:00", is_closed: false }, // Saturday
+  { day_of_week: 6, open_time: "00:00", close_time: "00:00", is_closed: true },  // Sunday
+]
+
 export default function CommerceManagementFlow({ commerce, onCancel, onCommerceUpdated }: CommerceManagementFlowProps) {
   const supabase = createClient()
   const { refreshCounts } = useDashboard()
@@ -57,7 +67,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
 
   // Get restaurant sub-categories with translated labels based on current locale
   const RESTAURANT_SUBCATEGORIES = getRestaurantSubcategories(locale)
-  
+
   const [form, setForm] = useState({
     name: commerce.name || "",
     description: commerce.description || "",
@@ -71,16 +81,75 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     facebook_url: commerce.facebook_url || "",
     instagram_url: commerce.instagram_url || "",
     image_url: commerce.image_url || "",
-    open_at: commerce.open_at || "09:00",
-    close_at: commerce.close_at || "17:00",
   })
+
+  const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>(DEFAULT_SCHEDULE)
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([])
+  const [isLoadingSchedule, setIsLoadingSchedule] = useState(true)
 
   const [isGeocoding, setIsGeocoding] = useState(false)
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(
-    commerce.latitude && commerce.longitude 
+    commerce.latitude && commerce.longitude
       ? { latitude: commerce.latitude, longitude: commerce.longitude, address: commerce.address }
       : null
   )
+
+  // Load existing schedule when component mounts
+  useEffect(() => {
+    const loadExistingSchedule = async () => {
+      setIsLoadingSchedule(true)
+      try {
+        // Load weekly hours
+        const { data: hoursData, error: hoursError } = await supabase
+          .from('commerce_hours')
+          .select('*')
+          .eq('commerce_id', commerce.id)
+          .order('day_of_week')
+
+        if (hoursError) {
+          console.error('Error loading schedule:', hoursError)
+        } else if (hoursData && hoursData.length > 0) {
+          // Transform database data to DaySchedule format
+          const schedule = hoursData.map(day => ({
+            day_of_week: day.day_of_week,
+            open_time: day.open_time || "09:00",
+            close_time: day.close_time || "18:00",
+            is_closed: day.is_closed
+          }))
+          setWeeklySchedule(schedule)
+        }
+
+        // Load special hours
+        const { data: specialData, error: specialError } = await supabase
+          .from('commerce_special_hours')
+          .select('*')
+          .eq('commerce_id', commerce.id)
+          .order('date')
+
+        if (specialError) {
+          console.error('Error loading special hours:', specialError)
+        } else if (specialData && specialData.length > 0) {
+          // Transform database data to SpecialHour format
+          const special = specialData.map(hour => ({
+            id: hour.id,
+            date: hour.date,
+            open_time: hour.open_time || "09:00",
+            close_time: hour.close_time || "18:00",
+            is_closed: hour.is_closed,
+            label_fr: hour.label_fr || "",
+            label_en: hour.label_en || ""
+          }))
+          setSpecialHours(special)
+        }
+      } catch (error) {
+        console.error('Unexpected error loading schedule:', error)
+      } finally {
+        setIsLoadingSchedule(false)
+      }
+    }
+
+    loadExistingSchedule()
+  }, [commerce.id, supabase])
 
   // Handle category change to clear sub_category if not Restaurant (id 1)
   const handleCategoryChange = (categoryId: number | null) => {
@@ -169,29 +238,54 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category_id) errors.push('Catégorie requise')
-    
-    // Validate opening hours
-    if (form.open_at && form.close_at) {
-      const openTime = new Date(`2000-01-01T${form.open_at}`)
-      const closeTime = new Date(`2000-01-01T${form.close_at}`)
-      if (openTime >= closeTime) {
-        errors.push('L\'heure de fermeture doit être après l\'heure d\'ouverture')
-      }
+
+    // Validate weekly schedule
+    const hasAtLeastOneOpenDay = weeklySchedule.some(day => !day.is_closed)
+    if (!hasAtLeastOneOpenDay) {
+      errors.push(locale === 'fr' ? 'Au moins un jour doit être ouvert' : 'At least one day must be open')
     }
-    
+
+    // Validate that open days have valid times
+    weeklySchedule.forEach((day, idx) => {
+      if (!day.is_closed) {
+        if (!day.open_time || !day.close_time) {
+          const dayNames = locale === 'fr'
+            ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+            : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+          errors.push(`${dayNames[day.day_of_week]}: ${locale === 'fr' ? 'Horaires requis' : 'Hours required'}`)
+        } else {
+          const openTime = new Date(`2000-01-01T${day.open_time}`)
+          const closeTime = new Date(`2000-01-01T${day.close_time}`)
+          if (openTime >= closeTime) {
+            const dayNames = locale === 'fr'
+              ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+              : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            errors.push(`${dayNames[day.day_of_week]}: ${locale === 'fr' ? 'Heure de fermeture doit être après ouverture' : 'Closing time must be after opening time'}`)
+          }
+        }
+      }
+    })
+
+    // Validate special hours
+    specialHours.forEach((hour) => {
+      if (!hour.is_closed && (!hour.open_time || !hour.close_time)) {
+        errors.push(locale === 'fr' ? `Date spéciale ${hour.date}: Horaires requis` : `Special date ${hour.date}: Hours required`)
+      }
+    })
+
     // Email is optional - removed validation
-    
+
     // Validate social media URLs
     const socialValidation = validateSocialMediaLinks({
       facebook_url: form.facebook_url,
       instagram_url: form.instagram_url,
       website: form.website
     })
-    
+
     if (!socialValidation.isValid) {
       errors.push(...socialValidation.errors)
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors
@@ -244,8 +338,6 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           facebook_url: form.facebook_url.trim() || null,
           instagram_url: form.instagram_url.trim() || null,
           image_url: form.image_url.trim() || null,
-          open_at: form.open_at || null,
-          close_at: form.close_at || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', commerce.id)
@@ -264,6 +356,71 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       }
 
       console.log('Commerce updated:', commerceData)
+
+      // Update weekly schedule
+      // Delete existing hours
+      const { error: deleteHoursError } = await supabase
+        .from('commerce_hours')
+        .delete()
+        .eq('commerce_id', commerce.id)
+
+      if (deleteHoursError) {
+        console.error('Error deleting old hours:', deleteHoursError)
+      }
+
+      // Insert new hours
+      const hoursData = weeklySchedule.map(day => ({
+        commerce_id: commerce.id,
+        day_of_week: day.day_of_week,
+        open_time: day.is_closed ? null : day.open_time,
+        close_time: day.is_closed ? null : day.close_time,
+        is_closed: day.is_closed
+      }))
+
+      const { error: hoursError } = await supabase
+        .from('commerce_hours')
+        .insert(hoursData)
+
+      if (hoursError) {
+        console.error('Error updating hours:', hoursError)
+        toast({
+          title: "Attention",
+          description: "Commerce mis à jour mais erreur lors de la mise à jour des horaires",
+          variant: "destructive"
+        })
+      }
+
+      // Update special hours
+      // Delete existing special hours
+      const { error: deleteSpecialError } = await supabase
+        .from('commerce_special_hours')
+        .delete()
+        .eq('commerce_id', commerce.id)
+
+      if (deleteSpecialError) {
+        console.error('Error deleting old special hours:', deleteSpecialError)
+      }
+
+      // Insert new special hours (if any)
+      if (specialHours.length > 0) {
+        const specialHoursData = specialHours.map(hour => ({
+          commerce_id: commerce.id,
+          date: hour.date,
+          open_time: hour.is_closed ? null : hour.open_time,
+          close_time: hour.is_closed ? null : hour.close_time,
+          is_closed: hour.is_closed,
+          label_fr: hour.label_fr || null,
+          label_en: hour.label_en || null
+        }))
+
+        const { error: specialError } = await supabase
+          .from('commerce_special_hours')
+          .insert(specialHoursData)
+
+        if (specialError) {
+          console.error('Error updating special hours:', specialError)
+        }
+      }
       
       toast({
         title: "Succès",
@@ -454,38 +611,24 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
               </div>
             </div>
 
-            {/* Opening Hours */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-primary mb-2">
-                  {locale === 'fr' ? 'Heure d\'ouverture' : 'Opening time'} (optionnel)
-                </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                  <Input
-                    type="time"
-                    value={form.open_at}
-                    onChange={e => setForm(f => ({ ...f, open_at: e.target.value }))}
-                    className="pl-10"
-                  />
-                </div>
+            {/* Weekly Schedule and Special Hours */}
+            {isLoadingSchedule ? (
+              <div className="text-center py-4 text-muted-foreground">
+                {locale === 'fr' ? 'Chargement des horaires...' : 'Loading schedule...'}
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-primary mb-2">
-                  {locale === 'fr' ? 'Heure de fermeture' : 'Closing time'} (optionnel)
-                </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-3 h-4 w-4 text-brand-primary/50" />
-                  <Input
-                    type="time"
-                    value={form.close_at}
-                    onChange={e => setForm(f => ({ ...f, close_at: e.target.value }))}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
+            ) : (
+              <>
+                <WeeklyScheduleEditor
+                  schedule={weeklySchedule}
+                  onChange={setWeeklySchedule}
+                />
+
+                <SpecialHoursEditor
+                  specialHours={specialHours}
+                  onChange={setSpecialHours}
+                />
+              </>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
