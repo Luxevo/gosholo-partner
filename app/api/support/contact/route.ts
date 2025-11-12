@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         },
         to: [
           {
-            email: 'support@gosholo.com',
+            email: 'assistance@gosholo.com',
             name: 'Gosholo Support',
           },
         ],
