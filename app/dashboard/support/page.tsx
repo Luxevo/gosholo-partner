@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardLayout } from "@/components/dashboard-layout"
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,15 +13,42 @@ export default function SupportPage() {
   const { locale } = useLanguage()
   const [form, setForm] = useState({ name: "", email: "", message: "" })
   const [submitted, setSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
+    setError("") // Clear error when user types
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    // Here you would send the form data to your backend or support system
+    setIsLoading(true)
+    setError("")
+
+    try {
+      const response = await fetch('/api/support/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      setSubmitted(true)
+      setForm({ name: "", email: "", message: "" })
+    } catch (err) {
+      console.error('Error submitting form:', err)
+      setError(locale === 'fr'
+        ? 'Erreur lors de l\'envoi du message. Veuillez réessayer.'
+        : 'Error sending message. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -38,9 +64,25 @@ export default function SupportPage() {
           </CardHeader>
           <CardContent>
             {submitted ? (
-              <div className="text-primary font-medium py-4">{t('support.thankYouMessage', locale)}</div>
+              <div>
+                <div className="text-green-600 font-medium py-4 mb-4">
+                  {t('support.thankYouMessage', locale)}
+                </div>
+                <Button
+                  onClick={() => setSubmitted(false)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {locale === 'fr' ? 'Envoyer un autre message' : 'Send another message'}
+                </Button>
+              </div>
             ) : (
               <form className="space-y-4" onSubmit={handleSubmit}>
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {error}
+                  </div>
+                )}
                 <div>
                   <Input
                     name="name"
@@ -48,6 +90,7 @@ export default function SupportPage() {
                     value={form.name}
                     onChange={handleChange}
                     className="h-12 sm:h-10"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -59,6 +102,7 @@ export default function SupportPage() {
                     value={form.email}
                     onChange={handleChange}
                     className="h-12 sm:h-10"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -70,27 +114,24 @@ export default function SupportPage() {
                     onChange={handleChange}
                     rows={4}
                     className="min-h-[120px] sm:min-h-[100px]"
+                    disabled={isLoading}
                     required
                   />
                 </div>
-                <Button type="submit" className="bg-accent hover:bg-accent/80 text-white w-full h-12 sm:h-10">{t('support.send', locale)}</Button>
+                <Button
+                  type="submit"
+                  className="bg-accent hover:bg-accent/80 text-white w-full h-12 sm:h-10"
+                  disabled={isLoading}
+                >
+                  {isLoading
+                    ? (locale === 'fr' ? 'Envoi en cours...' : 'Sending...')
+                    : t('support.send', locale)
+                  }
+                </Button>
               </form>
             )}
           </CardContent>
         </Card>
-        <Card className="bg-white border border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-lg text-primary">{t('support.directContact', locale)}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <span className="font-medium text-primary text-sm sm:text-base">{t('support.email', locale)} :</span> 
-              <a href="mailto:support@gosholo.com" className="text-accent underline text-sm sm:text-base">support@gosholo.com</a>
-            </div>
-            {/* Future: Chat or built-in messaging */}
-          </CardContent>
-        </Card>
-
         {/* FAQ Section */}
         <FaqSection />
       </div>
