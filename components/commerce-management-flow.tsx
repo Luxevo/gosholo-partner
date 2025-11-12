@@ -13,9 +13,10 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { useToast } from "@/hooks/use-toast"
 import { geocodePostalCode, validateCanadianPostalCode, geocodeAddress, validateAddress, AddressSuggestion } from "@/lib/mapbox-geocoding"
 import { validateSocialMediaLinks } from "@/lib/social-media-utils"
-import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/category-translations"
+import { getRestaurantSubcategories, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
 import AddressAutocomplete from "@/components/address-autocomplete"
+import CategorySelector from "@/components/category-selector"
 
 interface Commerce {
   id: string
@@ -23,7 +24,7 @@ interface Commerce {
   name: string
   description: string | null
   address: string
-  category: string | null
+  category_id: number | null
   sub_category: string | null
   email: string | null
   phone: string | null
@@ -53,10 +54,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
   const { toast } = useToast()
   const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
-  
-  // Get commerce categories with translated labels based on current locale
-  const COMMERCE_CATEGORIES = getCategoriesWithLabels(locale)
-  
+
   // Get restaurant sub-categories with translated labels based on current locale
   const RESTAURANT_SUBCATEGORIES = getRestaurantSubcategories(locale)
   
@@ -65,7 +63,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     description: commerce.description || "",
     address: commerce.address || "",
     postal_code: commerce.postal_code || "",
-    category: commerce.category || "",
+    category_id: commerce.category_id || null,
     sub_category: commerce.sub_category || "",
     email: commerce.email || "",
     phone: commerce.phone || "",
@@ -84,12 +82,12 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       : null
   )
 
-  // Handle category change to clear sub_category if not Restaurant
-  const handleCategoryChange = (value: string) => {
+  // Handle category change to clear sub_category if not Restaurant (id 1)
+  const handleCategoryChange = (categoryId: number | null) => {
     setForm(f => ({
       ...f,
-      category: value,
-      sub_category: value === "Restaurant" ? f.sub_category : ""
+      category_id: categoryId,
+      sub_category: categoryId === 1 ? f.sub_category : ""
     }))
   }
 
@@ -170,7 +168,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       errors.push('Code postal invalide (format: H2X 1Y4)')
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
-    if (!form.category) errors.push('Catégorie requise')
+    if (!form.category_id) errors.push('Catégorie requise')
     
     // Validate opening hours
     if (form.open_at && form.close_at) {
@@ -238,7 +236,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           postal_code: form.postal_code.trim(),
           latitude: geoData?.latitude || null,
           longitude: geoData?.longitude || null,
-          category: form.category,
+          category_id: form.category_id,
           sub_category: form.sub_category.trim() || null,
           email: form.email.trim(),
           phone: form.phone.trim() || null,
@@ -376,22 +374,15 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             <label className="block text-sm font-medium text-primary mb-2">
               {t('commerce.category', locale)} * <span className="text-red-500">*</span>
             </label>
-            <Select value={form.category} onValueChange={handleCategoryChange}>
-              <SelectTrigger className={!form.category ? "border-red-300 focus:border-red-500" : ""}>
-                <SelectValue placeholder={t('commerce.categoryPlaceholder', locale)} />
-              </SelectTrigger>
-              <SelectContent>
-                {COMMERCE_CATEGORIES.map((category) => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CategorySelector
+              value={form.category_id}
+              onValueChange={handleCategoryChange}
+              placeholder={t('commerce.categoryPlaceholder', locale)}
+            />
           </div>
 
-          {/* Sub-category dropdown - only show for restaurants */}
-          {form.category === "Restaurant" && (
+          {/* Sub-category dropdown - only show for restaurants (category_id 1) */}
+          {form.category_id === 1 && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-primary mb-2">
                 {t('commerce.subCategory', locale)}
@@ -559,10 +550,10 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
               {t('buttons.cancel', locale)}
             </Button>
           )}
-          <Button 
-            className="bg-accent hover:bg-accent/80 text-white flex-1" 
+          <Button
+            className="bg-accent hover:bg-accent/80 text-white flex-1"
             onClick={handleSaveCommerce}
-            disabled={isLoading || !form.name || !form.description || !form.address || !form.category}
+            disabled={isLoading || !form.name || !form.description || !form.address || !form.category_id}
           >
             {isLoading ? t('messages.saving', locale) : t('buttons.save', locale)}
           </Button>
