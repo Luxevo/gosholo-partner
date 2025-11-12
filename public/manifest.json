@@ -1,6 +1,6 @@
 {
-  "name": "Gosholo Partner Dashboard",
-  "short_name": "Gosholo",
+  "name": "gosholo dashboard",
+  "short_name": "gosholo",
   "description": "Tableau de bord commerçants Gosholo",
   "start_url": "/",
   "display": "standalone",
