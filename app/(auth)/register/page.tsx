@@ -23,6 +23,7 @@ import {
   ArrowRight,
   CheckCircle,
   MailCheck,
+  Languages,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,7 +33,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { t } from "@/lib/category-translations";
 
 function RegisterForm() {
-  const { locale } = useLanguage();
+  const { locale, setLocale } = useLanguage();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -184,12 +185,24 @@ function RegisterForm() {
         {/* Formulaire d'inscription */}
         <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
           <CardHeader className="space-y-2 pb-4 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary text-center">
-              Créer votre compte
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary">
+                {locale === 'fr' ? 'Créer votre compte' : 'Create your account'}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLocale(locale === 'fr' ? 'en' : 'fr')}
+                className="flex items-center gap-2 h-8"
+              >
+                <Languages className="h-4 w-4" />
+                <span className="font-medium">{locale === 'fr' ? 'EN' : 'FR'}</span>
+              </Button>
+            </div>
             <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
-              Remplissez les informations ci-dessous pour créer votre compte
-              commerçant
+              {locale === 'fr'
+                ? 'Remplissez les informations ci-dessous pour créer votre compte commerçant'
+                : 'Fill in the information below to create your merchant account'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">

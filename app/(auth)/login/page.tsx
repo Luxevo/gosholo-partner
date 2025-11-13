@@ -16,16 +16,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Languages } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { TermsOfUse } from "@/components/terms-of-use";
 import { PrivacyPolicy } from "@/components/privacy-policy";
+import { useLanguage } from "@/contexts/language-context";
 
 function LoginForm() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { locale, setLocale } = useLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +49,25 @@ function LoginForm() {
       setError("Email ou mot de passe incorrect.");
       setIsLoading(false);
       return;
+    }
+
+    // Add user to Brevo list
+    try {
+      await fetch('/api/brevo/add-user-to-list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.user.email!,
+          firstName: data.user.user_metadata?.first_name || '',
+          lastName: data.user.user_metadata?.last_name || '',
+          locale: data.user.user_metadata?.preferred_locale || locale,
+        }),
+      });
+    } catch (error) {
+      // Don't block login if Brevo fails
+      console.error('Failed to add to Brevo:', error);
     }
 
     // Check if user has a profile
@@ -104,11 +125,24 @@ function LoginForm() {
 
         <Card className="border-brand-primary/10 shadow-lg hover:shadow-xl transition-shadow duration-300 backdrop-blur-sm bg-white/95">
           <CardHeader className="space-y-2 pb-4 sm:pb-6">
-            <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary text-center">
-              Connexion
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary">
+                {locale === 'fr' ? 'Connexion' : 'Login'}
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setLocale(locale === 'fr' ? 'en' : 'fr')}
+                className="flex items-center gap-2 h-8"
+              >
+                <Languages className="h-4 w-4" />
+                <span className="font-medium">{locale === 'fr' ? 'EN' : 'FR'}</span>
+              </Button>
+            </div>
             <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
-              Entrez vos identifiants pour accéder à votre espace commerçant
+              {locale === 'fr'
+                ? 'Entrez vos identifiants pour accéder à votre espace commerçant'
+                : 'Enter your credentials to access your merchant space'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 sm:space-y-5">
