@@ -56,7 +56,7 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
   }
 
   return (
-    <div className="relative w-[356px]">
+    <div className="relative w-full max-w-[320px] sm:w-[356px] mx-auto sm:mx-0">
       {onRemove && (
         <Button
           type="button"

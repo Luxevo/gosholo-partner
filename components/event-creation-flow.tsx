@@ -302,7 +302,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         {/* Confirmation Card */}
         <Card className="border-2 border-green-200 bg-green-50/30">
           <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg font-semibold text-primary">
                   {form.title}
@@ -352,12 +352,12 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex justify-between gap-4 pt-4 border-t">
-          <Button variant="outline" onClick={handleBackToEdit}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t">
+          <Button variant="outline" onClick={handleBackToEdit} className="w-full sm:w-auto">
             ← {t('events.backToEdit', locale)}
           </Button>
           <Button 
-            className="bg-green-600 hover:bg-green-700 text-white" 
+            className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto" 
             onClick={handleSaveEvent}
             disabled={isLoading}
           >
@@ -544,7 +544,8 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   }
 
   return (
-    <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
+    <div className="w-full px-2 sm:px-0">
+      <Card className="w-full max-w-md sm:max-w-2xl mx-auto p-4 sm:p-8 border-primary/20 shadow-none rounded-2xl">
       {isSuccessMode ? (
         <SuccessWithBoosts />
       ) : isConfirmationMode ? (
@@ -717,7 +718,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-primary mb-2">
                       {t('events.startDate', locale)}
@@ -745,14 +746,14 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-between gap-4 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t">
               {onCancel && (
-                <Button variant="outline" onClick={onCancel}>
+                <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
                   {t('buttons.cancel', locale)}
                 </Button>
               )}
               <Button 
-                className="bg-accent hover:bg-accent/80 text-white flex-1" 
+                className="bg-accent hover:bg-accent/80 text-white w-full sm:flex-1" 
                 onClick={isEditMode ? handleSaveEvent : handleCreateEvent}
                 disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
               >
@@ -763,5 +764,6 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         </>
       )}
     </Card>
+    </div>
   )
 } 

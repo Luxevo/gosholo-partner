@@ -102,7 +102,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
 
 
   return (
-    <div className="relative w-[356px]">
+    <div className="relative w-full max-w-[320px] sm:w-[356px] mx-auto sm:mx-0">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
         <div className="relative w-full" style={{ aspectRatio: "4 / 5" }}>
@@ -716,12 +716,10 @@ function OffresPageContent() {
               {t('offersPage.addOffer', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className="w-[min(100vw-1.5rem,480px)] sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
+            <DialogHeader className="sr-only">
               <DialogTitle>{t('offersPage.createNewOffer', locale as 'fr' | 'en')}</DialogTitle>
-              <DialogDescription>
-                {t('offersPage.createNewOfferDesc', locale as 'fr' | 'en')}
-              </DialogDescription>
+              <DialogDescription>{t('offersPage.createNewOfferDesc', locale as 'fr' | 'en')}</DialogDescription>
             </DialogHeader>
             <OfferCreationFlow onCancel={handleOfferCreated} />
           </DialogContent>
