@@ -107,10 +107,10 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
   }
 
   return (
-    <div className="relative w-[356px] h-[480px]">
+    <div className="relative w-[356px]">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-[267px]">
+        <div className="relative w-full" style={{ aspectRatio: "4 / 5" }}>
           {event.image_url ? (
             <img 
               src={event.image_url} 

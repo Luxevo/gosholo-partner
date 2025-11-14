@@ -40,6 +40,7 @@ interface Offer {
   boosted: boolean | null
   boost_type: "en_vedette" | "visibilite" | null
   boosted_at: string | null
+  category_id: number | null
 }
 
 interface Commerce {
@@ -101,10 +102,10 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
 
 
   return (
-    <div className="relative w-[356px] h-[480px]">
+    <div className="relative w-[356px]">
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
         {/* Image Section */}
-        <div className="relative h-[267px]">
+        <div className="relative w-full" style={{ aspectRatio: "4 / 5" }}>
           {offer.image_url ? (
             <img 
               src={offer.image_url} 

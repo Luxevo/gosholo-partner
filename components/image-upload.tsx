@@ -213,7 +213,7 @@ export default function ImageUpload({
                   </p>
                   <div className="mt-3 text-xs text-gray-500 space-y-1 text-center">
                     <div className="font-medium text-brand-primary">
-                      {locale === 'en' ? '📐 Recommended: 1200 × 900 px (4:3 ratio)' : '📐 Recommandé : 1200 × 900 px (ratio 4:3)'}
+                      {locale === 'en' ? '📐 Recommended: 1080 × 1350 px (4:5 ratio)' : '📐 Recommandé : 1080 × 1350 px (ratio 4:5)'}
                     </div>
                     <div>📁 {locale === 'en' ? 'Formats: JPG, PNG' : 'Formats : JPG, PNG'}</div>
                   </div>
