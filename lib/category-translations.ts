@@ -127,7 +127,8 @@ export const TRANSLATIONS = {
       premiumVisibility72h: "72h de visibilité premium",
       featuredBadgeVisible: "Badge Vedette pour vous démarquer",
       priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
-      highlightedOnMap: "Apparition en haut des résultats de recherche"
+      highlightedOnMap: "Apparition en haut des résultats de recherche",
+      featuredOnWebsite: "votre offre sera mise de l'avant sur le site web gosholo.com"
     },
     
     // Commerce forms
@@ -239,6 +240,7 @@ export const TRANSLATIONS = {
       featuredBadgeVisible: "Badge Vedette pour vous démarquer",
       priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
       highlightedOnMap: "Apparition en haut des résultats de recherche",
+      featuredOnWebsite: "votre offre sera mise de l'avant sur le site web gosholo.com",
       useCredit: "Utiliser crédit",
       available: "dispo",
       buy5dollars: "Acheter 5$",
@@ -412,6 +414,7 @@ export const TRANSLATIONS = {
       featuredBadgeVisible: "Badge Vedette pour vous démarquer",
       priorityInSearch: "Placement prioritaire dans la liste des offres/événements",
       highlightedOnMap: "Apparition en haut des résultats de recherche",
+      featuredOnWebsite: "votre événement sera mis de l'avant sur le site web gosholo.com",
       useCredit: "Utiliser crédit",
       available: "dispo",
       buy5dollars: "Acheter 5$",
@@ -618,6 +621,7 @@ export const TRANSLATIONS = {
       vedetteBadge: "Badge Vedette pour vous démarquer",
       priorityPlacement: "Placement prioritaire dans la liste des offres/événements",
       topSearchResults: "Apparition en haut des résultats de recherche",
+      featuredOnWebsite: "votre offre sera mise de l'avant sur le site web gosholo.com",
       buy5dollars: "Acheter 5$",
       
       // Visibility boost

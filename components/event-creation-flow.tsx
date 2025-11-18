@@ -499,6 +499,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                 <li>• {t('events.featuredBadgeVisible', locale)}</li>
                 <li>• {t('events.priorityInSearch', locale)}</li>
                 <li>• {t('events.highlightedOnMap', locale)}</li>
+                <li>• {t('events.featuredOnWebsite', locale)}</li>
               </ul>
               <Button
                 onClick={() => handleApplyBoost('en_vedette')}

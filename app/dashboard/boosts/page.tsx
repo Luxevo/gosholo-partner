@@ -591,6 +591,10 @@ export default function BoostsPage() {
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
                       {t('boostsPage.topSearchResults', locale)}
                     </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
+                      {t('boostsPage.featuredOnWebsite', locale)}
+                    </li>
                   </ul>
                   <Button 
                     onClick={() => purchaseBoost('en_vedette')}

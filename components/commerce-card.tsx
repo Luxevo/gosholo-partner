@@ -748,9 +748,10 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  </div>
                </div>
                <ul className="text-xs text-brand-primary space-y-1 mb-3">
-                 <li>• Badge "En Vedette" visible</li>
-                 <li>• Priorité dans les recherches</li>
-                 <li>• Mise en avant sur la carte</li>
+                 <li>• {t('boostsPage.vedetteBadge', locale)}</li>
+                 <li>• {t('boostsPage.priorityPlacement', locale)}</li>
+                 <li>• {t('boostsPage.topSearchResults', locale)}</li>
+                 <li>• {t('boostsPage.featuredOnWebsite', locale)}</li>
                </ul>
                <Button
                  onClick={() => handleApplyBoost('en_vedette')}

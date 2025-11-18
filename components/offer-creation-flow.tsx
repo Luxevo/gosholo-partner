@@ -576,6 +576,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <li>• {t('offers.featuredBadgeVisible', locale)}</li>
                 <li>• {t('offers.priorityInSearch', locale)}</li>
                 <li>• {t('offers.highlightedOnMap', locale)}</li>
+                <li>• {t('offers.featuredOnWebsite', locale)}</li>
               </ul>
               <Button
                 onClick={() => handleApplyBoost('en_vedette')}
