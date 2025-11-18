@@ -621,7 +621,7 @@ export const TRANSLATIONS = {
       vedetteBadge: "Badge Vedette pour vous démarquer",
       priorityPlacement: "Placement prioritaire dans la liste des offres/événements",
       topSearchResults: "Apparition en haut des résultats de recherche",
-      featuredOnWebsite: "votre offre sera mise de l'avant sur le site web gosholo.com",
+      featuredOnWebsite: "votre offre/événement sera mis de l'avant sur le site web gosholo.com",
       buy5dollars: "Acheter 5$",
       
       // Visibility boost
@@ -994,7 +994,8 @@ export const TRANSLATIONS = {
       premiumVisibility72h: "72h premium visibility",
       featuredBadgeVisible: "Featured badge to stand out",
       priorityInSearch: "Priority placement in offers/events list",
-      highlightedOnMap: "Appears at the top of search results"
+      highlightedOnMap: "Appears at the top of search results",
+      featuredOnWebsite: "your offer will be featured on the gosholo.com website"
     },
     
     // Commerce forms
@@ -1106,6 +1107,7 @@ export const TRANSLATIONS = {
       featuredBadgeVisible: "Featured badge to stand out",
       priorityInSearch: "Priority placement in offers/events list",
       highlightedOnMap: "Appears at the top of search results",
+      featuredOnWebsite: "your offer will be featured on the gosholo.com website",
       useCredit: "Use credit",
       available: "available",
       buy5dollars: "Buy $5",
@@ -1279,6 +1281,7 @@ export const TRANSLATIONS = {
       featuredBadgeVisible: "Featured badge to stand out",
       priorityInSearch: "Priority placement in offers/events list",
       highlightedOnMap: "Appears at the top of search results",
+      featuredOnWebsite: "your event will be featured on the gosholo.com website",
       useCredit: "Use credit",
       available: "available",
       buy5dollars: "Buy $5",
@@ -1485,6 +1488,7 @@ export const TRANSLATIONS = {
       vedetteBadge: "Featured badge to stand out",
       priorityPlacement: "Priority placement in the offers/events list",
       topSearchResults: "Appear at the top of search results",
+      featuredOnWebsite: "your offer/event will be featured on the gosholo.com website",
       buy5dollars: "Buy $5",
       
       // Visibility boost

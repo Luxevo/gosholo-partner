@@ -751,7 +751,21 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                  <li>• {t('boostsPage.vedetteBadge', locale)}</li>
                  <li>• {t('boostsPage.priorityPlacement', locale)}</li>
                  <li>• {t('boostsPage.topSearchResults', locale)}</li>
-                 <li>• {t('boostsPage.featuredOnWebsite', locale)}</li>
+                 <li>• {t('boostsPage.featuredOnWebsite', locale).split('gosholo.com').map((part, i, arr) => 
+                  i < arr.length - 1 ? (
+                    <React.Fragment key={i}>
+                      {part}
+                      <a 
+                        href="https://gosholo.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-brand-primary underline hover:text-brand-primary/80"
+                      >
+                        gosholo.com
+                      </a>
+                    </React.Fragment>
+                  ) : part
+                )}</li>
                </ul>
                <Button
                  onClick={() => handleApplyBoost('en_vedette')}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -576,7 +576,21 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <li>• {t('offers.featuredBadgeVisible', locale)}</li>
                 <li>• {t('offers.priorityInSearch', locale)}</li>
                 <li>• {t('offers.highlightedOnMap', locale)}</li>
-                <li>• {t('offers.featuredOnWebsite', locale)}</li>
+                <li>• {t('offers.featuredOnWebsite', locale).split('gosholo.com').map((part, i, arr) => 
+                  i < arr.length - 1 ? (
+                    <React.Fragment key={i}>
+                      {part}
+                      <a 
+                        href="https://gosholo.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-brand-primary underline hover:text-brand-primary/80"
+                      >
+                        gosholo.com
+                      </a>
+                    </React.Fragment>
+                  ) : part
+                )}</li>
               </ul>
               <Button
                 onClick={() => handleApplyBoost('en_vedette')}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
@@ -593,7 +593,23 @@ export default function BoostsPage() {
                     </li>
                     <li className="flex items-start">
                       <CheckCircle className="h-4 w-4 text-brand-primary mr-2 mt-0.5 flex-shrink-0" />
-                      {t('boostsPage.featuredOnWebsite', locale)}
+                      <span>
+                        {t('boostsPage.featuredOnWebsite', locale).split('gosholo.com').map((part, i, arr) => 
+                          i < arr.length - 1 ? (
+                            <React.Fragment key={i}>
+                              {part}
+                              <a 
+                                href="https://gosholo.com" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-brand-primary underline hover:text-brand-primary/80"
+                              >
+                                gosholo.com
+                              </a>
+                            </React.Fragment>
+                          ) : part
+                        )}
+                      </span>
                     </li>
                   </ul>
                   <Button 
