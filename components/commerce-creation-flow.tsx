@@ -13,10 +13,11 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import ImageUpload from "@/components/image-upload"
 import { geocodePostalCode, validateCanadianPostalCode, formatPostalCode, geocodeAddress, validateAddress, AddressSuggestion } from "@/lib/mapbox-geocoding"
 import { formatSocialMediaUrl, validateSocialMediaLinks } from "@/lib/social-media-utils"
-import { getCategoriesWithLabels, getRestaurantSubcategories, t } from "@/lib/category-translations"
+import { getCategoriesWithLabels, t } from "@/lib/category-translations"
 import { useLanguage } from "@/contexts/language-context"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import CategorySelector from "@/components/category-selector"
+import SubCategorySelector from "@/components/sub-category-selector"
 import WeeklyScheduleEditor, { DaySchedule } from "@/components/weekly-schedule-editor"
 import SpecialHoursEditor, { SpecialHour } from "@/components/special-hours-editor"
 
@@ -28,6 +29,7 @@ interface Commerce {
   address: string
   category: string
   category_id: number | null
+  sub_category_id: number | null
   sub_category: string | null
   email: string | null
   phone: string | null
@@ -58,9 +60,6 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   // Get commerce categories with translated labels based on current locale
   const COMMERCE_CATEGORIES = getCategoriesWithLabels(locale)
   
-  // Get restaurant sub-categories with translated labels based on current locale
-  const RESTAURANT_SUBCATEGORIES = getRestaurantSubcategories(locale)
-  
   // Determine if we're in edit mode
   const isEditMode = !!commerce
   
@@ -86,7 +85,8 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     postal_code: commerce?.postal_code || "",
     category: commerce?.category || "",
     category_id: commerce?.category_id || null,
-    sub_category: commerce?.sub_category || "",
+    sub_category_id: commerce?.sub_category_id || null, // Charger l'ID de sous-catégorie depuis le commerce
+    sub_category: commerce?.sub_category || "", // Gardé pour compatibilité
     email: commerce?.email || "",
     phone: commerce?.phone || "",
     website: commerce?.website || "",
@@ -141,12 +141,13 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     return locale === 'en' && category.name_en ? category.name_en : category.name_fr || 'Catégorie sans nom'
   }
 
-  // Handle category change to clear sub_category if not Restaurant
-  const handleCategoryChange = (value: string) => {
+  // Handle category change to clear sub_category
+  const handleCategoryChange = (categoryId: number | null) => {
     setForm(f => ({
       ...f,
-      category: value,
-      sub_category: value === "Restaurant" ? f.sub_category : ""
+      category_id: categoryId,
+      sub_category_id: null, // Réinitialiser la sous-catégorie quand la catégorie change
+      sub_category: "" // Gardé pour compatibilité
     }))
   }
 
@@ -388,7 +389,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
         latitude: geoData?.latitude || null,
         longitude: geoData?.longitude || null,
         category_id: form.category_id,
-        sub_category: form.sub_category.trim() || null,
+        sub_category_id: form.sub_category_id || null, // ID de la sous-catégorie depuis la base de données
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
         website: form.website.trim() || null,
@@ -505,6 +506,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
           postal_code: "",
           category: "",
           category_id: null,
+          sub_category_id: null,
           sub_category: "",
           email: "",
           phone: "",
@@ -789,29 +791,28 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 </label>
                 <CategorySelector
                   value={form.category_id}
-                  onValueChange={(value) => setForm(f => ({ ...f, category_id: value }))}
+                  onValueChange={handleCategoryChange}
                   placeholder={t('commerce.categoryPlaceholder', locale)}
                 />
               </div>
 
-              {/* Sub-category dropdown - only show for restaurants */}
-              {form.category === "Restaurant" && (
+              {/* Sub-category dropdown - affiche automatiquement si des sous-catégories existent pour la catégorie sélectionnée */}
+              {form.category_id && (
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-primary mb-2">
                     {t('commerce.subCategory', locale)}
                   </label>
-                  <Select value={form.sub_category} onValueChange={(value) => setForm(f => ({ ...f, sub_category: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('commerce.subCategoryPlaceholder', locale)} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RESTAURANT_SUBCATEGORIES.map((subCategory) => (
-                        <SelectItem key={subCategory.value} value={subCategory.value}>
-                          {subCategory.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SubCategorySelector
+                    categoryId={form.category_id}
+                    value={form.sub_category_id}
+                    onValueChange={(value) => setForm(f => ({ 
+                      ...f, 
+                      sub_category_id: value,
+                      // Optionnel: garder aussi sub_category pour compatibilité (sera mis à jour par le composant)
+                      sub_category: value ? "" : ""
+                    }))}
+                    placeholder={t('commerce.subCategoryPlaceholder', locale)}
+                  />
                 </div>
               )}
 

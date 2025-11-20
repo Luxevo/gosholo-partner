@@ -19,6 +19,7 @@ import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
 import CategorySelector from "@/components/category-selector"
+import SubCategorySelector from "@/components/sub-category-selector"
 
 interface Offer {
   id: string
@@ -81,6 +82,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     selectedCommerceId: offer?.commerce_id || commerceId || "",
     image_url: offer?.image_url || "",
     category_id: offer?.category_id || null,
+    sub_category_id: null as number | null, // Nouveau champ pour l'ID de sous-catégorie
   })
 
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
@@ -155,10 +157,23 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     if (form.selectedCommerceId && commerces.length > 0) {
       const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
       if (selectedCommerce && selectedCommerce.category_id && !form.category_id) {
-        setForm(f => ({ ...f, category_id: selectedCommerce.category_id }))
+        setForm(f => ({ 
+          ...f, 
+          category_id: selectedCommerce.category_id,
+          sub_category_id: null // Réinitialiser la sous-catégorie quand la catégorie change
+        }))
       }
     }
   }, [form.selectedCommerceId, commerces])
+
+  // Handle category change to clear sub_category
+  const handleCategoryChange = (categoryId: number | null) => {
+    setForm(f => ({
+      ...f,
+      category_id: categoryId,
+      sub_category_id: null // Réinitialiser la sous-catégorie quand la catégorie change
+    }))
+  }
 
   const validateForm = () => {
     const errors = []
@@ -269,6 +284,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         latitude: geoData?.latitude || null,
         longitude: geoData?.longitude || null,
         category_id: form.category_id,
+        sub_category_id: form.sub_category_id || null, // Ajouter la sous-catégorie si sélectionnée
         condition: form.conditions || null,
         start_date: form.start_date && form.start_date !== "" ? form.start_date : null,
         end_date: form.end_date && form.end_date !== "" ? form.end_date : null,
@@ -697,10 +713,28 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             </label>
             <CategorySelector
               value={form.category_id}
-              onValueChange={(value) => setForm(f => ({ ...f, category_id: value }))}
+              onValueChange={handleCategoryChange}
               placeholder="Sélectionner une catégorie"
             />
           </div>
+
+          {/* Sub-category dropdown - affiche automatiquement si des sous-catégories existent pour la catégorie sélectionnée */}
+          {form.category_id && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-primary mb-2">
+                {t('commerce.subCategory', locale)}
+              </label>
+              <SubCategorySelector
+                categoryId={form.category_id}
+                value={form.sub_category_id}
+                onValueChange={(value) => setForm(f => ({ 
+                  ...f, 
+                  sub_category_id: value
+                }))}
+                placeholder={t('commerce.subCategoryPlaceholder', locale)}
+              />
+            </div>
+          )}
 
           {/* Offer Details */}
           <div className="space-y-4">
