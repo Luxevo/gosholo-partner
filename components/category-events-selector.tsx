@@ -32,7 +32,7 @@ export default function CategoryEventsSelector({
 
   useEffect(() => {
     loadCategories()
-  }, [])
+  }, [locale])
 
   const loadCategories = async () => {
     try {
@@ -40,14 +40,20 @@ export default function CategoryEventsSelector({
       const { data, error } = await supabase
         .from('category_events')
         .select('id, name_fr, name_en')
-        .order('name_fr', { ascending: true })
 
       if (error) {
         console.error('Error loading event categories:', error)
         return
       }
 
-      setCategories(data || [])
+      // Sort by the appropriate language field
+      const sortedData = (data || []).sort((a, b) => {
+        const nameA = locale === 'en' && a.name_en ? a.name_en : a.name_fr || ''
+        const nameB = locale === 'en' && b.name_en ? b.name_en : b.name_fr || ''
+        return nameA.localeCompare(nameB)
+      })
+
+      setCategories(sortedData)
     } catch (error) {
       console.error('Unexpected error loading event categories:', error)
     } finally {

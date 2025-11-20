@@ -102,10 +102,10 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
   const [categories, setCategories] = useState<Array<{id: number, name_fr: string | null, name_en: string | null}>>([])
 
-  // Load categories on component mount
+  // Load categories on component mount and when locale changes
   useEffect(() => {
     loadCategories()
-  }, [])
+  }, [locale])
 
 
 
@@ -114,14 +114,20 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       const { data, error } = await supabase
         .from('category')
         .select('id, name_fr, name_en')
-        .order('name_fr', { ascending: true })
 
       if (error) {
         console.error('Error loading categories:', error)
         return
       }
 
-      setCategories(data || [])
+      // Sort by the appropriate language field
+      const sortedData = (data || []).sort((a, b) => {
+        const nameA = locale === 'en' && a.name_en ? a.name_en : a.name_fr || ''
+        const nameB = locale === 'en' && b.name_en ? b.name_en : b.name_fr || ''
+        return nameA.localeCompare(nameB)
+      })
+
+      setCategories(sortedData)
     } catch (error) {
       console.error('Unexpected error loading categories:', error)
     }
