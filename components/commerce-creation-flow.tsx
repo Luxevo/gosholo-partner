@@ -141,6 +141,14 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     return locale === 'en' && category.name_en ? category.name_en : category.name_fr || 'Catégorie sans nom'
   }
 
+  // Check if selected category is Restaurant
+  const isRestaurantCategory = (categoryId: number | null): boolean => {
+    if (!categoryId) return false
+    const category = categories.find(c => c.id === categoryId)
+    if (!category) return false
+    return category.name_fr === 'Restaurant' || category.name_en === 'Restaurant'
+  }
+
   // Handle category change to clear sub_category
   const handleCategoryChange = (categoryId: number | null) => {
     setForm(f => ({
@@ -160,6 +168,10 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
     }
     if (!form.address.trim()) errors.push(t('validation.addressRequired', locale))
     if (!form.category_id) errors.push("Veuillez sélectionner une catégorie")
+    // Si Restaurant est sélectionné, la sous-catégorie est obligatoire
+    if (isRestaurantCategory(form.category_id) && !form.sub_category_id) {
+      errors.push(locale === 'fr' ? 'Veuillez sélectionner une sous-catégorie pour Restaurant' : 'Please select a sub-category for Restaurant')
+    }
 
     // Validate weekly schedule
     const hasAtLeastOneOpenDay = weeklySchedule.some(day => !day.is_closed)
@@ -801,6 +813,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-primary mb-2">
                     {t('commerce.subCategory', locale)}
+                    {isRestaurantCategory(form.category_id) && <span className="text-red-500"> *</span>}
                   </label>
                   <SubCategorySelector
                     categoryId={form.category_id}
@@ -924,7 +937,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
               <Button
                 className="bg-accent hover:bg-accent/80 text-white flex-1"
                 onClick={isEditMode ? handleSaveCommerce : handleShowConfirmation}
-                disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id}
+                disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
               >
                 {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.next', locale))}
               </Button>

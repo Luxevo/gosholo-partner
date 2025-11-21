@@ -93,6 +93,35 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       ? { latitude: commerce.latitude, longitude: commerce.longitude, address: commerce.address }
       : null
   )
+  const [categories, setCategories] = useState<Array<{id: number, name_fr: string | null, name_en: string | null}>>([])
+
+  // Load categories on component mount and when locale changes
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('category')
+          .select('id, name_fr, name_en')
+
+        if (error) {
+          console.error('Error loading categories:', error)
+          return
+        }
+
+        // Sort by the appropriate language field
+        const sortedData = (data || []).sort((a, b) => {
+          const nameA = locale === 'en' && a.name_en ? a.name_en : a.name_fr || ''
+          const nameB = locale === 'en' && b.name_en ? b.name_en : b.name_fr || ''
+          return nameA.localeCompare(nameB)
+        })
+
+        setCategories(sortedData)
+      } catch (error) {
+        console.error('Unexpected error loading categories:', error)
+      }
+    }
+    loadCategories()
+  }, [locale])
 
   // Load existing schedule when component mounts
   useEffect(() => {
@@ -159,6 +188,14 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
       sub_category_id: null, // Réinitialiser la sous-catégorie quand la catégorie change
       sub_category: "" // Gardé pour compatibilité
     }))
+  }
+
+  // Check if selected category is Restaurant
+  const isRestaurantCategory = (categoryId: number | null): boolean => {
+    if (!categoryId) return false
+    const category = categories.find(c => c.id === categoryId)
+    if (!category) return false
+    return category.name_fr === 'Restaurant' || category.name_en === 'Restaurant'
   }
 
   const handlePostalCodeChange = async (value: string) => {
@@ -239,6 +276,10 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
     }
     if (!form.address.trim()) errors.push('Adresse complète requise')
     if (!form.category_id) errors.push('Catégorie requise')
+    // Si Restaurant est sélectionné, la sous-catégorie est obligatoire
+    if (isRestaurantCategory(form.category_id) && !form.sub_category_id) {
+      errors.push(locale === 'fr' ? 'Veuillez sélectionner une sous-catégorie pour Restaurant' : 'Please select a sub-category for Restaurant')
+    }
 
     // Validate weekly schedule
     const hasAtLeastOneOpenDay = weeklySchedule.some(day => !day.is_closed)
@@ -544,6 +585,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             <div className="space-y-2">
               <label className="block text-sm font-medium text-primary mb-2">
                 {t('commerce.subCategory', locale)}
+                {isRestaurantCategory(form.category_id) && <span className="text-red-500"> *</span>}
               </label>
               <SubCategorySelector
                 categoryId={form.category_id}
@@ -695,7 +737,7 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
           <Button
             className="bg-accent hover:bg-accent/80 text-white flex-1"
             onClick={handleSaveCommerce}
-            disabled={isLoading || !form.name || !form.description || !form.address || !form.category_id}
+            disabled={isLoading || !form.name || !form.description || !form.address || !form.category_id || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
           >
             {isLoading ? t('messages.saving', locale) : t('buttons.save', locale)}
           </Button>

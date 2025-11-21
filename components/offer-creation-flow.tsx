@@ -56,6 +56,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   const { locale } = useLanguage()
   const [isLoading, setIsLoading] = useState(false)
   const [commerces, setCommerces] = useState<Array<{id: string, name: string, address: string, category_id: number | null}>>([])
+  const [categories, setCategories] = useState<Array<{id: number, name_fr: string | null, name_en: string | null}>>([])
   
   // Determine if we're in edit mode
   const isEditMode = !!offer
@@ -86,6 +87,34 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   })
 
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
+
+  // Load categories
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('category')
+          .select('id, name_fr, name_en')
+
+        if (error) {
+          console.error('Error loading categories:', error)
+          return
+        }
+
+        // Sort by the appropriate language field
+        const sortedData = (data || []).sort((a, b) => {
+          const nameA = locale === 'en' && a.name_en ? a.name_en : a.name_fr || ''
+          const nameB = locale === 'en' && b.name_en ? b.name_en : b.name_fr || ''
+          return nameA.localeCompare(nameB)
+        })
+
+        setCategories(sortedData)
+      } catch (error) {
+        console.error('Unexpected error loading categories:', error)
+      }
+    }
+    loadCategories()
+  }, [locale])
 
   // Load user's commerces and boost credits
   useEffect(() => {
@@ -175,12 +204,24 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     }))
   }
 
+  // Check if selected category is Restaurant
+  const isRestaurantCategory = (categoryId: number | null): boolean => {
+    if (!categoryId) return false
+    const category = categories.find(c => c.id === categoryId)
+    if (!category) return false
+    return category.name_fr === 'Restaurant' || category.name_en === 'Restaurant'
+  }
+
   const validateForm = () => {
     const errors = []
     if (!form.title) errors.push(t('offers.titleRequired', locale))
     if (!form.short_description) errors.push(t('offers.descriptionRequired', locale))
     if (!form.selectedCommerceId) errors.push(t('offers.commerceRequired', locale))
     if (!form.category_id) errors.push("Veuillez sélectionner une catégorie")
+    // Si Restaurant est sélectionné, la sous-catégorie est obligatoire
+    if (isRestaurantCategory(form.category_id) && !form.sub_category_id) {
+      errors.push(locale === 'fr' ? 'Veuillez sélectionner une sous-catégorie pour Restaurant' : 'Please select a sub-category for Restaurant')
+    }
     if (!form.start_date) errors.push(t('offers.startDateRequired', locale))
     if (!form.end_date) errors.push(t('offers.endDateRequired', locale))
     
@@ -723,6 +764,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             <div className="space-y-2">
               <label className="block text-sm font-medium text-primary mb-2">
                 {t('commerce.subCategory', locale)}
+                {isRestaurantCategory(form.category_id) && <span className="text-red-500"> *</span>}
               </label>
               <SubCategorySelector
                 categoryId={form.category_id}
@@ -900,7 +942,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           <Button
             className="bg-accent hover:bg-accent/80 text-white w-full sm:flex-1"
             onClick={isEditMode ? handleSaveOffer : handleCreateOffer}
-            disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
+            disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
           >
             {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.create', locale))}
           </Button>
