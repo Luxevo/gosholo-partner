@@ -16,6 +16,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
+import { renderTextWithLinks } from "@/lib/text-utils"
 
 // Types
 interface Offer {
@@ -177,7 +178,7 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
           {/* Description */}
           <div className="text-sm mb-4 text-gray-700">
             <p className="overflow-hidden line-clamp-2 break-words">
-              {offer.description}
+              {renderTextWithLinks(offer.description)}
             </p>
           </div>
 
@@ -252,7 +253,7 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
                 overflow: 'hidden',
                 wordBreak: 'break-word'
               }}>
-                {offer.description}
+                {renderTextWithLinks(offer.description)}
               </CardDescription>
             </div>
           </div>

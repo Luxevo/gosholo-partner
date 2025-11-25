@@ -15,6 +15,7 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
+import { renderTextWithLinks } from "@/lib/text-utils"
 
 // Types
 interface Event {
@@ -185,7 +186,7 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
           {/* Description */}
           <div className="text-sm mb-4 text-gray-700">
             <p className="overflow-hidden line-clamp-2 break-words">
-              {event.description}
+              {renderTextWithLinks(event.description)}
             </p>
           </div>
 
@@ -257,7 +258,7 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
                 overflow: 'hidden',
                 wordBreak: 'break-word'
               }}>
-                {event.description}
+                {renderTextWithLinks(event.description)}
               </CardDescription>
             </div>
           </div>

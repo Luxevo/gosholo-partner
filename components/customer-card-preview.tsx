@@ -3,6 +3,7 @@
 import { Store, Sparkles, Star, X, Heart, MapPin, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/language-context"
+import { renderTextWithLinks } from "@/lib/text-utils"
 
 interface CustomerCardPreviewProps {
   imageUrl: string
@@ -159,7 +160,7 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
           {/* Description */}
           <div className="text-sm mb-4 text-gray-700">
             <p className="line-clamp-2">
-              {item.description}
+              {renderTextWithLinks(item.description)}
             </p>
           </div>
 
