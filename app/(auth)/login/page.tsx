@@ -22,6 +22,7 @@ import Image from "next/image";
 import { TermsOfUse } from "@/components/terms-of-use";
 import { PrivacyPolicy } from "@/components/privacy-policy";
 import { useLanguage } from "@/contexts/language-context";
+import { t } from "@/lib/category-translations";
 
 function LoginForm() {
   const supabase = createClient();
@@ -46,7 +47,7 @@ function LoginForm() {
     });
 
     if (error || !data.session) {
-      setError("Email ou mot de passe incorrect.");
+      setError(t('auth.incorrectCredentials', locale));
       setIsLoading(false);
       return;
     }
@@ -115,10 +116,10 @@ function LoginForm() {
           </div>
           <div className="space-y-1">
             <h1 className="text-lg sm:text-xl font-bold text-brand-primary">
-              Bienvenue chez gosholo
+              {t('auth.welcomeTitle', locale)}
             </h1>
             <p className="text-brand-primary/70 text-xs">
-              Connectez-vous à votre espace commerçant
+              {t('auth.welcomeSubtitle', locale)}
             </p>
           </div>
         </div>
@@ -127,7 +128,7 @@ function LoginForm() {
           <CardHeader className="space-y-2 pb-4 sm:pb-6">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary">
-                {locale === 'fr' ? 'Connexion' : 'Login'}
+                {t('auth.loginTitle', locale)}
               </CardTitle>
               <Button
                 variant="outline"
@@ -136,13 +137,11 @@ function LoginForm() {
                 className="flex items-center gap-2 h-8"
               >
                 <Languages className="h-4 w-4" />
-                <span className="font-medium">{locale === 'fr' ? 'EN' : 'FR'}</span>
+                <span className="font-medium">{locale === 'fr' ? 'FR' : 'EN'}</span>
               </Button>
             </div>
             <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
-              {locale === 'fr'
-                ? 'Entrez vos identifiants pour accéder à votre espace commerçant'
-                : 'Enter your credentials to access your merchant space'}
+              {t('auth.loginDescription', locale)}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 sm:space-y-5">
@@ -160,14 +159,14 @@ function LoginForm() {
                   htmlFor="email"
                   className="text-brand-primary font-medium text-sm"
                 >
-                  Adresse email
+                  {t('auth.emailLabel', locale)}
                 </Label>
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="votre@email.com"
+                    placeholder={t('auth.emailPlaceholder', locale)}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-10 sm:h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
@@ -181,14 +180,14 @@ function LoginForm() {
                   htmlFor="password"
                   className="text-brand-primary font-medium text-sm"
                 >
-                  Mot de passe
+                  {t('auth.passwordLabel', locale)}
                 </Label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Votre mot de passe"
+                    placeholder={t('auth.passwordPlaceholder', locale)}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-12 h-10 sm:h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200"
@@ -215,7 +214,7 @@ function LoginForm() {
                   href="/forgot-password"
                   className="text-sm text-brand-primary hover:text-brand-primary/80 underline underline-offset-4 transition-colors"
                 >
-                  Mot de passe oublié ?
+                  {t('auth.forgotPassword', locale)}
                 </Link>
               </div>
 
@@ -227,11 +226,11 @@ function LoginForm() {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Connexion en cours...</span>
+                    <span>{t('auth.loggingIn', locale)}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center space-x-2">
-                    <span>Se connecter</span>
+                    <span>{t('auth.loginButton', locale)}</span>
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 )}
@@ -242,27 +241,27 @@ function LoginForm() {
 
         <div className="text-center space-y-3">
           <p className="text-sm text-brand-primary/70">
-            Pas encore de compte ?{" "}
+            {t('auth.noAccount', locale)}{" "}
             <Link
               href="/register"
               className="text-brand-primary hover:text-brand-primary/80 font-semibold underline underline-offset-4 transition-colors"
             >
-              Créer un compte
+              {t('auth.createAccount', locale)}
             </Link>
           </p>
 
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
-              En vous connectant, vous acceptez nos{" "}
+              {t('auth.loginAcceptTerms', locale)}{" "}
               <TermsOfUse>
                 <button className="text-brand-primary hover:underline">
-                  conditions d'utilisation
+                  {t('auth.termsOfUse', locale)}
                 </button>
               </TermsOfUse>{" "}
-              et notre{" "}
+              {t('auth.andOur', locale)}{" "}
               <PrivacyPolicy>
                 <button className="text-brand-primary hover:underline">
-                  politique de confidentialité
+                  {t('auth.privacyPolicy', locale)}
                 </button>
               </PrivacyPolicy>
             </p>
@@ -278,7 +277,7 @@ export default function LoginPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center min-h-screen">
-          Chargement...
+          {t('auth.loading', 'fr')}
         </div>
       }
     >

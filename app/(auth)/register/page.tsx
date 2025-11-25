@@ -51,16 +51,15 @@ function RegisterForm() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.firstName.trim())
-      newErrors.firstName = "Le prénom est requis";
-    if (!formData.lastName.trim()) newErrors.lastName = "Le nom est requis";
-    if (!formData.email.trim()) newErrors.email = "L'email est requis";
-    if (!formData.password) newErrors.password = "Le mot de passe est requis";
+      newErrors.firstName = t('validation.firstNameRequired', locale);
+    if (!formData.lastName.trim()) newErrors.lastName = t('validation.lastNameRequired', locale);
+    if (!formData.email.trim()) newErrors.email = t('validation.emailRequired', locale);
+    if (!formData.password) newErrors.password = t('validation.passwordRequired', locale);
     if (formData.password.length < 6)
-      newErrors.password =
-        "Le mot de passe doit contenir au moins 6 caractères";
+      newErrors.password = t('validation.passwordMinLength', locale);
 
     if (!acceptTerms)
-      newErrors.terms = "Vous devez accepter les conditions d'utilisation";
+      newErrors.terms = t('validation.termsRequired', locale);
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -91,7 +90,7 @@ function RegisterForm() {
     if (signUpError) {
       setIsLoading(false);
       setErrors({
-        email: signUpError.message || "Erreur lors de la création du compte",
+        email: signUpError.message || t('auth.accountCreationError', locale),
       });
       return;
     }
@@ -174,10 +173,10 @@ function RegisterForm() {
           </div>
           <div className="space-y-1">
             <h1 className="text-sm sm:text-lg font-bold text-brand-primary leading-tight">
-            Crée ton compte pour accéder à ta plateforme entreprise Gosholo
+            {t('auth.registerTitle', locale)}
             </h1>
             <p className="text-brand-primary/70 text-xs leading-tight px-2 sm:px-0">
-            Ces informations servent uniquement à créer votre accès personnel au tableau de bord. Elles ne seront pas visibles sur votre profil ni dans l'application
+            {t('auth.registerSubtitle', locale)}
             </p>
           </div>
         </div>
@@ -187,7 +186,7 @@ function RegisterForm() {
           <CardHeader className="space-y-2 pb-4 sm:pb-6">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg sm:text-xl font-semibold text-brand-primary">
-                {locale === 'fr' ? 'Créer votre compte' : 'Create your account'}
+                {t('auth.createAccountTitle', locale)}
               </CardTitle>
               <Button
                 variant="outline"
@@ -196,13 +195,11 @@ function RegisterForm() {
                 className="flex items-center gap-2 h-8"
               >
                 <Languages className="h-4 w-4" />
-                <span className="font-medium">{locale === 'fr' ? 'EN' : 'FR'}</span>
+                <span className="font-medium">{locale === 'fr' ? 'FR' : 'EN'}</span>
               </Button>
             </div>
             <CardDescription className="text-center text-brand-primary/70 text-xs sm:text-sm">
-              {locale === 'fr'
-                ? 'Remplissez les informations ci-dessous pour créer votre compte commerçant'
-                : 'Fill in the information below to create your merchant account'}
+              {t('auth.createAccountDescription', locale)}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 sm:space-y-4">
@@ -210,7 +207,7 @@ function RegisterForm() {
               {/* Informations personnelles */}
               <div className="space-y-2 sm:space-y-3">
                 <h3 className="font-medium text-brand-primary text-sm">
-                  Informations personnelles
+                  {t('auth.personalInfo', locale)}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -218,13 +215,13 @@ function RegisterForm() {
                       htmlFor="firstName"
                       className="text-brand-primary font-medium text-sm"
                     >
-                      Prénom *
+                      {t('auth.firstName', locale)} *
                     </Label>
                     <div className="relative group">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="firstName"
-                        placeholder="Jean"
+                        placeholder={t('auth.firstNamePlaceholder', locale)}
                         value={formData.firstName}
                         onChange={(e) =>
                           handleInputChange("firstName", e.target.value)
@@ -242,11 +239,11 @@ function RegisterForm() {
                       htmlFor="lastName"
                       className="text-brand-primary font-medium text-sm"
                     >
-                      Nom *
+                      {t('auth.lastName', locale)} *
                     </Label>
                     <Input
                       id="lastName"
-                      placeholder="Dupont"
+                      placeholder={t('auth.lastNamePlaceholder', locale)}
                       value={formData.lastName}
                       onChange={(e) =>
                         handleInputChange("lastName", e.target.value)
@@ -265,14 +262,14 @@ function RegisterForm() {
                       htmlFor="email"
                       className="text-brand-primary font-medium text-sm"
                     >
-                      Email *
+                      {t('auth.email', locale)} *
                     </Label>
                     <div className="relative group">
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="email"
                         type="email"
-                        placeholder="jean@exemple.com"
+                        placeholder={t('auth.emailPlaceholderRegister', locale)}
                         value={formData.email}
                         onChange={(e) =>
                           handleInputChange("email", e.target.value)
@@ -290,14 +287,14 @@ function RegisterForm() {
                       htmlFor="phone"
                       className="text-brand-primary font-medium text-sm"
                     >
-                      Téléphone
+                      {t('auth.phone', locale)}
                     </Label>
                     <div className="relative group">
                       <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="012 234-6789"
+                        placeholder={t('auth.phonePlaceholder', locale)}
                         value={formData.phone}
                         onChange={(e) =>
                           handleInputChange("phone", e.target.value)
@@ -312,7 +309,7 @@ function RegisterForm() {
               {/* Mot de passe */}
               <div className="space-y-3">
                 <h3 className="font-medium text-brand-primary text-sm">
-                  Sécurité
+                  {t('auth.security', locale)}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -320,14 +317,14 @@ function RegisterForm() {
                       htmlFor="password"
                       className="text-brand-primary font-medium text-sm"
                     >
-                      Mot de passe *
+                      {t('auth.passwordLabel', locale)} *
                     </Label>
                     <div className="relative group">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-brand-primary/40 group-focus-within:text-brand-primary transition-colors" />
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Minimum 6 caractères"
+                        placeholder={t('auth.passwordPlaceholderRegister', locale)}
                         value={formData.password}
                         onChange={(e) =>
                           handleInputChange("password", e.target.value)
@@ -378,10 +375,10 @@ function RegisterForm() {
                   htmlFor="acceptTerms"
                   className="text-xs sm:text-sm text-brand-primary/80 leading-tight"
                 >
-                  J'accepte les{" "}
+                  {t('auth.acceptTerms', locale)}{" "}
                   <TermsOfUse>
                     <button type="button" className="underline hover:text-brand-primary">
-                      conditions d'utilisation
+                      {t('auth.acceptTermsButton', locale)}
                     </button>
                   </TermsOfUse>{" "}
                   *
@@ -400,11 +397,11 @@ function RegisterForm() {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Chargement...</span>
+                    <span>{t('auth.creatingAccount', locale)}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center space-x-2">
-                    <span>Créer mon compte</span>
+                    <span>{t('auth.createMyAccount', locale)}</span>
                     <ArrowRight className="h-4 w-4" />
                   </div>
                 )}
@@ -415,27 +412,27 @@ function RegisterForm() {
 
         <div className="text-center space-y-3">
           <p className="text-sm text-brand-primary/70">
-            Vous avez déjà un compte ?{" "}
+            {t('auth.alreadyHaveAccount', locale)}{" "}
             <Link
               href="/login"
               className="text-brand-primary hover:text-brand-primary/80 font-semibold underline underline-offset-4 transition-colors"
             >
-              Connectez-vous
+              {t('auth.connect', locale)}
             </Link>
           </p>
 
           <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500 leading-relaxed">
-              En créant un compte, vous acceptez nos{" "}
+              {t('auth.registerAcceptTerms', locale)}{" "}
               <TermsOfUse>
                 <button className="text-brand-primary hover:underline">
-                  conditions d'utilisation
+                  {t('auth.termsOfUse', locale)}
                 </button>
               </TermsOfUse>{" "}
-              et notre{" "}
+              {t('auth.andOur', locale)}{" "}
               <PrivacyPolicy>
                 <button className="text-brand-primary hover:underline">
-                  politique de confidentialité
+                  {t('auth.privacyPolicy', locale)}
                 </button>
               </PrivacyPolicy>
             </p>
@@ -451,7 +448,7 @@ export default function RegisterPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center min-h-screen">
-          Chargement...
+          {t('auth.loading', 'fr')}
         </div>
       }
     >
