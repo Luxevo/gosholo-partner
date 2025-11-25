@@ -35,7 +35,10 @@ import {
   Plus,
   MapPin,
   Phone,
-  Globe
+  Globe,
+  Facebook,
+  Instagram,
+  Mail
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -642,18 +645,6 @@ export default function ProfilPage() {
                             <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
                             <span className="truncate">{commerce.address}</span>
                           </div>
-                          {commerce.phone && (
-                            <div className="flex items-center space-x-2">
-                              <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                              <span>{commerce.phone}</span>
-                            </div>
-                          )}
-                          {commerce.email && (
-                            <div className="flex items-center space-x-2">
-                              <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                              <span className="truncate">{commerce.email}</span>
-                            </div>
-                          )}
                           {commerce.website && (
                             <div className="flex items-center space-x-2">
                               <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
@@ -664,6 +655,48 @@ export default function ProfilPage() {
                               </span>
                             </div>
                           )}
+                          <div className="flex items-center space-x-3 pt-1">
+                            {commerce.email && (
+                              <a 
+                                href={`mailto:${commerce.email}`}
+                                className="text-blue-600 hover:text-blue-700 transition-colors"
+                                aria-label="Email"
+                              >
+                                <Mail className="h-5 w-5" />
+                              </a>
+                            )}
+                            {commerce.phone && (
+                              <a 
+                                href={`tel:${commerce.phone.replace(/\s/g, '')}`}
+                                className="text-green-600 hover:text-green-700 transition-colors"
+                                aria-label="Téléphone"
+                              >
+                                <Phone className="h-5 w-5" />
+                              </a>
+                            )}
+                            {commerce.facebook_url && (
+                              <a 
+                                href={commerce.facebook_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-700 transition-colors"
+                                aria-label="Facebook"
+                              >
+                                <Facebook className="h-5 w-5" />
+                              </a>
+                            )}
+                            {commerce.instagram_url && (
+                              <a 
+                                href={commerce.instagram_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-pink-600 hover:text-pink-700 transition-colors"
+                                aria-label="Instagram"
+                              >
+                                <Instagram className="h-5 w-5" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                         
                         <div className="mt-3 text-xs text-gray-500">
