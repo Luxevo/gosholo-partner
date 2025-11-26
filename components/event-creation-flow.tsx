@@ -124,6 +124,11 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     if (!form.start_date) errors.push(t('events.startDateRequired', locale))
     if (!form.end_date) errors.push(t('events.endDateRequired', locale))
     
+    // End date must be after start date (always validate this, even in edit mode)
+    if (form.start_date && form.end_date && form.end_date < form.start_date) {
+      errors.push(t('events.endDateAfterStart', locale))
+    }
+    
     return {
       isValid: errors.length === 0,
       errors

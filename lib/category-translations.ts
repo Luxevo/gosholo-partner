@@ -415,6 +415,7 @@ export const TRANSLATIONS = {
       commerceRequired: "Commerce requis",
       startDateRequired: "Date de début requise",
       endDateRequired: "Date de fin requise",
+      endDateAfterStart: "La date de fin doit être après la date de début",
       correctErrors: "Veuillez corriger les erreurs suivantes :",
       
       // Confirmation dialog
@@ -1330,6 +1331,7 @@ export const TRANSLATIONS = {
       commerceRequired: "Business required",
       startDateRequired: "Start date required",
       endDateRequired: "End date required",
+      endDateAfterStart: "End date must be after start date",
       correctErrors: "Please correct the following errors:",
       
       // Confirmation dialog

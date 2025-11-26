@@ -41,6 +41,7 @@ interface Offer {
   start_date: string | null
   end_date: string | null
   category_id: number | null
+  sub_category_id: number | null
 }
 
 interface OfferCreationFlowProps {
@@ -83,10 +84,21 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     selectedCommerceId: offer?.commerce_id || commerceId || "",
     image_url: offer?.image_url || "",
     category_id: offer?.category_id || null,
-    sub_category_id: null as number | null, // Nouveau champ pour l'ID de sous-catégorie
+    sub_category_id: offer?.sub_category_id || null, // Charger la sous-catégorie depuis l'offre existante
   })
 
   const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
+
+  // Load geo data from offer if editing
+  useEffect(() => {
+    if (offer && offer.latitude && offer.longitude) {
+      setGeoData({
+        latitude: offer.latitude,
+        longitude: offer.longitude,
+        address: offer.custom_location || ""
+      })
+    }
+  }, [offer])
 
   // Load categories
   useEffect(() => {
@@ -225,8 +237,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     if (!form.start_date) errors.push(t('offers.startDateRequired', locale))
     if (!form.end_date) errors.push(t('offers.endDateRequired', locale))
     
-    // Date validations
-    if (form.start_date && form.end_date) {
+    // Date validations - only apply restrictions when creating new offers, not when editing
+    if (form.start_date && form.end_date && !isEditMode) {
       // Get today's date in YYYY-MM-DD format to match input format
       const todayString = format(new Date(), "yyyy-MM-dd")
       
@@ -239,11 +251,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
         errors.push(t('offers.endDatePast', locale))
       }
       
-      // End date must be after start date (string comparison works for YYYY-MM-DD)
-      if (form.end_date < form.start_date) {
-        errors.push(t('offers.endDateAfterStart', locale))
-      }
-      
       // Maximum 365 days (1 year) duration
       const startDate = new Date(form.start_date)
       const endDate = new Date(form.end_date)
@@ -252,6 +259,11 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
       if (diffDays > 365) {
         errors.push(locale === 'fr' ? 'La durée maximale est de 1 an (365 jours)' : 'Maximum duration is 1 year (365 days)')
       }
+    }
+    
+    // End date must be after start date (always validate this, even in edit mode)
+    if (form.start_date && form.end_date && form.end_date < form.start_date) {
+      errors.push(t('offers.endDateAfterStart', locale))
     }
     
     return {
@@ -284,7 +296,17 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
       console.error('Missing required fields:', { 
         title: !!form.title, 
         description: !!form.short_description, 
-        commerce: !!form.selectedCommerceId 
+        commerce: !!form.selectedCommerceId,
+        category_id: !!form.category_id,
+        sub_category_id: form.sub_category_id || !isRestaurantCategory(form.category_id),
+        start_date: !!form.start_date,
+        end_date: !!form.end_date,
+        errors: validation.errors
+      })
+      toast({
+        variant: "destructive",
+        title: locale === 'fr' ? 'Erreur de validation' : 'Validation error',
+        description: validation.errors.join(', ')
       })
       setIsLoading(false)
       return
@@ -910,7 +932,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <Input
                   type="date"
                   value={form.start_date}
-                  min={format(new Date(), "yyyy-MM-dd")}
+                  min={isEditMode ? undefined : format(new Date(), "yyyy-MM-dd")}
                   onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))}
                   required
                 />
@@ -922,8 +944,8 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
                 <Input
                   type="date"
                   value={form.end_date}
-                  min={form.start_date || format(new Date(), "yyyy-MM-dd")}
-                  max={form.start_date ? format(new Date(new Date(form.start_date).getTime() + 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd") : ""}
+                  min={isEditMode ? undefined : (form.start_date || format(new Date(), "yyyy-MM-dd"))}
+                  max={isEditMode ? undefined : (form.start_date ? format(new Date(new Date(form.start_date).getTime() + 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd") : "")}
                   onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))}
                   required
                 />
