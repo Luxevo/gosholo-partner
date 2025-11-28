@@ -142,28 +142,34 @@ export default function ImageUpload({
 
       {currentImage ? (
         // Show live card preview only for offers and events
-        previewData?.type ? (
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-900">
-              {locale === 'fr' ? 'Prévisualisation avec fausses données' : 'Preview with mock data'}
-            </h4>
-            
-            {/* Live Client Card Preview - Exact copy of real customer card */}
-            <CustomerCardPreview 
-              imageUrl={currentImage}
-              type={previewData.type}
-              onRemove={onRemoveImage}
-            />
-          </div>
-        ) : (
-          // Simple image preview for commerce
+        // TEMPORARILY COMMENTED OUT - Preview card disabled
+        // previewData?.type ? (
+        //   <div className="space-y-3">
+        //     <h4 className="text-sm font-medium text-gray-900">
+        //       {locale === 'fr' ? 'Prévisualisation avec fausses données' : 'Preview with mock data'}
+        //     </h4>
+        //     
+        //     {/* Live Client Card Preview - Exact copy of real customer card */}
+        //     <CustomerCardPreview 
+        //       imageUrl={currentImage}
+        //       type={previewData.type}
+        //       onRemove={onRemoveImage}
+        //     />
+        //   </div>
+        // ) : (
+          // Simple image preview for commerce (and temporarily for offers/events)
           <div className="space-y-3">
             <div className="relative">
-              <div className="aspect-square w-full max-w-xs mx-auto relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+              {/* Use same dimensions as real cards: 4:5 aspect ratio, max-w-[320px] sm:w-[356px] */}
+              <div 
+                className="w-full max-w-[320px] sm:w-[356px] mx-auto relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200"
+                style={{ aspectRatio: "4 / 5" }}
+              >
                 <img
                   src={currentImage}
                   alt="Preview"
                   className="w-full h-full object-cover"
+                  style={{ objectPosition: 'center top' }}
                 />
               </div>
               {onRemoveImage && (
@@ -179,7 +185,7 @@ export default function ImageUpload({
               )}
             </div>
           </div>
-        )
+        // )
       ) : (
         // Upload area
         <Card
