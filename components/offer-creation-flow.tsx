@@ -234,6 +234,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     if (isRestaurantCategory(form.category_id) && !form.sub_category_id) {
       errors.push(locale === 'fr' ? 'Veuillez sélectionner une sous-catégorie pour Restaurant' : 'Please select a sub-category for Restaurant')
     }
+    if (!form.image_url) errors.push(locale === 'fr' ? 'Veuillez ajouter une image' : 'Please add an image')
     if (!form.start_date) errors.push(t('offers.startDateRequired', locale))
     if (!form.end_date) errors.push(t('offers.endDateRequired', locale))
     
@@ -830,7 +831,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
 
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                {t('offers.image', locale)}
+                {t('offers.image', locale)} * <span className="text-red-500">*</span>
               </label>
               <ImageUpload
                 bucket="gosholo-partner"
@@ -964,7 +965,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           <Button
             className="bg-accent hover:bg-accent/80 text-white w-full sm:flex-1"
             onClick={isEditMode ? handleSaveOffer : handleCreateOffer}
-            disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
+            disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId || !form.image_url || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
           >
             {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.create', locale))}
           </Button>

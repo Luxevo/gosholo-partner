@@ -121,6 +121,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     if (!form.short_description) errors.push(t('events.descriptionRequired', locale))
     if (!form.selectedCommerceId) errors.push(t('events.commerceRequired', locale))
     if (!form.category_events_id) errors.push("Veuillez sélectionner une catégorie")
+    if (!form.image_url) errors.push(locale === 'fr' ? 'Veuillez ajouter une image' : 'Please add an image')
     if (!form.start_date) errors.push(t('events.startDateRequired', locale))
     if (!form.end_date) errors.push(t('events.endDateRequired', locale))
     
@@ -660,7 +661,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
 
                 <div>
                   <label className="block text-sm font-medium text-primary mb-2">
-                    {t('events.eventImageLabel', locale)}
+                    {t('events.eventImageLabel', locale)} * <span className="text-red-500">*</span>
                   </label>
                   <ImageUpload
                     bucket="gosholo-partner"
@@ -775,7 +776,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               <Button 
                 className="bg-accent hover:bg-accent/80 text-white w-full sm:flex-1" 
                 onClick={isEditMode ? handleSaveEvent : handleCreateEvent}
-                disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId}
+                disabled={isLoading || !form.title || !form.short_description || !form.selectedCommerceId || !form.image_url}
               >
                 {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.create', locale))}
               </Button>
