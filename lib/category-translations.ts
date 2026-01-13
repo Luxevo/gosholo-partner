@@ -62,6 +62,7 @@ export const TRANSLATIONS = {
       alreadyHaveAccount: "Vous avez déjà un compte ?",
       connect: "Connectez-vous",
       registerAcceptTerms: "En créant un compte, vous acceptez nos",
+      contentDisclaimer: "En publiant du contenu sur gosholo, vous acceptez que vos offres, événements et visuels puissent être utilisés par gosholo à des fins promotionnelles, afin de mettre en valeur votre commerce et la plateforme.",
       incorrectCredentials: "Email ou mot de passe incorrect.",
       accountCreationError: "Erreur lors de la création du compte"
     },
@@ -978,6 +979,7 @@ export const TRANSLATIONS = {
       alreadyHaveAccount: "Already have an account?",
       connect: "Sign in",
       registerAcceptTerms: "By creating an account, you agree to our",
+      contentDisclaimer: "By publishing content on gosholo, you agree that your offers, events and visuals may be used by gosholo for promotional purposes, to showcase your business and the platform.",
       incorrectCredentials: "Incorrect email or password.",
       accountCreationError: "Error creating account"
     },

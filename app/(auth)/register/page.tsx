@@ -388,6 +388,13 @@ function RegisterForm() {
                 <p className="text-sm text-red-600">{errors.terms}</p>
               )}
 
+              {/* Disclaimer */}
+              <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-lg p-3">
+                <p className="text-xs text-brand-primary/70 leading-relaxed">
+                  {t('auth.contentDisclaimer', locale)}
+                </p>
+              </div>
+
               {/* Bouton submit */}
               <Button
                 type="submit"

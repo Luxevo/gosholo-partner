@@ -44,6 +44,13 @@ Le contenu du Site est fourni à titre informatif seulement. Bien que gosholo fa
 **Droits de propriété intellectuelle**
 Tout contenu du Site, incluant les textes, images, vidéos, logos, et autres éléments, est protégé par les droits de propriété intellectuelle de gosholo ou de ses partenaires. Toute utilisation sans autorisation préalable est strictement interdite.
 
+**Utilisation du contenu à des fins promotionnelles**
+En créant un compte et en publiant du contenu sur gosholo, le commerçant autorise gosholo à utiliser, reproduire et diffuser ses publications (offres, événements, images, textes, logo et informations publiques du commerce) à des fins promotionnelles et marketing.
+
+Cette utilisation peut inclure, sans s'y limiter, la diffusion sur les réseaux sociaux, le site web de gosholo, les infolettres, les publicités numériques ou tout autre canal de communication lié à la promotion de gosholo et des commerces partenaires.
+
+Les droits demeurent la propriété du commerçant. gosholo s'engage à utiliser le contenu de manière professionnelle et dans un contexte promotionnel cohérent avec la plateforme.
+
 **Commentaires et suggestions**
 En nous envoyant des commentaires ou suggestions via le Site, vous concédez à gosholo une licence irrévocable, perpétuelle et gratuite pour utiliser ces informations.
 
@@ -98,6 +105,13 @@ The content of the Site is provided for informational purposes only. Although go
 
 **Intellectual Property Rights**
 All content on the Site, including text, images, videos, logos, and other elements, is protected by the intellectual property rights of gosholo or its partners. Any use without prior authorization is strictly prohibited.
+
+**Use of Content for Promotional Purposes**
+By creating an account and publishing content on gosholo, the merchant authorizes gosholo to use, reproduce, and distribute their publications (offers, events, images, texts, logo, and public business information) for promotional and marketing purposes.
+
+This use may include, without limitation, distribution on social networks, the gosholo website, newsletters, digital advertisements, or any other communication channel related to the promotion of gosholo and partner businesses.
+
+Rights remain the property of the merchant. gosholo commits to using the content in a professional manner and in a promotional context consistent with the platform.
 
 **Comments and Suggestions**
 By sending us comments or suggestions via the Site, you grant gosholo an irrevocable, perpetual, and royalty-free license to use this information.
