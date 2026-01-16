@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { supabaseAdmin } from "@/lib/supabase/service"
+import { headers } from "next/headers"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -63,7 +64,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = event.title || "Événement"
   const description = event.description || `Découvrez cet événement chez ${event.commerces?.name || "un commerce local"}`
-  const image = event.image_url || event.commerces?.image_url || "/events.png"
+
+  // Ensure absolute URL for Open Graph images
+  const baseUrl = "https://app.gosholo.com"
+  let image = event.image_url || event.commerces?.image_url || `${baseUrl}/events.png`
+  if (image.startsWith("/")) {
+    image = `${baseUrl}${image}`
+  }
 
   return {
     title: `${title} - GoSholo`,
@@ -71,6 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description,
+      url: `${baseUrl}/event-mobile/${id}`,
       images: [{ url: image, width: 1200, height: 630, alt: title }],
       type: "website",
       siteName: "GoSholo",
@@ -88,9 +96,18 @@ export default async function EventMobilePage({ params }: PageProps) {
   const { id } = await params
   const event = await getEvent(id)
 
+  // Detect OS from user agent
+  const headersList = await headers()
+  const userAgent = headersList.get("user-agent") || ""
+  const isIOS = /iPhone|iPad|iPod/i.test(userAgent)
+  const isAndroid = /Android/i.test(userAgent)
+
   const appSchemeUrl = `gosholomobile://event/${id}`
   const appStoreUrl = "https://apps.apple.com/ca/app/gosholo/id6749919037"
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.gosholo.gosholo"
+
+  // Smart store URL based on device
+  const storeUrl = isIOS ? appStoreUrl : isAndroid ? playStoreUrl : appStoreUrl
 
   if (!event) {
     return (
@@ -157,43 +174,43 @@ export default async function EventMobilePage({ params }: PageProps) {
             </p>
           )}
 
-          {/* Open in App Button */}
-          <a
-            href={appSchemeUrl}
-            className="block w-full bg-orange-500 text-white font-bold text-center py-4 rounded-full mb-4 hover:bg-orange-600 transition"
+          {/* Smart Open/Download Button */}
+          <button
+            id="open-app-btn"
+            className="block w-full bg-orange-500 text-white font-bold text-center py-4 rounded-full hover:bg-orange-600 transition cursor-pointer"
           >
-            Ouvrir dans l'app
-          </a>
+            Voir dans l'app
+          </button>
 
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Pas encore l'app?</span>
-            </div>
-          </div>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                document.getElementById('open-app-btn').addEventListener('click', function() {
+                  var appUrl = '${appSchemeUrl}';
+                  var storeUrl = '${storeUrl}';
+                  var timeout;
+                  var now = Date.now();
 
-          {/* Download Buttons */}
-          <div className="flex gap-3">
-            <a
-              href={appStoreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-black text-white font-semibold text-center py-3 rounded-xl hover:bg-gray-800 transition text-sm"
-            >
-              App Store
-            </a>
-            <a
-              href={playStoreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-black text-white font-semibold text-center py-3 rounded-xl hover:bg-gray-800 transition text-sm"
-            >
-              Play Store
-            </a>
-          </div>
+                  // Try to open the app
+                  window.location.href = appUrl;
+
+                  // If still here after 1.5s, redirect to store
+                  timeout = setTimeout(function() {
+                    if (Date.now() - now < 2000) {
+                      window.location.href = storeUrl;
+                    }
+                  }, 1500);
+
+                  // If page becomes hidden (app opened), clear timeout
+                  window.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                      clearTimeout(timeout);
+                    }
+                  });
+                });
+              `,
+            }}
+          />
         </div>
 
         {/* Footer */}
