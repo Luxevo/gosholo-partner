@@ -1,0 +1,8 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.gosholo.gosholo",
+      "sha256_cert_fingerprints": ["B7:20:7E:DC:6D:F5:11:79:93:A7:7F:71:02:03:D9:B4:52:51:B6:AD:BA:F6:C6:38:A7:89:D7:8D:6B:5D:E2:A5"]
+    }
+  }]
