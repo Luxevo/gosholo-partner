@@ -64,7 +64,7 @@ export default async function OfferMobilePage({ params }: PageProps) {
   const offer = await getOffer(id)
 
   const appSchemeUrl = `gosholomobile://offer/${id}`
-  const appStoreUrl = "https://apps.apple.com/app/gosholo/id6743543625"
+  const appStoreUrl = "https://apps.apple.com/ca/app/gosholo/id6749919037"
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.gosholo.gosholo"
 
   if (!offer) {

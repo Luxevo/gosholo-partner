@@ -74,7 +74,7 @@ export default async function EventMobilePage({ params }: PageProps) {
   const event = await getEvent(id)
 
   const appSchemeUrl = `gosholomobile://event/${id}`
-  const appStoreUrl = "https://apps.apple.com/app/gosholo/id6743543625"
+  const appStoreUrl = "https://apps.apple.com/ca/app/gosholo/id6749919037"
   const playStoreUrl = "https://play.google.com/store/apps/details?id=com.gosholo.gosholo"
 
   if (!event) {
