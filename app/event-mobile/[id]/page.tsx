@@ -7,20 +7,35 @@ interface PageProps {
 
 // Fetch event data for metadata and page
 async function getEvent(id: string) {
-  const { data: event } = await supabaseAdmin
-    .from("events")
-    .select(`
-      *,
-      commerces (
-        name,
-        address,
-        image_url
-      )
-    `)
-    .eq("id", id)
-    .single()
+  try {
+    // First fetch the event
+    const { data: event, error: eventError } = await supabaseAdmin
+      .from("events")
+      .select("*")
+      .eq("id", id)
+      .single()
 
-  return event
+    if (eventError || !event) {
+      console.error("Error fetching event:", eventError)
+      return null
+    }
+
+    // Then fetch the commerce
+    let commerce = null
+    if (event.commerce_id) {
+      const { data: commerceData } = await supabaseAdmin
+        .from("commerces")
+        .select("name, address, image_url")
+        .eq("id", event.commerce_id)
+        .single()
+      commerce = commerceData
+    }
+
+    return { ...event, commerces: commerce }
+  } catch (error) {
+    console.error("Error in getEvent:", error)
+    return null
+  }
 }
 
 // Format date for display

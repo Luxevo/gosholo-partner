@@ -8,20 +8,35 @@ interface PageProps {
 
 // Fetch offer data for metadata and page
 async function getOffer(id: string) {
-  const { data: offer } = await supabaseAdmin
-    .from("offers")
-    .select(`
-      *,
-      commerces (
-        name,
-        address,
-        image_url
-      )
-    `)
-    .eq("id", id)
-    .single()
+  try {
+    // First fetch the offer
+    const { data: offer, error: offerError } = await supabaseAdmin
+      .from("offers")
+      .select("*")
+      .eq("id", id)
+      .single()
 
-  return offer
+    if (offerError || !offer) {
+      console.error("Error fetching offer:", offerError)
+      return null
+    }
+
+    // Then fetch the commerce
+    let commerce = null
+    if (offer.commerce_id) {
+      const { data: commerceData } = await supabaseAdmin
+        .from("commerces")
+        .select("name, address, image_url")
+        .eq("id", offer.commerce_id)
+        .single()
+      commerce = commerceData
+    }
+
+    return { ...offer, commerces: commerce }
+  } catch (error) {
+    console.error("Error in getOffer:", error)
+    return null
+  }
 }
 
 // Dynamic metadata for Open Graph (link previews)
