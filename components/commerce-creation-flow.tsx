@@ -187,16 +187,8 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
             ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
             : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
           errors.push(`${dayNames[idx]}: ${locale === 'fr' ? 'Veuillez entrer les heures' : 'Please enter hours'}`)
-        } else {
-          const openTime = new Date(`2000-01-01T${day.open_time}`)
-          const closeTime = new Date(`2000-01-01T${day.close_time}`)
-          if (openTime >= closeTime) {
-            const dayNames = locale === 'fr'
-              ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-              : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-            errors.push(`${dayNames[idx]}: ${locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time'}`)
-          }
         }
+        // Note: We allow close_time < open_time for overnight hours (e.g., bar 16:00-03:00)
       }
     })
 
@@ -208,13 +200,7 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
       if (!hour.is_closed && (!hour.open_time || !hour.close_time)) {
         errors.push(`${locale === 'fr' ? 'Horaire spécial' : 'Special hour'} ${idx + 1}: ${locale === 'fr' ? 'Heures requises' : 'Hours required'}`)
       }
-      if (!hour.is_closed && hour.open_time && hour.close_time) {
-        const openTime = new Date(`2000-01-01T${hour.open_time}`)
-        const closeTime = new Date(`2000-01-01T${hour.close_time}`)
-        if (openTime >= closeTime) {
-          errors.push(`${locale === 'fr' ? 'Horaire spécial' : 'Special hour'} ${idx + 1}: ${locale === 'fr' ? 'L\'heure de fermeture doit être après l\'heure d\'ouverture' : 'Closing time must be after opening time'}`)
-        }
-      }
+      // Note: We allow close_time < open_time for overnight hours (e.g., bar 16:00-03:00)
     })
 
     // Validate social media URLs

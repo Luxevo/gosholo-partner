@@ -295,16 +295,8 @@ export default function CommerceManagementFlow({ commerce, onCancel, onCommerceU
             ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
             : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
           errors.push(`${dayNames[day.day_of_week]}: ${locale === 'fr' ? 'Horaires requis' : 'Hours required'}`)
-        } else {
-          const openTime = new Date(`2000-01-01T${day.open_time}`)
-          const closeTime = new Date(`2000-01-01T${day.close_time}`)
-          if (openTime >= closeTime) {
-            const dayNames = locale === 'fr'
-              ? ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-              : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-            errors.push(`${dayNames[day.day_of_week]}: ${locale === 'fr' ? 'Heure de fermeture doit être après ouverture' : 'Closing time must be after opening time'}`)
-          }
         }
+        // Note: We allow close_time < open_time for overnight hours (e.g., bar 16:00-03:00)
       }
     })
 
