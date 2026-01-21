@@ -20,33 +20,35 @@ export default async function DownloadPage() {
 
   const storeUrl = isIOS ? APP_STORE_URL : PLAY_STORE_URL
 
+  // Android Intent URL - opens app if installed, otherwise goes to Play Store directly (no browser popup)
+  const androidIntentUrl = `intent://#Intent;scheme=gosholomobile;package=com.gosholo.gosholo;S.browser_fallback_url=${encodeURIComponent(PLAY_STORE_URL)};end`
+
   // Mobile - try app first, then fallback to store
   return (
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body style={{ margin: 0, backgroundColor: "#016167" }}>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+    <div style={{ minHeight: "100vh", backgroundColor: "#016167" }}>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: isAndroid
+            ? `
+              // Android: Use Intent URL for seamless app-or-store redirect
+              window.location.href = '${androidIntentUrl}';
+            `
+            : `
+              // iOS: Try custom scheme, fallback to App Store
               (function() {
                 var appUrl = '${APP_SCHEME_URL}';
                 var storeUrl = '${storeUrl}';
                 var timeout;
                 var now = Date.now();
 
-                // Try to open the app immediately
                 window.location.href = appUrl;
 
-                // If still here after 1.5s, redirect to store
                 timeout = setTimeout(function() {
                   if (Date.now() - now < 2000) {
                     window.location.href = storeUrl;
                   }
                 }, 1500);
 
-                // If page becomes hidden (app opened), clear timeout
                 document.addEventListener('visibilitychange', function() {
                   if (document.hidden) {
                     clearTimeout(timeout);
@@ -54,9 +56,8 @@ export default async function DownloadPage() {
                 });
               })();
             `,
-          }}
-        />
-      </body>
-    </html>
+        }}
+      />
+    </div>
   )
 }
