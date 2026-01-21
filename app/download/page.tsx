@@ -3,7 +3,6 @@ import { redirect } from "next/navigation"
 
 const APP_STORE_URL = "https://apps.apple.com/ca/app/gosholo/id6749919037"
 const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.gosholo.gosholo"
-const APP_SCHEME_URL = "gosholomobile://"
 
 export default async function DownloadPage() {
   const headersList = await headers()
@@ -34,27 +33,9 @@ export default async function DownloadPage() {
               window.location.href = '${androidIntentUrl}';
             `
             : `
-              // iOS: Try custom scheme, fallback to App Store
-              (function() {
-                var appUrl = '${APP_SCHEME_URL}';
-                var storeUrl = '${storeUrl}';
-                var timeout;
-                var now = Date.now();
-
-                window.location.href = appUrl;
-
-                timeout = setTimeout(function() {
-                  if (Date.now() - now < 2000) {
-                    window.location.href = storeUrl;
-                  }
-                }, 1500);
-
-                document.addEventListener('visibilitychange', function() {
-                  if (document.hidden) {
-                    clearTimeout(timeout);
-                  }
-                });
-              })();
+              // iOS: Universal Links handle app opening automatically.
+              // If this page loads, app is not installed - redirect to App Store.
+              window.location.href = '${storeUrl}';
             `,
         }}
       />
