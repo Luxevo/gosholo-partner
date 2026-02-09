@@ -19,6 +19,7 @@ import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
 import CategoryEventsSelector from "@/components/category-events-selector"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface Event {
   id: string
@@ -77,6 +78,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
     selectedCommerceId: event?.commerce_id || commerceId || "",
     image_url: event?.image_url || "",
     category_events_id: event?.category_events_id || null,
+    additionalCommerceIds: [] as string[],
   })
 
    const [geoData, setGeoData] = useState<{latitude: number, longitude: number, address: string} | null>(null)
@@ -105,8 +107,23 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
             .select('available_en_vedette, available_visibilite')
             .eq('user_id', user.id)
             .single()
-          
+
           setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
+
+          // Load existing additional commerce associations in edit mode
+          if (event) {
+            const { data: associations } = await supabase
+              .from('event_commerces')
+              .select('commerce_id')
+              .eq('event_id', event.id)
+
+            if (associations) {
+              const additionalIds = associations
+                .map(a => a.commerce_id)
+                .filter(id => id !== event.commerce_id)
+              setForm(f => ({ ...f, additionalCommerceIds: additionalIds }))
+            }
+          }
         }
       } catch (error) {
         console.error('Error loading data:', error)
@@ -268,9 +285,25 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         setCreatedEventId(result.id)
       }
       
+      // Sync junction table (event_commerces)
+      const eventId = result.id
+      const allCommerceIds = [targetCommerceId, ...form.additionalCommerceIds]
+
+      // Delete existing associations and re-insert
+      await supabase
+        .from('event_commerces')
+        .delete()
+        .eq('event_id', eventId)
+
+      if (allCommerceIds.length > 0) {
+        await supabase
+          .from('event_commerces')
+          .insert(allCommerceIds.map(cid => ({ event_id: eventId, commerce_id: cid })))
+      }
+
       // Refresh dashboard counts
       refreshCounts()
-      
+
       if (isEditMode) {
         // For edit mode, close immediately
         if (onCancel) {
@@ -290,7 +323,8 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   // Confirmation Component
   const EventConfirmation = () => {
     const selectedCommerce = commerces.find(c => c.id === form.selectedCommerceId)
-    
+    const additionalCommerces = commerces.filter(c => form.additionalCommerceIds.includes(c.id))
+
     return (
       <div className="space-y-6">
         <div className="text-center mb-6">
@@ -322,13 +356,20 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
               </Badge>
             </div>
           </CardHeader>
-          
+
           <CardContent className="pt-0">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm">
-                <Store className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{t('events.commerceLabel', locale)}:</span>
-                <span>{selectedCommerce?.name || t('placeholders.notSelected', locale)}</span>
+              <div className="flex items-start gap-2 text-sm">
+                <Store className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <div>
+                  <span className="font-medium">{t('events.commerceLabel', locale)}:</span>{' '}
+                  <span>{selectedCommerce?.name || t('placeholders.notSelected', locale)}</span>
+                  {additionalCommerces.length > 0 && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      + {additionalCommerces.map(c => c.name).join(', ')}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="flex items-center gap-2 text-sm">
@@ -565,8 +606,7 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
   }
 
   return (
-    <div className="w-full px-2 sm:px-0">
-      <Card className="w-full max-w-md sm:max-w-2xl mx-auto p-4 sm:p-8 border-primary/20 shadow-none rounded-2xl">
+      <Card className="w-full mx-auto border-primary/20 shadow-none">
       {isSuccessMode ? (
         <SuccessWithBoosts />
       ) : isConfirmationMode ? (
@@ -597,25 +637,69 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
                     </Button>
                   </div>
                 ) : (
-                  <Select 
-                    value={form.selectedCommerceId} 
-                    onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
-                    disabled={isEditMode || !!commerceId} // Disable commerce selection in edit mode or when commerceId is provided
-                  >
-                    <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
-                      <SelectValue placeholder={commerceId ? t('events.commercePreselected', locale) : t('events.selectCommerce', locale)} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {commerces.map((commerce) => (
-                        <SelectItem key={commerce.id} value={commerce.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{commerce.name}</span>
-                            <span className="text-xs text-secondary">{commerce.address}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <>
+                    <Select
+                      value={form.selectedCommerceId}
+                      onValueChange={(value) => setForm(f => ({ ...f, selectedCommerceId: value }))}
+                      disabled={isEditMode || !!commerceId}
+                    >
+                      <SelectTrigger className={!form.selectedCommerceId ? "border-red-300 focus:border-red-500" : ""}>
+                        <SelectValue placeholder={commerceId ? t('events.commercePreselected', locale) : t('events.selectCommerce', locale)} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {commerces.map((commerce) => (
+                          <SelectItem key={commerce.id} value={commerce.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{commerce.name}</span>
+                              <span className="text-xs text-secondary">{commerce.address}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* Additional commerces checkboxes */}
+                    {commerces.length > 1 && form.selectedCommerceId && (
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-primary mb-2">
+                          {locale === 'fr' ? 'Associer à d\'autres commerces' : 'Associate with other businesses'}
+                        </label>
+                        <div className="space-y-2 border rounded-lg p-3 bg-gray-50">
+                          {commerces
+                            .filter(c => c.id !== form.selectedCommerceId)
+                            .map(commerce => (
+                              <div key={commerce.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`event-commerce-${commerce.id}`}
+                                  checked={form.additionalCommerceIds.includes(commerce.id)}
+                                  onCheckedChange={(checked) => {
+                                    setForm(f => ({
+                                      ...f,
+                                      additionalCommerceIds: checked
+                                        ? [...f.additionalCommerceIds, commerce.id]
+                                        : f.additionalCommerceIds.filter(id => id !== commerce.id)
+                                    }))
+                                  }}
+                                  disabled={isEditMode}
+                                />
+                                <label
+                                  htmlFor={`event-commerce-${commerce.id}`}
+                                  className="text-sm cursor-pointer"
+                                >
+                                  <span className="font-medium">{commerce.name}</span>
+                                  <span className="text-xs text-muted-foreground ml-1">({commerce.address})</span>
+                                </label>
+                              </div>
+                            ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {locale === 'fr'
+                            ? 'L\'événement apparaîtra aussi sous ces commerces'
+                            : 'The event will also appear under these businesses'}
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -785,6 +869,5 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
         </>
       )}
     </Card>
-    </div>
   )
 } 

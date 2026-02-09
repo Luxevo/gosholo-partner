@@ -24,6 +24,7 @@ interface UserProfile {
   last_name: string | null
   phone: string | null
   avatar_url: string | null
+  role: string | null
 }
 
 interface Commerce {
@@ -136,7 +137,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (profileError) {
-        console.error('Error loading profile:', profileError)
+        console.warn('Error loading profile:', profileError)
       } else {
         setUserProfile(profileData)
       }
@@ -186,12 +187,52 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Combine commerces with their offers and events
-      const commercesWithContent = (commercesData || []).map(commerce => ({
-        ...commerce,
-        offers: offersData.filter(offer => offer.commerce_id === commerce.id),
-        events: eventsData.filter(event => event.commerce_id === commerce.id)
-      }))
+      // Get junction table data for multi-commerce associations
+      let offerCommerces: {offer_id: string, commerce_id: string}[] = []
+      let eventCommerces: {event_id: string, commerce_id: string}[] = []
+
+      if (offersData.length > 0) {
+        const offerIds = offersData.map(o => o.id)
+        const { data: oc } = await supabase
+          .from('offer_commerces')
+          .select('offer_id, commerce_id')
+          .in('offer_id', offerIds)
+        offerCommerces = oc || []
+      }
+
+      if (eventsData.length > 0) {
+        const eventIds = eventsData.map(e => e.id)
+        const { data: ec } = await supabase
+          .from('event_commerces')
+          .select('event_id, commerce_id')
+          .in('event_id', eventIds)
+        eventCommerces = ec || []
+      }
+
+      // Combine commerces with their offers and events (including junction associations)
+      const commercesWithContent = (commercesData || []).map(commerce => {
+        // Offers: primary commerce_id OR via junction table
+        const junctionOfferIds = offerCommerces
+          .filter(oc => oc.commerce_id === commerce.id)
+          .map(oc => oc.offer_id)
+        const commerceOffers = offersData.filter(
+          offer => offer.commerce_id === commerce.id || junctionOfferIds.includes(offer.id)
+        )
+
+        // Events: primary commerce_id OR via junction table
+        const junctionEventIds = eventCommerces
+          .filter(ec => ec.commerce_id === commerce.id)
+          .map(ec => ec.event_id)
+        const commerceEvents = eventsData.filter(
+          event => event.commerce_id === commerce.id || junctionEventIds.includes(event.id)
+        )
+
+        return {
+          ...commerce,
+          offers: commerceOffers,
+          events: commerceEvents,
+        }
+      })
 
       setCommerces(commercesWithContent)
 

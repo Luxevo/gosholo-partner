@@ -42,6 +42,7 @@ interface Offer {
   boost_type: "en_vedette" | "visibilite" | null
   boosted_at: string | null
   category_id: number | null
+  additional_commerce_ids?: string[]
 }
 
 interface Commerce {
@@ -80,12 +81,13 @@ const getTypeLabel = (type: string, locale: string) => {
 interface CustomerOfferCardProps {
   offer: Offer
   commerce: Commerce | undefined
+  allCommerces: Commerce[]
   onEdit: (offer: Offer) => void
   onDelete: (offer: Offer) => void
   locale: string
 }
 
-const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: CustomerOfferCardProps) => {
+const CustomerOfferCard = ({ offer, commerce, allCommerces, onEdit, onDelete, locale }: CustomerOfferCardProps) => {
   // Calculate time remaining
   const getTimeRemaining = () => {
     if (!offer.end_date) return t('offersPage.notDefined', locale as 'fr' | 'en')
@@ -164,10 +166,15 @@ const CustomerOfferCard = ({ offer, commerce, onEdit, onDelete, locale }: Custom
         {/* Content Section */}
         <div className="p-4 bg-white">
           {/* Business Name */}
-          <div className="flex items-center mb-3">
+          <div className="flex items-center mb-3 flex-wrap gap-1">
             <h3 className="text-lg font-bold text-orange-600">
               {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
             </h3>
+            {(offer.additional_commerce_ids || []).length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                +{(offer.additional_commerce_ids || []).length} {locale === 'fr' ? 'commerce(s)' : 'business(es)'}
+              </span>
+            )}
           </div>
 
           {/* Offer Title */}
@@ -597,12 +604,27 @@ function OffresPageContent() {
         return
       }
 
-      console.log('Offers loaded:', offersData)
-      console.log('First offer dates:', offersData?.[0] ? {
-        start_date: offersData[0].start_date,
-        end_date: offersData[0].end_date
-      } : 'No offers')
-      setOffers(offersData || [])
+      // Fetch junction table data for additional commerce associations
+      const offerIds = (offersData || []).map(o => o.id)
+      let offerCommerces: {offer_id: string, commerce_id: string}[] = []
+      if (offerIds.length > 0) {
+        const { data: oc } = await supabase
+          .from('offer_commerces')
+          .select('offer_id, commerce_id')
+          .in('offer_id', offerIds)
+        offerCommerces = oc || []
+      }
+
+      // Enrich offers with additional_commerce_ids
+      const enrichedOffers = (offersData || []).map(offer => {
+        const additionalIds = offerCommerces
+          .filter(oc => oc.offer_id === offer.id && oc.commerce_id !== offer.commerce_id)
+          .map(oc => oc.commerce_id)
+        return { ...offer, additional_commerce_ids: additionalIds }
+      })
+
+      console.log('Offers loaded:', enrichedOffers)
+      setOffers(enrichedOffers)
     } catch (error) {
       console.error('Unexpected error:', error)
     } finally {
@@ -626,9 +648,12 @@ function OffresPageContent() {
   const filteredOffers = useMemo(() => {
     let filtered = offers
 
-    // Filter by commerce first
+    // Filter by commerce first (include junction associations)
     if (selectedCommerce !== 'all') {
-      filtered = filtered.filter(offer => offer.commerce_id === selectedCommerce)
+      filtered = filtered.filter(offer =>
+        offer.commerce_id === selectedCommerce ||
+        (offer.additional_commerce_ids || []).includes(selectedCommerce)
+      )
     }
 
     // Then filter by status
@@ -717,8 +742,8 @@ function OffresPageContent() {
               {t('offersPage.addOffer', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[min(100vw-1.5rem,480px)] sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
-            <DialogHeader className="sr-only">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+            <DialogHeader>
               <DialogTitle>{t('offersPage.createNewOffer', locale as 'fr' | 'en')}</DialogTitle>
               <DialogDescription>{t('offersPage.createNewOfferDesc', locale as 'fr' | 'en')}</DialogDescription>
             </DialogHeader>
@@ -819,10 +844,11 @@ function OffresPageContent() {
                 {filteredOffers.map((offer) => {
                   const commerce = commerces.find(c => c.id === offer.commerce_id)
                   return (
-                    <CustomerOfferCard 
-                      key={offer.id} 
+                    <CustomerOfferCard
+                      key={offer.id}
                       offer={offer}
                       commerce={commerce}
+                      allCommerces={commerces}
                       onEdit={handleEditOffer}
                       onDelete={handleDeleteOffer}
                       locale={locale}

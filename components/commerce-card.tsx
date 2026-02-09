@@ -260,40 +260,62 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const confirmDeleteCommerce = async () => {
     try {
       const supabase = createClient()
-      
-      // First delete all associated offers
+
+      // Handle offers: check if they have other commerce associations
       if (commerce.offers && commerce.offers.length > 0) {
-        const { error: offersError } = await supabase
-          .from('offers')
-          .delete()
-          .eq('commerce_id', commerce.id)
-        
-        if (offersError) {
-          console.error('Error deleting offers:', offersError)
-          toast({
-            title: "Erreur",
-            description: "Erreur lors de la suppression des offres associées",
-            variant: "destructive"
-          })
-          return
+        for (const offer of commerce.offers) {
+          // Get all junction associations for this offer
+          const { data: associations } = await supabase
+            .from('offer_commerces')
+            .select('commerce_id')
+            .eq('offer_id', offer.id)
+
+          const otherAssociations = (associations || []).filter(a => a.commerce_id !== commerce.id)
+
+          if (otherAssociations.length === 0) {
+            // No other associations - delete the offer
+            await supabase.from('offers').delete().eq('id', offer.id)
+          } else if (offer.commerce_id === commerce.id) {
+            // This was the primary commerce - reassign to next association
+            await supabase
+              .from('offers')
+              .update({ commerce_id: otherAssociations[0].commerce_id })
+              .eq('id', offer.id)
+          }
+          // Remove junction association (CASCADE will handle this, but be explicit)
+          await supabase
+            .from('offer_commerces')
+            .delete()
+            .eq('offer_id', offer.id)
+            .eq('commerce_id', commerce.id)
         }
       }
 
-      // Then delete all associated events
+      // Handle events: same logic
       if (commerce.events && commerce.events.length > 0) {
-        const { error: eventsError } = await supabase
-          .from('events')
-          .delete()
-          .eq('commerce_id', commerce.id)
-        
-        if (eventsError) {
-          console.error('Error deleting events:', eventsError)
-          toast({
-            title: "Erreur",
-            description: "Erreur lors de la suppression des événements associés",
-            variant: "destructive"
-          })
-          return
+        for (const event of commerce.events) {
+          const { data: associations } = await supabase
+            .from('event_commerces')
+            .select('commerce_id')
+            .eq('event_id', event.id)
+
+          const otherAssociations = (associations || []).filter(a => a.commerce_id !== commerce.id)
+
+          if (otherAssociations.length === 0) {
+            // No other associations - delete the event
+            await supabase.from('events').delete().eq('id', event.id)
+          } else if (event.commerce_id === commerce.id) {
+            // Reassign primary commerce
+            await supabase
+              .from('events')
+              .update({ commerce_id: otherAssociations[0].commerce_id })
+              .eq('id', event.id)
+          }
+          await supabase
+            .from('event_commerces')
+            .delete()
+            .eq('event_id', event.id)
+            .eq('commerce_id', commerce.id)
         }
       }
 
@@ -319,7 +341,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
       })
 
       setIsDeleteCommerceConfirmOpen(false)
-      
+
       // Refresh the dashboard to show updated data
       onRefresh()
     } catch (error) {

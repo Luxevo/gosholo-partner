@@ -39,6 +39,7 @@ interface Event {
   boosted: boolean | null
   boost_type: "en_vedette" | "visibilite" | null
   boosted_at: string | null
+  additional_commerce_ids?: string[]
 }
 
 interface Commerce {
@@ -64,12 +65,13 @@ const formatDate = (dateString: string) => {
 interface CustomerEventCardProps {
   event: Event
   commerce: Commerce | undefined
+  allCommerces: Commerce[]
   onEdit: (event: Event) => void
   onDelete: (event: Event) => void
   locale: string
 }
 
-const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: CustomerEventCardProps) => {
+const CustomerEventCard = ({ event, commerce, allCommerces, onEdit, onDelete, locale }: CustomerEventCardProps) => {
   // Format dates for event display
   const formatEventDate = (dateString: string) => {
     if (!dateString) return t('eventsPage.dateNotDefined', locale as 'fr' | 'en')
@@ -169,10 +171,15 @@ const CustomerEventCard = ({ event, commerce, onEdit, onDelete, locale }: Custom
         {/* Content Section */}
         <div className="p-4 bg-white">
           {/* Business Name + Category */}
-          <div className="flex items-center mb-3">
+          <div className="flex items-center mb-3 flex-wrap gap-1">
             <h3 className="text-lg font-bold text-orange-600">
               {commerce?.name || t('placeholders.commerce', locale as 'fr' | 'en')}
             </h3>
+            {(event.additional_commerce_ids || []).length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                +{(event.additional_commerce_ids || []).length} {locale === 'fr' ? 'commerce(s)' : 'business(es)'}
+              </span>
+            )}
             <div className="ml-2 px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
               {getEventCategory()}
             </div>
@@ -580,8 +587,27 @@ function EvenementsPageContent() {
         return
       }
 
-      console.log('Events loaded:', eventsData)
-      setEvents(eventsData || [])
+      // Fetch junction table data for additional commerce associations
+      const eventIds = (eventsData || []).map(e => e.id)
+      let eventCommerces: {event_id: string, commerce_id: string}[] = []
+      if (eventIds.length > 0) {
+        const { data: ec } = await supabase
+          .from('event_commerces')
+          .select('event_id, commerce_id')
+          .in('event_id', eventIds)
+        eventCommerces = ec || []
+      }
+
+      // Enrich events with additional_commerce_ids
+      const enrichedEvents = (eventsData || []).map(event => {
+        const additionalIds = eventCommerces
+          .filter(ec => ec.event_id === event.id && ec.commerce_id !== event.commerce_id)
+          .map(ec => ec.commerce_id)
+        return { ...event, additional_commerce_ids: additionalIds }
+      })
+
+      console.log('Events loaded:', enrichedEvents)
+      setEvents(enrichedEvents)
     } catch (error) {
       console.error('Unexpected error:', error)
     } finally {
@@ -605,9 +631,12 @@ function EvenementsPageContent() {
   const filteredEvents = useMemo(() => {
     let filtered = events
 
-    // Filter by commerce first
+    // Filter by commerce first (include junction associations)
     if (selectedCommerce !== 'all') {
-      filtered = filtered.filter(event => event.commerce_id === selectedCommerce)
+      filtered = filtered.filter(event =>
+        event.commerce_id === selectedCommerce ||
+        (event.additional_commerce_ids || []).includes(selectedCommerce)
+      )
     }
 
     // Then filter by status
@@ -696,8 +725,8 @@ function EvenementsPageContent() {
               {t('eventsPage.addEvent', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[min(100vw-1.5rem,480px)] sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
-            <DialogHeader className="sr-only">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+            <DialogHeader>
               <DialogTitle>{t('eventsPage.createNewEvent', locale as 'fr' | 'en')}</DialogTitle>
               <DialogDescription>{t('eventsPage.createNewEventDesc', locale as 'fr' | 'en')}</DialogDescription>
             </DialogHeader>
@@ -798,10 +827,11 @@ function EvenementsPageContent() {
                 {filteredEvents.map((event) => {
                   const commerce = commerces.find(c => c.id === event.commerce_id)
                   return (
-                    <CustomerEventCard 
-                      key={event.id} 
+                    <CustomerEventCard
+                      key={event.id}
                       event={event}
                       commerce={commerce}
+                      allCommerces={commerces}
                       onEdit={handleEditEvent}
                       onDelete={handleDeleteEvent}
                       locale={locale}

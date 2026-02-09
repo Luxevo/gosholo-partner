@@ -681,19 +681,11 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
   }
 
   return (
-    <Card className="max-w-2xl w-full mx-auto p-6 border-primary/20 shadow-none">
+    <div className="w-full">
       {isConfirmationMode ? (
         <CommerceConfirmation />
       ) : (
-        <>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl text-primary">
-              {isEditMode ? t('commerce.editTitle', locale) : t('dashboard.addCommerce', locale)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Commerce Details */}
-            <div className="space-y-4">
+        <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
                   {t('commerce.name', locale)} * <span className="text-red-500">*</span>
@@ -911,26 +903,24 @@ export default function CommerceCreationFlow({ onCancel, onSuccess, commerce }: 
                 specialHours={specialHours}
                 onChange={setSpecialHours}
               />
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-between gap-4 pt-4 border-t">
-              {onCancel && (
-                <Button variant="outline" onClick={onCancel}>
-                  {t('buttons.cancel', locale)}
-                </Button>
-              )}
-              <Button
-                className="bg-accent hover:bg-accent/80 text-white flex-1"
-                onClick={isEditMode ? handleSaveCommerce : handleShowConfirmation}
-                disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
-              >
-                {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.next', locale))}
+          {/* Action Buttons */}
+          <div className="flex justify-between gap-4 pt-4 border-t">
+            {onCancel && (
+              <Button variant="outline" onClick={onCancel}>
+                {t('buttons.cancel', locale)}
               </Button>
-            </div>
-          </CardContent>
-        </>
+            )}
+            <Button
+              className="bg-accent hover:bg-accent/80 text-white flex-1"
+              onClick={isEditMode ? handleSaveCommerce : handleShowConfirmation}
+              disabled={isLoading || !form.name.trim() || !form.address.trim() || !form.category_id || (isRestaurantCategory(form.category_id) && !form.sub_category_id)}
+            >
+              {isLoading ? t('messages.saving', locale) : (isEditMode ? t('buttons.save', locale) : t('buttons.next', locale))}
+            </Button>
+          </div>
+        </div>
       )}
-    </Card>
+    </div>
   )
 }

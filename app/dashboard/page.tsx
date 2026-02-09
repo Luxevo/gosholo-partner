@@ -95,6 +95,15 @@ export default function Dashboard() {
     }
   }
 
+  // Si admin, afficher page admin
+  if (userProfile?.role === 'admin') {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <h1 className="text-4xl font-bold">Admin</h1>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Welcome Message */}

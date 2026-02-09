@@ -84,7 +84,7 @@ export default function BoostsPage() {
           .single()
 
         if (profileError) {
-          console.error('Error fetching profile:', profileError)
+          console.warn('Error fetching profile:', profileError)
         }
 
         // Also check subscriptions table for more detailed info

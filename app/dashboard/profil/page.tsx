@@ -257,24 +257,62 @@ export default function ProfilPage() {
     if (!commerceToDelete) return
 
     try {
-      // Delete all offers for this commerce
-      const { error: offersError } = await supabase
+      // Handle offers: reassign primary or delete if no other associations
+      const { data: offers } = await supabase
         .from('offers')
-        .delete()
+        .select('id, commerce_id')
         .eq('commerce_id', commerceToDelete.id)
 
-      if (offersError) {
-        console.error('Error deleting offers:', offersError)
+      for (const offer of (offers || [])) {
+        const { data: associations } = await supabase
+          .from('offer_commerces')
+          .select('commerce_id')
+          .eq('offer_id', offer.id)
+
+        const otherAssociations = (associations || []).filter(a => a.commerce_id !== commerceToDelete.id)
+
+        if (otherAssociations.length === 0) {
+          await supabase.from('offers').delete().eq('id', offer.id)
+        } else {
+          await supabase
+            .from('offers')
+            .update({ commerce_id: otherAssociations[0].commerce_id })
+            .eq('id', offer.id)
+        }
+        await supabase
+          .from('offer_commerces')
+          .delete()
+          .eq('offer_id', offer.id)
+          .eq('commerce_id', commerceToDelete.id)
       }
 
-      // Delete all events for this commerce
-      const { error: eventsError } = await supabase
+      // Handle events: same logic
+      const { data: events } = await supabase
         .from('events')
-        .delete()
+        .select('id, commerce_id')
         .eq('commerce_id', commerceToDelete.id)
 
-      if (eventsError) {
-        console.error('Error deleting events:', eventsError)
+      for (const event of (events || [])) {
+        const { data: associations } = await supabase
+          .from('event_commerces')
+          .select('commerce_id')
+          .eq('event_id', event.id)
+
+        const otherAssociations = (associations || []).filter(a => a.commerce_id !== commerceToDelete.id)
+
+        if (otherAssociations.length === 0) {
+          await supabase.from('events').delete().eq('id', event.id)
+        } else {
+          await supabase
+            .from('events')
+            .update({ commerce_id: otherAssociations[0].commerce_id })
+            .eq('id', event.id)
+        }
+        await supabase
+          .from('event_commerces')
+          .delete()
+          .eq('event_id', event.id)
+          .eq('commerce_id', commerceToDelete.id)
       }
 
       // Delete the commerce
@@ -839,7 +877,7 @@ export default function ProfilPage() {
 
                {/* Create Commerce Dialog */}
         <Dialog open={isCreateCommerceOpen} onOpenChange={setIsCreateCommerceOpen}>
-          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-4 sm:p-6">
             <DialogHeader>
               <DialogTitle>{t('profile.createCommerceTitle', locale)}</DialogTitle>
               <DialogDescription>
