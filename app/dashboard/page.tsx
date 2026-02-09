@@ -6,12 +6,12 @@ import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
- } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Store, Plus, Zap, X } from "lucide-react"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
 import CommerceCard from "@/components/commerce-card"
 import { useRouter } from "next/navigation"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function Dashboard() {
   const { userProfile, commerces, isLoading, refreshCounts } = useDashboard()
@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [showBoostPopup, setShowBoostPopup] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const router = useRouter()
+  const isMobile = useIsMobile()
 
   // Afficher le popup de bienvenue si l'utilisateur n'a pas de commerce
   useEffect(() => {
@@ -55,7 +56,11 @@ export default function Dashboard() {
 
   const handleCreateCommerce = () => {
     setShowWelcomePopup(false)
-    setIsDialogOpen(true)
+    if (isMobile) {
+      router.push('/dashboard/commerce/nouveau')
+    } else {
+      setIsDialogOpen(true)
+    }
   }
 
   const handleCommerceCreated = () => {
@@ -120,29 +125,19 @@ export default function Dashboard() {
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
           <h1 className="text-2xl lg:text-3xl font-bold text-primary">{t('dashboard.yourCommerces', locale)}</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto h-12 sm:h-10">
-                <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
-                {t('dashboard.addCommerce', locale)}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-              <DialogHeader>
-                <DialogTitle>{t('dashboard.createBusinessProfile', locale)}</DialogTitle>
-                <DialogDescription>
-                {t('dashboard.enterBusinessInfo', locale)}
-                </DialogDescription>
-              </DialogHeader>
-              <CommerceCreationFlow 
-                onCancel={() => {
-                  setIsDialogOpen(false)
-                  refreshCounts()
-                }}
-                onSuccess={handleCommerceCreated}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button
+            className="w-full sm:w-auto h-12 sm:h-10"
+            onClick={() => {
+              if (isMobile) {
+                router.push('/dashboard/commerce/nouveau')
+              } else {
+                setIsDialogOpen(true)
+              }
+            }}
+          >
+            <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
+            {t('dashboard.addCommerce', locale)}
+          </Button>
         </div>
         {isLoading ? (
           <div className="text-center py-8 sm:py-12">
@@ -161,8 +156,14 @@ export default function Dashboard() {
               <Store className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mx-auto mb-4 sm:mb-6" />
               <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2 sm:mb-3">{t('dashboard.noCommerce', locale)}</h3>
               <p className="text-gray-600 mb-4 sm:mb-6">{t('dashboard.startWithFirstCommerce', locale)}</p>
-              <Button 
-                onClick={() => setIsDialogOpen(true)}
+              <Button
+                onClick={() => {
+                  if (isMobile) {
+                    router.push('/dashboard/commerce/nouveau')
+                  } else {
+                    setIsDialogOpen(true)
+                  }
+                }}
                 className="h-12 sm:h-10 w-full sm:w-auto"
               >
                 <Plus className="h-5 w-5 sm:h-4 sm:w-4 mr-2" />
@@ -172,6 +173,25 @@ export default function Dashboard() {
           </Card>
         )}
       </div>
+
+      {/* Dialog de création commerce (desktop uniquement) */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>{t('dashboard.createBusinessProfile', locale)}</DialogTitle>
+            <DialogDescription>
+              {t('dashboard.enterBusinessInfo', locale)}
+            </DialogDescription>
+          </DialogHeader>
+          <CommerceCreationFlow
+            onCancel={() => {
+              setIsDialogOpen(false)
+              refreshCounts()
+            }}
+            onSuccess={handleCommerceCreated}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Popup de bienvenue si l'utilisateur n'a pas de commerce */}
       <Dialog open={showWelcomePopup} onOpenChange={setShowWelcomePopup}>

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Calendar, Clock, X, Plus } from "lucide-react"
+import { Calendar, X, Plus } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 
 export interface SpecialHour {
@@ -189,17 +189,18 @@ export default function SpecialHoursEditor({ specialHours, onChange }: SpecialHo
               </div>
 
               {/* Closed checkbox */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Checkbox
                   id={`closed-${hour.id}`}
                   checked={hour.is_closed}
                   onCheckedChange={(checked) =>
                     updateSpecialHour(hour.id, { is_closed: checked as boolean })
                   }
+                  className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                 />
                 <label
                   htmlFor={`closed-${hour.id}`}
-                  className="text-sm text-muted-foreground cursor-pointer"
+                  className="text-xs sm:text-sm text-muted-foreground cursor-pointer"
                 >
                   {locale === 'fr' ? 'Fermé toute la journée' : 'Closed all day'}
                 </label>
@@ -212,31 +213,25 @@ export default function SpecialHoursEditor({ specialHours, onChange }: SpecialHo
                     <label className="block text-xs font-medium text-primary mb-1">
                       {locale === 'fr' ? 'Ouverture' : 'Opening'}
                     </label>
-                    <div className="relative">
-                      <Clock className="absolute left-2 top-2.5 h-4 w-4 text-brand-primary/50" />
-                      <Input
-                        type="time"
-                        value={hour.open_time}
-                        onChange={(e) => updateSpecialHour(hour.id, { open_time: e.target.value })}
-                        className="pl-8 text-sm"
-                        required={!hour.is_closed}
-                      />
-                    </div>
+                    <Input
+                      type="time"
+                      value={hour.open_time}
+                      onChange={(e) => updateSpecialHour(hour.id, { open_time: e.target.value })}
+                      className="text-sm h-9"
+                      required={!hour.is_closed}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-primary mb-1">
                       {locale === 'fr' ? 'Fermeture' : 'Closing'}
                     </label>
-                    <div className="relative">
-                      <Clock className="absolute left-2 top-2.5 h-4 w-4 text-brand-primary/50" />
-                      <Input
-                        type="time"
-                        value={hour.close_time}
-                        onChange={(e) => updateSpecialHour(hour.id, { close_time: e.target.value })}
-                        className="pl-8 text-sm"
-                        required={!hour.is_closed}
-                      />
-                    </div>
+                    <Input
+                      type="time"
+                      value={hour.close_time}
+                      onChange={(e) => updateSpecialHour(hour.id, { close_time: e.target.value })}
+                      className="text-sm h-9"
+                      required={!hour.is_closed}
+                    />
                   </div>
                 </div>
               )}

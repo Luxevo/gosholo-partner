@@ -48,6 +48,8 @@ import SubscriptionManagementFlow from "@/components/subscription-management-flo
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
 import { Tables } from "@/types/supabase"
+import { useRouter } from "next/navigation"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface UserSubscription {
   id: string
@@ -83,6 +85,8 @@ export default function ProfilPage() {
   const { toast } = useToast()
   const { locale } = useLanguage()
   const { refreshCounts } = useDashboard()
+  const router = useRouter()
+  const isMobile = useIsMobile()
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const [user, setUser] = useState<any>(null)
@@ -368,7 +372,11 @@ export default function ProfilPage() {
   }
 
   const handleCreateCommerce = () => {
-    setIsCreateCommerceOpen(true)
+    if (isMobile) {
+      router.push('/dashboard/commerce/nouveau')
+    } else {
+      setIsCreateCommerceOpen(true)
+    }
   }
 
   const handleCommerceCreated = () => {
