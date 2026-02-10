@@ -6,9 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { 
-  Tag, 
-  Calendar, 
+import {
+  Tag,
+  Calendar,
   Edit,
   Trash2,
   CheckCircle,
@@ -16,7 +16,10 @@ import {
   Sparkles,
   Plus,
   Settings,
-  TrendingUp
+  TrendingUp,
+  Users,
+  Heart,
+  Share2
 } from "lucide-react"
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -422,6 +425,16 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
              )}
              <div className="flex flex-col">
                <span className="text-base sm:text-xl font-semibold">{commerce.name}</span>
+               <div className="flex items-center gap-3 mt-0.5">
+                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                   <Users className="h-3 w-3" />
+                   {commerce.follower_count || 0} {locale === 'fr' ? 'abonnés' : 'followers'}
+                 </span>
+                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                   <Heart className="h-3 w-3" />
+                   {commerce.like_count || 0} {locale === 'fr' ? 'j\'aime' : 'likes'}
+                 </span>
+               </div>
                {commerce.boosted && commerce.boost_type && !isBoostExpired(commerce.boosted_at) && (
                  <div className="flex items-center gap-3 mt-2">
                    <Badge className="w-fit text-sm font-semibold border px-3 py-1 shadow-md" 
@@ -500,6 +513,16 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                     )}
                     <div className="flex-1 min-w-0">
                       <h5 className="font-medium text-gray-900 text-sm sm:text-base mb-1">{offer.title}</h5>
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Heart className="h-3 w-3" />
+                          {offer.like_count || 0}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Share2 className="h-3 w-3" />
+                          {offer.share_count || 0}
+                        </span>
+                      </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <Badge variant={getOfferStatus(offer).variant} className="text-xs w-fit">
                           {getOfferStatus(offer).label}
@@ -573,6 +596,16 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
                     )}
                     <div className="flex-1 min-w-0">
                       <h5 className="font-medium text-gray-900 text-sm sm:text-base mb-1">{event.title}</h5>
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Heart className="h-3 w-3" />
+                          {event.like_count || 0}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Share2 className="h-3 w-3" />
+                          {event.share_count || 0}
+                        </span>
+                      </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                         <Badge variant={getEventStatus().variant} className="text-xs w-fit">
                           {getEventStatus().label}

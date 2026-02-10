@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles, Share2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
@@ -40,6 +40,8 @@ interface Event {
   boost_type: "en_vedette" | "visibilite" | null
   boosted_at: string | null
   additional_commerce_ids?: string[]
+  like_count?: number
+  share_count?: number
 }
 
 interface Commerce {
@@ -197,11 +199,21 @@ const CustomerEventCard = ({ event, commerce, allCommerces, onEdit, onDelete, lo
             </p>
           </div>
 
-          {/* Action Button */}
-          <div className="flex justify-start">
+          {/* Action Button + Stats */}
+          <div className="flex items-center justify-between">
             <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium py-1.5 px-3 rounded-full transition-colors">
               {locale === 'fr' ? 'Voir l\'événement' : 'View Event'}
             </button>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Heart className="h-4 w-4" />
+                {event.like_count || 0}
+              </span>
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Share2 className="h-4 w-4" />
+                {event.share_count || 0}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -267,6 +279,16 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
               }}>
                 {renderTextWithLinks(event.description)}
               </CardDescription>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Heart className="h-3 w-3" />
+                  {event.like_count || 0}
+                </span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Share2 className="h-3 w-3" />
+                  {event.share_count || 0}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">

@@ -65,6 +65,8 @@ interface Offer {
   is_active: boolean
   created_at: string | null
   updated_at: string | null
+  like_count?: number
+  share_count?: number
 }
 
 interface Event {
@@ -75,6 +77,8 @@ interface Event {
   picture: string | null
   created_at: string | null
   updated_at: string | null
+  like_count?: number
+  share_count?: number
 }
 
 interface DashboardContextType {
