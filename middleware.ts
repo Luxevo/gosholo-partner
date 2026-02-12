@@ -54,10 +54,27 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Handle PKCE code exchange (e.g. password reset link)
+  const code = request.nextUrl.searchParams.get('code')
+  if (code) {
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+    if (!exchangeError) {
+      // Code exchanged successfully — redirect to clean URL (without ?code=)
+      const cleanUrl = request.nextUrl.clone()
+      cleanUrl.searchParams.delete('code')
+      const redirectResponse = NextResponse.redirect(cleanUrl)
+      // Copy session cookies to the redirect response
+      response.cookies.getAll().forEach(cookie => {
+        redirectResponse.cookies.set(cookie)
+      })
+      return redirectResponse
+    }
+  }
+
   // Check if user is authenticated
   let user = null
   let error = null
-  
+
   try {
     const result = await supabase.auth.getUser()
     user = result.data.user
@@ -84,6 +101,7 @@ export async function middleware(request: NextRequest) {
   
   const isDashboardPage = url.pathname.startsWith('/dashboard')
   const isApiRoute = url.pathname.startsWith('/api')
+  const isAuthCallback = url.pathname.startsWith('/auth/callback')
   const isPublicAsset = url.pathname.startsWith('/_next') ||
                         url.pathname.startsWith('/favicon') ||
                         url.pathname.includes('/manifest.json') ||
@@ -91,8 +109,8 @@ export async function middleware(request: NextRequest) {
                         url.pathname.endsWith('.jpg') ||
                         url.pathname.endsWith('.svg')
 
-  // Skip middleware for API routes and public assets only
-  if (isApiRoute || isPublicAsset) {
+  // Skip middleware for API routes, auth callback, and public assets
+  if (isApiRoute || isAuthCallback || isPublicAsset) {
     return response
   }
 
@@ -119,8 +137,8 @@ export async function middleware(request: NextRequest) {
 
   // If user is authenticated
   if (user) {
-    // Redirect auth pages to dashboard
-    if (isAuthPage) {
+    // Redirect auth pages to dashboard (except reset-password which needs access while authenticated)
+    if (isAuthPage && !url.pathname.startsWith('/reset-password')) {
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }

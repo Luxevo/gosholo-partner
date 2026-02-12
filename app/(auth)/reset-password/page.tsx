@@ -1,8 +1,10 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +17,6 @@ import Link from "next/link"
 function ResetPasswordForm() {
   const supabase = createClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
   
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -27,7 +28,8 @@ function ResetPasswordForm() {
   const [isValidSession, setIsValidSession] = useState(false)
 
   useEffect(() => {
-    // Check if user has a valid session for password reset
+    // The middleware already exchanged the code for a session.
+    // Just check if the session exists.
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
@@ -78,7 +80,7 @@ function ResetPasswordForm() {
         setIsSuccess(true)
         // Redirect to login after 3 seconds
         setTimeout(() => {
-          router.push('/login')
+          router.replace('/login')
         }, 3000)
       }
     } catch (err) {
@@ -130,8 +132,13 @@ function ResetPasswordForm() {
       <div className="w-full max-w-md space-y-6">
         {/* Logo et titre */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">G</span>
+          <div className="relative w-48 h-16 sm:w-64 sm:h-24 overflow-hidden mx-auto">
+            <Image
+              src="/logo.png"
+              alt="Gosholo Logo"
+              fill
+              className="object-cover scale-[1.8]"
+            />
           </div>
           <h1 className="text-2xl font-bold text-brand-primary">Nouveau mot de passe</h1>
           <p className="text-brand-primary/70">Choisissez un nouveau mot de passe sécurisé</p>
@@ -236,23 +243,6 @@ function ResetPasswordForm() {
   )
 }
 
-// Loading component for Suspense fallback
-function Loading() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-primary/5 via-white to-brand-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-brand-primary/20">
-        <CardContent className="text-center p-8">
-          <p className="text-brand-primary/70">Chargement...</p>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
 export default function ResetPasswordPage() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <ResetPasswordForm />
-    </Suspense>
-  )
+  return <ResetPasswordForm />
 }

@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, ArrowLeft, CheckCircle, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function ForgotPasswordPage() {
   const supabase = createClient()
@@ -81,8 +82,13 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Logo et titre */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-brand-primary rounded-xl flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">G</span>
+          <div className="relative w-48 h-16 sm:w-64 sm:h-24 overflow-hidden mx-auto">
+            <Image
+              src="/logo.png"
+              alt="Gosholo Logo"
+              fill
+              className="object-cover scale-[1.8]"
+            />
           </div>
           <h1 className="text-2xl font-bold text-brand-primary">Mot de passe oublié</h1>
           <p className="text-brand-primary/70">Entrez votre adresse email pour recevoir un lien de réinitialisation</p>
