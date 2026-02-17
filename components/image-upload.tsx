@@ -161,9 +161,9 @@ export default function ImageUpload({
           <div className="space-y-3">
             <div className="relative">
               {/* Use same dimensions as real cards: 4:5 aspect ratio, max-w-[320px] sm:w-[356px] */}
-              <div 
+              <div
                 className="w-full max-w-[320px] sm:w-[356px] mx-auto relative bg-gray-50 rounded-lg overflow-hidden border border-gray-200"
-                style={{ aspectRatio: "4 / 5" }}
+                style={{ aspectRatio: folder === 'commerces' ? "1 / 1" : "4 / 5" }}
               >
                 <img
                   src={currentImage}
@@ -219,7 +219,10 @@ export default function ImageUpload({
                   </p>
                   <div className="mt-3 text-xs text-gray-500 space-y-1 text-center">
                     <div className="font-medium text-brand-primary">
-                      {locale === 'en' ? '📐 Recommended: 1080 × 1350 px (4:5 ratio)' : '📐 Recommandé : 1080 × 1350 px (ratio 4:5)'}
+                      {folder === 'commerces'
+                        ? (locale === 'en' ? '📐 Recommended: square (1:1)' : '📐 Recommandé : carré (1:1)')
+                        : (locale === 'en' ? '📐 Recommended: 1080 × 1350 px (4:5 ratio)' : '📐 Recommandé : 1080 × 1350 px (ratio 4:5)')
+                      }
                     </div>
                     <div>📁 {locale === 'en' ? 'Formats: JPG, PNG' : 'Formats : JPG, PNG'}</div>
                   </div>
