@@ -54,23 +54,6 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Handle PKCE code exchange (e.g. password reset link)
-  const code = request.nextUrl.searchParams.get('code')
-  if (code) {
-    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-    if (!exchangeError) {
-      // Code exchanged successfully — redirect to clean URL (without ?code=)
-      const cleanUrl = request.nextUrl.clone()
-      cleanUrl.searchParams.delete('code')
-      const redirectResponse = NextResponse.redirect(cleanUrl)
-      // Copy session cookies to the redirect response
-      response.cookies.getAll().forEach(cookie => {
-        redirectResponse.cookies.set(cookie)
-      })
-      return redirectResponse
-    }
-  }
-
   // Check if user is authenticated
   let user = null
   let error = null
