@@ -42,6 +42,7 @@ interface Offer {
   boost_type: "en_vedette" | "visibilite" | null
   boosted_at: string | null
   category_id: number | null
+  sub_category_id: number | null
   additional_commerce_ids?: string[]
   like_count?: number
   share_count?: number
@@ -764,7 +765,7 @@ function OffresPageContent() {
               {t('offersPage.addOffer', locale as 'fr' | 'en')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[600px] max-h-[95vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6" onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>{t('offersPage.createNewOffer', locale as 'fr' | 'en')}</DialogTitle>
               <DialogDescription>{t('offersPage.createNewOfferDesc', locale as 'fr' | 'en')}</DialogDescription>
