@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "22Y49W86Y7.com.jostinjarry1.gosholomobile",
-        "paths": ["/offer-mobile/*", "/event-mobile/*", "/download"]
+        "paths": ["/offer-mobile/*", "/event-mobile/*", "/commerce-mobile/*", "/download"]
       }
     ]
   }
