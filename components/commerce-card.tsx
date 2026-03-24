@@ -19,7 +19,9 @@ import {
   TrendingUp,
   Users,
   Heart,
-  Share2
+  Share2,
+  MapPin,
+  MapPinOff
 } from "lucide-react"
 import CommerceManagementFlow from "@/components/commerce-management-flow"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -54,6 +56,7 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
   const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
   const [isDeleteCommerceConfirmOpen, setIsDeleteCommerceConfirmOpen] = useState(false)
+  const [isMapVisible, setIsMapVisible] = useState<boolean | null>(null)
   
   const activeOffers = commerce.offers?.filter((offer: any) => offer.is_active) || []
   const upcomingEvents = commerce.events || [] // For now, consider all events as upcoming
@@ -77,6 +80,20 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
   React.useEffect(() => {
     loadBoostCredits()
   }, [])
+
+  // Check map visibility
+  React.useEffect(() => {
+    const checkMapVisibility = async () => {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from('commerces_map_visible')
+        .select('id')
+        .eq('id', commerce.id)
+        .single()
+      setIsMapVisible(!!data)
+    }
+    checkMapVisibility()
+  }, [commerce.id, commerce.offers, commerce.events, commerce.boosted, commerce.boosted_at])
 
   // Boost handlers
   const handleBoostOffer = (offer: any) => {
@@ -491,6 +508,25 @@ const CommerceCard = ({ commerce, onRefresh }: CommerceCardProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-6">
+        {/* Map Visibility Banner */}
+        {isMapVisible === true && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <span>{locale === 'fr' ? 'Visible sur la carte' : 'Visible on the map'}</span>
+          </div>
+        )}
+        {isMapVisible === false && (
+          <div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 text-sm">
+            <MapPinOff className="h-4 w-4 flex-shrink-0 mt-0.5" />
+            <span>
+              {locale === 'fr' ? (
+                <>Non visible sur la carte — Créez une <strong>offre</strong>, un <strong>événement</strong> ou achetez un <strong>boost visibilité</strong> pour apparaître.</>
+              ) : (
+                <>Not visible on the map — Create an <strong>offer</strong>, an <strong>event</strong>, or purchase a <strong>visibility boost</strong> to appear.</>
+              )}
+            </span>
+          </div>
+        )}
         {/* Offers Section */}
         <div>
           <h4 className="font-medium text-gray-900 mb-2 sm:mb-4 flex items-center text-sm sm:text-lg">

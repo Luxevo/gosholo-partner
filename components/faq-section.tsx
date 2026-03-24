@@ -9,6 +9,23 @@ export function FaqSection() {
 
   const faqSections = [
     {
+      title: locale === 'fr' ? "Apparaître sur la carte gosholo" : "Appear on the gosholo map",
+      items: [
+        {
+          question: locale === 'fr' ? "Comment faire apparaître mon commerce sur la carte ?" : "How do I get my business to appear on the map?",
+          answer: locale === 'fr'
+            ? "Pour apparaître sur la carte gosholo, votre commerce doit répondre à au moins l'un de ces 3 critères :\n\n1. Avoir une offre active — créez une offre avec une date de fin dans le futur.\n\n2. Avoir un événement actif — créez un événement avec une date de fin dans le futur.\n\n3. Acheter un boost visibilité — votre commerce est mis en avant sur la carte pendant 72h.\n\nIl suffit d'en avoir au moins un pour être visible. Plus vous avez de critères actifs, plus votre présence est forte sur la carte."
+            : "To appear on the gosholo map, your business must meet at least one of these 3 criteria:\n\n1. Have an active offer — create an offer with a future end date.\n\n2. Have an active event — create an event with a future end date.\n\n3. Purchase a visibility boost — your business is highlighted on the map for 72h.\n\nYou only need one to be visible. The more active criteria you have, the stronger your presence on the map."
+        },
+        {
+          question: locale === 'fr' ? "Pourquoi mon commerce n'apparaît-il plus sur la carte ?" : "Why is my business no longer appearing on the map?",
+          answer: locale === 'fr'
+            ? "Votre commerce n'est plus visible sur la carte si toutes vos offres et tous vos événements ont expiré, et que vous n'avez pas de boost visibilité actif. Pour réapparaître, il vous suffit de créer une nouvelle offre, un nouvel événement, ou d'acheter un boost visibilité."
+            : "Your business is no longer visible on the map if all your offers and events have expired and you have no active visibility boost. To reappear, simply create a new offer, a new event, or purchase a visibility boost."
+        }
+      ]
+    },
+    {
       title: locale === 'fr' ? "Créer et gérer mes offres et événements" : "Create and manage my offers and events",
       items: [
         // Offres

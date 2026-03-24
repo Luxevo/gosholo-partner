@@ -10,7 +10,7 @@ export const TRANSLATIONS = {
       events: "Événements",
       boosts: "Boosts & Abonnements",
       profile: "Profil & compte",
-      support: "Support"
+      support: "Support / FAQ"
     },
     
     // Authentication
@@ -814,7 +814,7 @@ export const TRANSLATIONS = {
 
     // Support page
     support: {
-      title: "Assistance",
+      title: "Support / FAQ",
       subtitle: "Retrouvez ici toutes les réponses à vos questions et contactez-nous au besoin.",
       contactForm: "Formulaire de contact rapide",
       thankYouMessage: "Merci pour votre message ! Nous vous répondrons rapidement.",
@@ -927,7 +927,7 @@ export const TRANSLATIONS = {
       events: "Events", 
       boosts: "Boosts & Subscriptions",
       profile: "Profile & Account",
-      support: "Support"
+      support: "Support / FAQ"
     },
     
     // Authentication
@@ -1731,7 +1731,7 @@ export const TRANSLATIONS = {
 
     // Support page
     support: {
-      title: "Support",
+      title: "Support / FAQ",
       subtitle: "Find answers to your questions and contact us if needed.",
       contactForm: "Quick contact form",
       thankYouMessage: "Thank you for your message! We will respond quickly.",

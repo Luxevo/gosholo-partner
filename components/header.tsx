@@ -18,7 +18,6 @@ import Link from "next/link"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
-import LanguageSelector from "@/components/language-selector"
 
 interface HeaderProps {
   onMenuClick?: () => void
@@ -176,9 +175,6 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
               </div>
             </Link>
           </div>
-
-          {/* Language Selector */}
-          <LanguageSelector />
 
           {/* User Menu - improved touch target */}
           <DropdownMenu>

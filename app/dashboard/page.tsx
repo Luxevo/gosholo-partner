@@ -198,7 +198,7 @@ export default function Dashboard() {
         <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-brand-primary">
-              {t('dashboard.beVisibleToday', locale)}
+              {locale === 'fr' ? 'Soyez visible sur gosholo' : 'Be visible on gosholo'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
@@ -207,16 +207,18 @@ export default function Dashboard() {
                 <Store className="h-8 w-8 text-brand-primary" />
               </div>
               <p className="text-gray-600 text-base leading-relaxed">
-                {t('dashboard.welcomeMessage', locale)}
+                {locale === 'fr'
+                  ? "Pour apparaître sur gosholo, vous devez avoir au moins une entreprise inscrite avec un minimum d'une offre ou d'un événement actif."
+                  : "To appear on gosholo, you must have at least one registered business with a minimum of one active offer or event."}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button 
+              <Button
                 onClick={handleCreateCommerce}
                 className="flex-1 bg-brand-primary hover:bg-brand-primary/90 h-12 sm:h-10"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {t('dashboard.addBusiness', locale)}
+                {locale === 'fr' ? 'Ajouter mon entreprise' : 'Add my business'}
               </Button>
               <Button 
                 variant="outline" 

@@ -12,15 +12,15 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { 
-  Crown, 
-  Zap, 
-  Star, 
-  Eye, 
-  Calendar, 
-  Tag, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Crown,
+  Zap,
+  Star,
+  Eye,
+  Calendar,
+  Tag,
+  ArrowRight,
+  CheckCircle,
   XCircle,
   Sparkles,
   TrendingUp,
@@ -38,7 +38,8 @@ import {
   Globe,
   Facebook,
   Instagram,
-  Mail
+  Mail,
+  Languages
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -83,7 +84,7 @@ type Commerce = Tables<'commerces'>
 export default function ProfilPage() {
   const supabase = createClient()
   const { toast } = useToast()
-  const { locale } = useLanguage()
+  const { locale, setLocale } = useLanguage()
   const { refreshCounts } = useDashboard()
   const router = useRouter()
   const isMobile = useIsMobile()
@@ -106,6 +107,7 @@ export default function ProfilPage() {
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] = useState("")
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [isLanguageConfirmOpen, setIsLanguageConfirmOpen] = useState(false)
 
   const loadUserData = async () => {
     try {
@@ -619,7 +621,10 @@ export default function ProfilPage() {
                   <CreditCard className="h-4 w-4 mr-2" />
                   {t('profile.manageSubscription', locale)}
                 </Button>
-                
+                <Button variant="outline" onClick={() => setIsLanguageConfirmOpen(true)} className="h-12 sm:h-10 w-full sm:w-auto">
+                  <Languages className="h-4 w-4 mr-2" />
+                  {locale === 'fr' ? 'Langue : Français' : 'Language: English'}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -938,6 +943,31 @@ export default function ProfilPage() {
                   {t('profile.deletePermanently', locale)}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Language Confirmation Dialog */}
+        <Dialog open={isLanguageConfirmOpen} onOpenChange={setIsLanguageConfirmOpen}>
+          <DialogContent className="w-[95vw] max-w-none sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>{locale === 'fr' ? 'Changer la langue ?' : 'Change language?'}</DialogTitle>
+              <DialogDescription>
+                {locale === 'fr'
+                  ? 'Vous allez passer à la langue anglaise. Cette modification affectera l\'ensemble de votre interface.'
+                  : 'You are about to switch to French. This will affect your entire interface.'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button
+                onClick={() => { setLocale(locale === 'fr' ? 'en' : 'fr'); setIsLanguageConfirmOpen(false) }}
+                className="flex-1"
+              >
+                {locale === 'fr' ? 'Passer en anglais' : 'Switch to French'}
+              </Button>
+              <Button variant="outline" onClick={() => setIsLanguageConfirmOpen(false)} className="flex-1">
+                {locale === 'fr' ? 'Annuler' : 'Cancel'}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
