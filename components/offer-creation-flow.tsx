@@ -378,10 +378,15 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
       
       if (isEditMode && offer) {
         // Update existing offer
+        // Recalculate is_active based on the new end_date
+        const today = new Date().toISOString().split('T')[0]
+        const isStillActive = offerData.end_date ? offerData.end_date >= today : true
+
         const { data: updateData, error: updateError } = await supabase
           .from('offers')
           .update({
             ...offerData,
+            is_active: isStillActive,
             updated_at: new Date().toISOString(),
           })
           .eq('id', offer.id)

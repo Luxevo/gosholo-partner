@@ -228,10 +228,15 @@ export default function EventCreationFlow({ onCancel, commerceId, event }: Event
       
       if (isEditMode && event) {
         // Update existing event
+        // Recalculate is_active based on the new end_date
+        const today = new Date().toISOString().split('T')[0]
+        const isStillActive = eventData.end_date ? eventData.end_date >= today : true
+
         const { data: updateData, error: updateError } = await supabase
           .from('events')
           .update({
             ...eventData,
+            is_active: isStillActive,
             updated_at: new Date().toISOString(),
           })
           .eq('id', event.id)
