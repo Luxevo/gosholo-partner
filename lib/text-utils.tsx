@@ -8,42 +8,36 @@ import React from 'react'
 export function renderTextWithLinks(text: string): React.ReactNode {
   if (!text) return text
 
-  // Regex to match URLs (http, https, www, or just domain names)
-  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/g
+  // Regex to match emails first, then URLs (order matters to avoid partial email matches)
+  const linkRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/g
 
   const parts: React.ReactNode[] = []
   let lastIndex = 0
   let match
 
-  while ((match = urlRegex.exec(text)) !== null) {
-    // Add text before the URL
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Add text before the match
     if (match.index > lastIndex) {
       parts.push(text.substring(lastIndex, match.index))
     }
 
-    // Process the URL
-    let url = match[0]
-    let displayUrl = url
+    const isEmail = !!match[1]
+    const display = match[0]
+    const href = isEmail
+      ? `mailto:${display}`
+      : display.startsWith('http://') || display.startsWith('https://')
+        ? display
+        : 'https://' + display
 
-    // Add protocol if missing
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      if (url.startsWith('www.')) {
-        url = 'https://' + url
-      } else {
-        url = 'https://' + url
-      }
-    }
-
-    // Add clickable link
     parts.push(
       <a
         key={match.index}
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={href}
+        target={isEmail ? undefined : '_blank'}
+        rel={isEmail ? undefined : 'noopener noreferrer'}
         className="text-blue-600 hover:text-blue-800 hover:underline break-all"
       >
-        {displayUrl}
+        {display}
       </a>
     )
 
