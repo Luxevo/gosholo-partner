@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = commerce.description || `Découvrez ${commerce.name} sur GoSholo`
 
   const baseUrl = "https://app.gosholo.com"
-  let image = commerce.image_url || `${baseUrl}/offers.png`
+  let image = commerce.image_url || `${baseUrl}/logo.png`
   if (image.startsWith("/")) {
     image = `${baseUrl}${image}`
   }

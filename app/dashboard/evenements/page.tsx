@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles, Share2 } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles, Share2, Link } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
@@ -225,6 +225,17 @@ const CustomerEventCard = ({ event, commerce, allCommerces, onEdit, onDelete, lo
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => {
+              navigator.clipboard.writeText(`https://app.gosholo.com/event-mobile/${event.id}`)
+            }}
+            className="h-7 w-7 p-0"
+            title={locale === 'fr' ? 'Copier le lien' : 'Copy link'}
+          >
+            <Link className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => onEdit(event)}
             className="h-7 w-7 p-0"
           >
@@ -317,6 +328,17 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
               )}
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://app.gosholo.com/event-mobile/${event.id}`)
+                }}
+                className="h-10 sm:h-8 w-10 sm:w-8 p-0"
+                title={locale === 'fr' ? 'Copier le lien' : 'Copy link'}
+              >
+                <Link className="h-4 w-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
