@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store, Receipt } from "lucide-react"
+import { Home, Tag, Calendar, Zap, CreditCard, User, HelpCircle, X, Store, Receipt, ShieldCheck } from "lucide-react"
 import { useDashboard } from "@/contexts/dashboard-context"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
@@ -18,7 +18,7 @@ interface SidebarProps {
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
-  const { counts: { commerces, offers, events, totalBoosts, isLoading } } = useDashboard()
+  const { counts: { commerces, offers, events, totalBoosts, isLoading }, userProfile } = useDashboard()
   const { locale } = useLanguage()
 
   const navigation = [
@@ -29,6 +29,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: t('paymentHistory.title', locale), href: "/dashboard/historique-paiement", icon: Receipt },
     { name: t('navigation.profile', locale), href: "/dashboard/profil", icon: User },
     { name: t('navigation.support', locale), href: "/dashboard/support", icon: HelpCircle },
+    ...(userProfile?.role === 'admin' ? [{ name: "Offres non vérifiées", href: "/dashboard/unverified-offers", icon: ShieldCheck }] : []),
   ]
 
   return (
@@ -64,7 +65,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
       {/* Footer */}
       <div className="p-4 border-t border-brand-primary/20">
-        <div className="text-xs text-brand-primary/50 text-center">© 2024 gosholo dashboard</div>
+        <div className="text-xs text-brand-primary/50 text-center">© 2026 gosholo dashboard</div>
       </div>
     </div>
   )
