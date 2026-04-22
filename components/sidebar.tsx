@@ -29,7 +29,10 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { name: t('paymentHistory.title', locale), href: "/dashboard/historique-paiement", icon: Receipt },
     { name: t('navigation.profile', locale), href: "/dashboard/profil", icon: User },
     { name: t('navigation.support', locale), href: "/dashboard/support", icon: HelpCircle },
-    ...(userProfile?.role === 'admin' ? [{ name: "Offres non vérifiées", href: "/dashboard/unverified-offers", icon: ShieldCheck }] : []),
+    ...(userProfile?.role === 'admin' ? [
+      { name: "Offres non vérifiées", href: "/dashboard/unverified-offers", icon: ShieldCheck },
+      { name: "Événements non vérifiés", href: "/dashboard/unverified-events", icon: ShieldCheck },
+    ] : []),
   ]
 
   return (
