@@ -97,13 +97,13 @@ export async function POST(request: NextRequest) {
     latitude,
     longitude,
     condition,
-    source_url,
+    source,
     start_date,
     end_date,
   } = body
 
   // Validation basique
-  if (!commerce_name || !title || !description || !offer_type || !source_url || !start_date || !end_date) {
+  if (!commerce_name || !title || !description || !offer_type || !start_date || !end_date) {
     return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
   }
 
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       latitude: latitude || null,
       longitude: longitude || null,
       condition: condition || null,
-      source_url,
+      source,
       start_date,
       end_date,
       is_active: true,

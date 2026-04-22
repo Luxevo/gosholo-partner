@@ -44,7 +44,7 @@ export default function UnverifiedOffersPage() {
     custom_location: "",
     postal_code: "",
     condition: "",
-    source_url: "",
+    source: "",
     start_date: format(new Date(), "yyyy-MM-dd"),
     end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
   })
@@ -93,7 +93,7 @@ export default function UnverifiedOffersPage() {
       custom_location: offer.custom_location || "",
       postal_code: offer.postal_code || "",
       condition: offer.condition || "",
-      source_url: offer.source_url || "",
+      source: offer.source || "",
       start_date: offer.start_date || format(new Date(), "yyyy-MM-dd"),
       end_date: offer.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -131,7 +131,6 @@ export default function UnverifiedOffersPage() {
     if (!form.commerce_name) errors.push("Nom du commerce requis")
     if (!form.title) errors.push("Titre requis")
     if (!form.description) errors.push("Description requise")
-    if (!form.source_url) errors.push("URL source requise")
     if (!form.start_date) errors.push("Date de début requise")
     if (!form.end_date) errors.push("Date de fin requise")
     if (!form.category_id) errors.push("Catégorie requise")
@@ -187,7 +186,7 @@ export default function UnverifiedOffersPage() {
       custom_location: "",
       postal_code: "",
       condition: "",
-      source_url: "",
+      source: "",
       start_date: format(new Date(), "yyyy-MM-dd"),
       end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -364,15 +363,14 @@ export default function UnverifiedOffersPage() {
           {/* URL Source */}
           <div>
             <label className="block text-sm font-medium text-primary mb-2">
-              URL source <span className="text-red-500">*</span>
+              Source <span className="text-muted-foreground text-xs">(optionnel)</span>
             </label>
             <Input
-              type="url"
-              placeholder="https://..."
-              value={form.source_url}
-              onChange={e => setForm(f => ({ ...f, source_url: e.target.value }))}
+              placeholder="Ex: Facebook, Le Devoir, https://..."
+              value={form.source}
+              onChange={e => setForm(f => ({ ...f, source: e.target.value }))}
             />
-            <p className="text-xs text-muted-foreground mt-1">Le lien où vous avez trouvé cette offre</p>
+            <p className="text-xs text-muted-foreground mt-1">Où avez-vous trouvé cette offre ?</p>
           </div>
 
           {/* Bouton */}
@@ -448,14 +446,14 @@ export default function UnverifiedOffersPage() {
                       </div>
                     </div>
                   </div>
-                  {offer.source_url && (
+                  {offer.source && (
                     <a
-                      href={offer.source_url}
+                      href={offer.source}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-brand-primary underline mt-2 block truncate"
                     >
-                      {offer.source_url}
+                      {offer.source}
                     </a>
                   )}
                 </CardContent>

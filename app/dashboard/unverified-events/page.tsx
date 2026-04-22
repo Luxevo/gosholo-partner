@@ -39,7 +39,7 @@ export default function UnverifiedEventsPage() {
     custom_location: "",
     postal_code: "",
     condition: "",
-    source_url: "",
+    source: "",
     start_date: format(new Date(), "yyyy-MM-dd"),
     end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
   })
@@ -76,7 +76,7 @@ export default function UnverifiedEventsPage() {
       custom_location: event.custom_location || "",
       postal_code: event.postal_code || "",
       condition: event.condition || "",
-      source_url: event.source_url || "",
+      source: event.source || "",
       start_date: event.start_date || format(new Date(), "yyyy-MM-dd"),
       end_date: event.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -104,7 +104,7 @@ export default function UnverifiedEventsPage() {
       custom_location: "",
       postal_code: "",
       condition: "",
-      source_url: "",
+      source: "",
       start_date: format(new Date(), "yyyy-MM-dd"),
       end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -115,7 +115,6 @@ export default function UnverifiedEventsPage() {
     if (!form.commerce_name) errors.push("Nom du commerce requis")
     if (!form.title) errors.push("Titre requis")
     if (!form.description) errors.push("Description requise")
-    if (!form.source_url) errors.push("URL source requise")
     if (!form.start_date) errors.push("Date de début requise")
     if (!form.end_date) errors.push("Date de fin requise")
     if (form.end_date < form.start_date) errors.push("La date de fin doit être après la date de début")
@@ -290,18 +289,17 @@ export default function UnverifiedEventsPage() {
               </div>
             </div>
 
-            {/* URL Source */}
+            {/* Source */}
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                URL source <span className="text-red-500">*</span>
+                Source <span className="text-muted-foreground text-xs">(optionnel)</span>
               </label>
               <Input
-                type="url"
-                placeholder="https://..."
-                value={form.source_url}
-                onChange={e => setForm(f => ({ ...f, source_url: e.target.value }))}
+                placeholder="Ex: Facebook, Journal de Montréal, https://..."
+                value={form.source}
+                onChange={e => setForm(f => ({ ...f, source: e.target.value }))}
               />
-              <p className="text-xs text-muted-foreground mt-1">Le lien où vous avez trouvé cet événement</p>
+              <p className="text-xs text-muted-foreground mt-1">Où avez-vous trouvé cet événement ?</p>
             </div>
 
             {/* Boutons */}
@@ -378,14 +376,14 @@ export default function UnverifiedEventsPage() {
                         </div>
                       </div>
                     </div>
-                    {event.source_url && (
+                    {event.source && (
                       <a
-                        href={event.source_url}
+                        href={event.source}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-brand-primary underline mt-2 block truncate"
                       >
-                        {event.source_url}
+                        {event.source}
                       </a>
                     )}
                   </CardContent>
