@@ -39,7 +39,7 @@ export default function UnverifiedEventsPage() {
     custom_location: "",
     postal_code: "",
     condition: "",
-    source: "",
+    source_url: "",
     start_date: format(new Date(), "yyyy-MM-dd"),
     end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
   })
@@ -76,7 +76,7 @@ export default function UnverifiedEventsPage() {
       custom_location: event.custom_location || "",
       postal_code: event.postal_code || "",
       condition: event.condition || "",
-      source: event.source || "",
+      source_url: event.source_url || "",
       start_date: event.start_date || format(new Date(), "yyyy-MM-dd"),
       end_date: event.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -104,7 +104,7 @@ export default function UnverifiedEventsPage() {
       custom_location: "",
       postal_code: "",
       condition: "",
-      source: "",
+      source_url: "",
       start_date: format(new Date(), "yyyy-MM-dd"),
       end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -296,8 +296,8 @@ export default function UnverifiedEventsPage() {
               </label>
               <Input
                 placeholder="Ex: Facebook, Journal de Montréal, https://..."
-                value={form.source}
-                onChange={e => setForm(f => ({ ...f, source: e.target.value }))}
+                value={form.source_url}
+                onChange={e => setForm(f => ({ ...f, source_url: e.target.value }))}
               />
               <p className="text-xs text-muted-foreground mt-1">Où avez-vous trouvé cet événement ?</p>
             </div>
@@ -376,14 +376,14 @@ export default function UnverifiedEventsPage() {
                         </div>
                       </div>
                     </div>
-                    {event.source && (
+                    {event.source_url && (
                       <a
-                        href={event.source}
+                        href={event.source_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-brand-primary underline mt-2 block truncate"
                       >
-                        {event.source}
+                        {event.source_url}
                       </a>
                     )}
                   </CardContent>

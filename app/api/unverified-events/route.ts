@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json()
   const { commerce_name, title, description, category_events_id, custom_location, postal_code, latitude, longitude, condition, source_url, start_date, end_date } = body
 
-  if (!commerce_name || !title || !description || !source_url || !start_date || !end_date) {
+  if (!commerce_name || !title || !description || !start_date || !end_date) {
     return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
   }
 
