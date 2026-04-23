@@ -12,6 +12,7 @@ import { Loader2, Trash2, Pencil } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import CategoryEventsSelector from "@/components/category-events-selector"
 import AddressAutocomplete from "@/components/address-autocomplete"
+import TagsSelector from "@/components/tags-selector"
 import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 
 interface GeoData {
@@ -28,6 +29,8 @@ export default function UnverifiedEventsPage() {
   const [isCheckingRole, setIsCheckingRole] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [geoData, setGeoData] = useState<GeoData | null>(null)
+  const [categoryEvents, setCategoryEvents] = useState<Array<{ id: number; name_fr: string | null }>>([])
+  const [tags, setTags] = useState<Array<{ id: number; name_fr: string }>>([])
   const [unverifiedEvents, setUnverifiedEvents] = useState<any[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -42,6 +45,7 @@ export default function UnverifiedEventsPage() {
     source_url: "",
     start_date: format(new Date(), "yyyy-MM-dd"),
     end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+    tag_ids: [] as number[],
   })
 
   useEffect(() => {
@@ -53,6 +57,13 @@ export default function UnverifiedEventsPage() {
       if (profile?.role !== 'admin') { router.replace('/dashboard'); return }
 
       setIsCheckingRole(false)
+
+      const { data: cats } = await supabase.from('category_events').select('id, name_fr')
+      setCategoryEvents(cats || [])
+
+      const { data: allTags } = await supabase.from('tags').select('id, name_fr').order('sort_order')
+      setTags(allTags || [])
+
       await fetchEvents()
     }
     checkRole()
@@ -76,7 +87,8 @@ export default function UnverifiedEventsPage() {
       custom_location: event.custom_location || "",
       postal_code: event.postal_code || "",
       condition: event.condition || "",
-      source_url: event.source_url || "",
+      source_url: event.source || "",
+      tag_ids: event.tag_ids || [],
       start_date: event.start_date || format(new Date(), "yyyy-MM-dd"),
       end_date: event.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
     })
@@ -107,6 +119,7 @@ export default function UnverifiedEventsPage() {
       source_url: "",
       start_date: format(new Date(), "yyyy-MM-dd"),
       end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+      tag_ids: [],
     })
   }
 
@@ -302,6 +315,18 @@ export default function UnverifiedEventsPage() {
               <p className="text-xs text-muted-foreground mt-1">Où avez-vous trouvé cet événement ?</p>
             </div>
 
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-3">
+                Tags <span className="text-muted-foreground text-xs">(optionnel)</span>
+              </label>
+              <TagsSelector
+                value={form.tag_ids}
+                onChange={(ids) => setForm(f => ({ ...f, tag_ids: ids }))}
+                appliesTo="event"
+              />
+            </div>
+
             {/* Boutons */}
             <div className="pt-2 border-t flex gap-3">
               {editingId && (
@@ -346,6 +371,23 @@ export default function UnverifiedEventsPage() {
                         <p className="font-medium text-primary truncate">{event.title}</p>
                         <p className="text-sm text-muted-foreground">{event.commerce_name}</p>
                         <p className="text-xs text-muted-foreground mt-1 truncate">{event.description}</p>
+                        {event.category_events_id && (
+                          <p className="text-xs text-primary/70 mt-1">
+                            {categoryEvents.find(c => c.id === event.category_events_id)?.name_fr ?? '—'}
+                          </p>
+                        )}
+                        {event.tag_ids?.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {event.tag_ids.map((id: number) => {
+                              const tag = tags.find(t => t.id === id)
+                              return tag ? (
+                                <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                  {tag.name_fr}
+                                </span>
+                              ) : null
+                            })}
+                          </div>
+                        )}
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${event.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -376,14 +418,14 @@ export default function UnverifiedEventsPage() {
                         </div>
                       </div>
                     </div>
-                    {event.source_url && (
+                    {event.source && (
                       <a
-                        href={event.source_url}
+                        href={event.source}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-brand-primary underline mt-2 block truncate"
                       >
-                        {event.source_url}
+                        {event.source}
                       </a>
                     )}
                   </CardContent>

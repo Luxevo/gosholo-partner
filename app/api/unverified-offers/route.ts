@@ -34,6 +34,10 @@ export async function PATCH(request: NextRequest) {
   const { id, ...fields } = body
   if (!id) return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
 
+  if (fields.tag_ids && fields.tag_ids.length > 5) {
+    return NextResponse.json({ error: 'Maximum 5 tags autorisés' }, { status: 400 })
+  }
+
   const { data, error } = await supabaseAdmin
     .from('unverified_offers')
     .update({ ...fields, updated_at: new Date().toISOString() })
@@ -100,11 +104,15 @@ export async function POST(request: NextRequest) {
     source,
     start_date,
     end_date,
+    tag_ids,
   } = body
 
-  // Validation basique
   if (!commerce_name || !title || !description || !offer_type || !start_date || !end_date) {
     return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
+  }
+
+  if (tag_ids && tag_ids.length > 5) {
+    return NextResponse.json({ error: 'Maximum 5 tags autorisés' }, { status: 400 })
   }
 
   const { data, error } = await supabaseAdmin
@@ -124,6 +132,7 @@ export async function POST(request: NextRequest) {
       source,
       start_date,
       end_date,
+      tag_ids: tag_ids || [],
       is_active: true,
     })
     .select()

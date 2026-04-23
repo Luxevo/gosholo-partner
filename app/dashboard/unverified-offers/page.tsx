@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import CategorySelector from "@/components/category-selector"
 import SubCategorySelector from "@/components/sub-category-selector"
 import AddressAutocomplete from "@/components/address-autocomplete"
+import TagsSelector from "@/components/tags-selector"
 import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 
 interface GeoData {
@@ -31,6 +32,7 @@ export default function UnverifiedOffersPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [geoData, setGeoData] = useState<GeoData | null>(null)
   const [categories, setCategories] = useState<Array<{ id: number; name_fr: string | null; name_en: string | null }>>([])
+  const [tags, setTags] = useState<Array<{ id: number; name_fr: string }>>([])
   const [unverifiedOffers, setUnverifiedOffers] = useState<any[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -47,6 +49,7 @@ export default function UnverifiedOffersPage() {
     source: "",
     start_date: format(new Date(), "yyyy-MM-dd"),
     end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+    tag_ids: [] as number[],
   })
 
   // Vérifier que l'utilisateur est admin
@@ -75,7 +78,9 @@ export default function UnverifiedOffersPage() {
       const { data: cats } = await supabase.from('category').select('id, name_fr, name_en')
       setCategories(cats || [])
 
-      // Charger les offres non vérifiées
+      const { data: allTags } = await supabase.from('tags').select('id, name_fr').order('sort_order')
+      setTags(allTags || [])
+
       await fetchOffers()
     }
     checkRole()
@@ -96,6 +101,7 @@ export default function UnverifiedOffersPage() {
       source: offer.source || "",
       start_date: offer.start_date || format(new Date(), "yyyy-MM-dd"),
       end_date: offer.end_date || format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+      tag_ids: offer.tag_ids || [],
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -189,6 +195,7 @@ export default function UnverifiedOffersPage() {
       source: "",
       start_date: format(new Date(), "yyyy-MM-dd"),
       end_date: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
+      tag_ids: [],
     })
   }
 
@@ -373,6 +380,18 @@ export default function UnverifiedOffersPage() {
             <p className="text-xs text-muted-foreground mt-1">Où avez-vous trouvé cette offre ?</p>
           </div>
 
+          {/* Tags */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-3">
+              Tags <span className="text-muted-foreground text-xs">(optionnel)</span>
+            </label>
+            <TagsSelector
+              value={form.tag_ids}
+              onChange={(ids) => setForm(f => ({ ...f, tag_ids: ids }))}
+              appliesTo="offer"
+            />
+          </div>
+
           {/* Bouton */}
           <div className="pt-2 border-t flex gap-3">
             {editingId && (
@@ -416,6 +435,23 @@ export default function UnverifiedOffersPage() {
                       <p className="font-medium text-primary truncate">{offer.title}</p>
                       <p className="text-sm text-muted-foreground">{offer.commerce_name}</p>
                       <p className="text-xs text-muted-foreground mt-1 truncate">{offer.description}</p>
+                      {offer.category_id && (
+                        <p className="text-xs text-primary/70 mt-1">
+                          {categories.find(c => c.id === offer.category_id)?.name_fr ?? '—'}
+                        </p>
+                      )}
+                      {offer.tag_ids?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {offer.tag_ids.map((id: number) => {
+                            const tag = tags.find(t => t.id === id)
+                            return tag ? (
+                              <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                {tag.name_fr}
+                              </span>
+                            ) : null
+                          })}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${offer.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>

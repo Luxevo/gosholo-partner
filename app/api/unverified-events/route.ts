@@ -29,10 +29,14 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
   const body = await request.json()
-  const { commerce_name, title, description, category_events_id, custom_location, postal_code, latitude, longitude, condition, source_url, start_date, end_date } = body
+  const { commerce_name, title, description, category_events_id, custom_location, postal_code, latitude, longitude, condition, source_url, start_date, end_date, tag_ids } = body
 
   if (!commerce_name || !title || !description || !start_date || !end_date) {
     return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
+  }
+
+  if (tag_ids && tag_ids.length > 5) {
+    return NextResponse.json({ error: 'Maximum 5 tags autorisés' }, { status: 400 })
   }
 
   const { data, error } = await supabaseAdmin
@@ -45,7 +49,8 @@ export async function POST(request: NextRequest) {
       latitude: latitude || null,
       longitude: longitude || null,
       condition: condition || null,
-      source_url, start_date, end_date,
+      source: source_url || null, start_date, end_date,
+      tag_ids: tag_ids || [],
       is_active: true,
     })
     .select()
@@ -61,12 +66,16 @@ export async function PATCH(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
 
   const body = await request.json()
-  const { id, ...fields } = body
+  const { id, source_url, ...fields } = body
   if (!id) return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
+
+  if (fields.tag_ids && fields.tag_ids.length > 5) {
+    return NextResponse.json({ error: 'Maximum 5 tags autorisés' }, { status: 400 })
+  }
 
   const { data, error } = await supabaseAdmin
     .from('unverified_events')
-    .update({ ...fields, updated_at: new Date().toISOString() })
+    .update({ ...fields, source: source_url ?? undefined, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
     .single()
