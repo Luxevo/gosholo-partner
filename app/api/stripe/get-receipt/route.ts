@@ -25,21 +25,6 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verify this payment intent belongs to the user
-    const { data: transaction, error: transactionError } = await supabase
-      .from('boost_transactions')
-      .select('*')
-      .eq('stripe_payment_intent_id', paymentIntentId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (transactionError || !transaction) {
-      return NextResponse.json(
-        { error: 'Transaction non trouvée' },
-        { status: 404 }
-      )
-    }
-
     // Get payment intent and charges separately
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
     const charges = await stripe.charges.list({

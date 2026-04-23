@@ -14,14 +14,14 @@ export function FaqSection() {
         {
           question: locale === 'fr' ? "Comment faire apparaître mon commerce sur la carte ?" : "How do I get my business to appear on the map?",
           answer: locale === 'fr'
-            ? "Pour apparaître sur la carte gosholo, votre commerce doit répondre à au moins l'un de ces 3 critères :\n\n1. Avoir une offre active — créez une offre avec une date de fin dans le futur.\n\n2. Avoir un événement actif — créez un événement avec une date de fin dans le futur.\n\n3. Acheter un boost visibilité — votre commerce est mis en avant sur la carte pendant 72h.\n\nIl suffit d'en avoir au moins un pour être visible. Plus vous avez de critères actifs, plus votre présence est forte sur la carte."
-            : "To appear on the gosholo map, your business must meet at least one of these 3 criteria:\n\n1. Have an active offer — create an offer with a future end date.\n\n2. Have an active event — create an event with a future end date.\n\n3. Purchase a visibility boost — your business is highlighted on the map for 72h.\n\nYou only need one to be visible. The more active criteria you have, the stronger your presence on the map."
+            ? "Pour apparaître sur la carte gosholo, votre commerce doit avoir au moins une offre active ou un événement actif. Il suffit d'en avoir au moins un pour être visible."
+            : "To appear on the gosholo map, your business must have at least one active offer or active event. You only need one to be visible."
         },
         {
           question: locale === 'fr' ? "Pourquoi mon commerce n'apparaît-il plus sur la carte ?" : "Why is my business no longer appearing on the map?",
           answer: locale === 'fr'
-            ? "Votre commerce n'est plus visible sur la carte si toutes vos offres et tous vos événements ont expiré, et que vous n'avez pas de boost visibilité actif. Pour réapparaître, il vous suffit de créer une nouvelle offre, un nouvel événement, ou d'acheter un boost visibilité."
-            : "Your business is no longer visible on the map if all your offers and events have expired and you have no active visibility boost. To reappear, simply create a new offer, a new event, or purchase a visibility boost."
+            ? "Votre commerce n'est plus visible sur la carte si toutes vos offres et tous vos événements ont expiré. Pour réapparaître, il vous suffit de créer une nouvelle offre ou un nouvel événement."
+            : "Your business is no longer visible on the map if all your offers and events have expired. To reappear, simply create a new offer or a new event."
         }
       ]
     },
@@ -129,53 +129,23 @@ export function FaqSection() {
       ]
     },
     {
-      title: locale === 'fr' ? "Améliorer ma visibilité (Boost et abonnements)" : "Improve my visibility (Boost and subscriptions)",
+      title: locale === 'fr' ? "Abonnements" : "Subscriptions",
       items: [
         {
-          question: locale === 'fr' ? "Qu'est-ce qu'un boost et à quoi ça sert ?" : "What is a boost and what is it for?",
-          answer: locale === 'fr' 
-            ? "Un boost permet de donner plus de visibilité à vos offres, événements ou à votre commerce pour attirer davantage de clients."
-            : "A boost allows you to give more visibility to your offers, events or your business to attract more customers."
-        },
-        {
-          question: locale === 'fr' ? "Quelles sont les différentes options de boost disponibles ?" : "What are the different boost options available?",
-          answer: locale === 'fr' 
-            ? "Boost Vedette : votre offre ou événement obtient un badge « Vedette », apparaît en priorité dans la liste et en haut des recherches pendant 72h.\n\nBoost Visibilité : votre commerce est mis en avant sur la carte interactive avec un placement prioritaire pour attirer l'attention des membres autour de vous valide 30 jours."
-            : "Featured Boost: your offer or event gets a 'Featured' badge, appears as a priority in the list and at the top of searches for 72h.\n\nVisibility Boost: your business is highlighted on the interactive map with priority placement to attract the attention of members around you valid for 30 days."
-        },
-        {
-          question: locale === 'fr' ? "Est-ce que je peux activer un boost à tout moment ?" : "Can I activate a boost at any time?",
-          answer: locale === 'fr' 
-            ? "Oui, vous pouvez activer un boost quand vous le souhaitez depuis votre tableau de bord."
-            : "Yes, you can activate a boost whenever you want from your dashboard."
-        },
-        {
-          question: locale === 'fr' ? "Comment savoir si mon boost a bien été activé ?" : "How do I know if my boost has been activated?",
-          answer: locale === 'fr' 
-            ? "Dans votre tableau de bord, vos offres affichent un badge « Vedette » lorsqu'elles sont boostées, et votre commerce est marqué par l'icône spéciale de visibilité lorsqu'il est en avant sur la carte."
-            : "In your dashboard, your offers display a 'Featured' badge when they are boosted, and your business is marked with the special visibility icon when it is highlighted on the map."
-        },
-        {
-          question: locale === 'fr' ? "Est-ce que je peux acheter des boosts à l'unité sans abonnement ?" : "Can I buy boosts individually without a subscription?",
-          answer: locale === 'fr' 
-            ? "Oui, vous pouvez acheter des boosts Vedette ou Visibilité à la carte, même sans abonnement."
-            : "Yes, you can buy Featured or Visibility boosts individually, even without a subscription."
-        },
-        {
-          question: locale === 'fr' ? "Quelle est la différence entre les statuts gosholo Base et gosholo Plus ?" : "What is the difference between gosholo Base and gosholo Plus status?",
-          answer: locale === 'fr' 
-            ? "gosholo Base (gratuit) : 1 offre ou 1 événement actif à la fois, statistiques en temps réel, et votre commerce affiché sur la carte interactive.\n\ngosholo Plus : jusqu'à 5 offres ou événements actifs en même temps, accès aux statistiques, votre commerce affiché sur la carte, et 1 Boost Vedette + 1 Boost Visibilité inclus chaque mois (non cumulables)."
-            : "gosholo Base (free): 1 offer or 1 event active at a time, real-time statistics, and your business displayed on the interactive map.\n\ngosholo Plus: up to 5 offers or events active at the same time, access to statistics, your business displayed on the map, and 1 Featured Boost + 1 Visibility Boost included each month (non-cumulative)."
+          question: locale === 'fr' ? "Quelle est la différence entre gosholo Base et gosholo Plus ?" : "What is the difference between gosholo Base and gosholo Plus?",
+          answer: locale === 'fr'
+            ? "gosholo Base (gratuit) : 1 offre ou 1 événement actif à la fois, statistiques en temps réel, et votre commerce affiché sur la carte interactive.\n\ngosholo Plus : jusqu'à 5 offres ou événements actifs en même temps, accès aux statistiques, et votre commerce affiché sur la carte."
+            : "gosholo Base (free): 1 offer or 1 event active at a time, real-time statistics, and your business displayed on the interactive map.\n\ngosholo Plus: up to 5 offers or events active at the same time, access to statistics, and your business displayed on the map."
         },
         {
           question: locale === 'fr' ? "Est-ce que je peux changer d'abonnement en cours de route ?" : "Can I change my subscription along the way?",
-          answer: locale === 'fr' 
+          answer: locale === 'fr'
             ? "Oui, vous pouvez passer de Base à Plus ou revenir à Base à tout moment depuis la section Abonnement."
             : "Yes, you can switch from Base to Plus or return to Base at any time from the Subscription section."
         },
         {
           question: locale === 'fr' ? "Puis-je annuler mon abonnement quand je veux ?" : "Can I cancel my subscription whenever I want?",
-          answer: locale === 'fr' 
+          answer: locale === 'fr'
             ? "Oui, vous pouvez annuler en tout temps. Votre accès restera actif jusqu'à la fin de la période déjà payée."
             : "Yes, you can cancel at any time. Your access will remain active until the end of the already paid period."
         }

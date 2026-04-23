@@ -20,18 +20,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log(`Starting account deletion for user: ${userId}`)
 
-    // Step 1: Delete boost transactions
-    const { error: transactionsError } = await supabase
-      .from('boost_transactions')
-      .delete()
-      .eq('user_id', userId)
-    
-    if (transactionsError) {
-      console.error('Error deleting boost transactions:', transactionsError)
-      // Continue with deletion even if this fails
-    }
-
-    // Step 2: Delete user favorites
+    // Step 1: Delete user favorites
     const { error: favoriteOffersError } = await supabase
       .from('user_favorite_offers')
       .delete()
@@ -103,17 +92,7 @@ export async function DELETE(request: NextRequest) {
       console.error('Error deleting user commerces:', deleteCommercesError)
     }
 
-    // Step 5: Delete boost credits
-    const { error: boostCreditsError } = await supabase
-      .from('user_boost_credits')
-      .delete()
-      .eq('user_id', userId)
-    
-    if (boostCreditsError) {
-      console.error('Error deleting boost credits:', boostCreditsError)
-    }
-
-    // Step 6: Delete subscriptions
+    // Step 4b: Delete subscriptions
     const { error: subscriptionsError } = await supabase
       .from('subscriptions')
       .delete()

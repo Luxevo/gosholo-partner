@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Tag, Calendar, DollarSign, Users, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown, Star, Sparkles, Share2, Link } from "lucide-react"
+import { Plus, Tag, Calendar, DollarSign, Edit, BarChart3, MapPin, Clock, Building2, Trash2, LayoutGrid, List, Heart, Store, AlertCircle, Crown, Share2, Link } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import OfferCreationFlow from "@/components/offer-creation-flow"
@@ -38,9 +38,6 @@ interface Offer {
   updated_at: string | null
   start_date: string | null
   end_date: string | null
-  boosted: boolean | null
-  boost_type: "en_vedette" | "visibilite" | null
-  boosted_at: string | null
   category_id: number | null
   sub_category_id: number | null
   additional_commerce_ids?: string[]
@@ -128,26 +125,6 @@ const CustomerOfferCard = ({ offer, commerce, allCommerces, onEdit, onDelete, lo
             </div>
           )}
           
-              {/* Boost Badge */}
-              {offer.boosted && (
-                <div className="absolute top-3 left-3">
-                  <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
-                    offer.boost_type === 'en_vedette' 
-                      ? 'bg-brand-primary text-white' 
-                      : 'bg-blue-600'
-                  }`}>
-                    <>
-                      {offer.boost_type === 'en_vedette' ? (
-                        <Sparkles className="h-2 w-2 mr-1" />
-                      ) : (
-                        <Star className="h-2 w-2 mr-1" />
-                      )}
-                      {locale === 'fr' ? 'Vedette' : 'Featured'}
-                    </>
-                  </div>
-                </div>
-              )}
-
               {/* Heart Icon */}
               <div className="absolute top-3 right-3">
                 <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
@@ -303,24 +280,6 @@ const OfferCard = ({ offer, onEdit, onDelete, locale }: OfferCardProps) => {
               <Badge variant={status.variant} className="text-xs w-fit">
                 {status.label}
               </Badge>
-              {offer.boosted && (
-                <Badge 
-                  className={`text-xs w-fit text-white ${
-                    offer.boost_type === 'en_vedette' 
-                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  <>
-                    {offer.boost_type === 'en_vedette' ? (
-                      <Sparkles className="h-3 w-3 mr-1" />
-                    ) : (
-                      <Star className="h-3 w-3 mr-1" />
-                    )}
-                    {locale === 'fr' ? 'Vedette' : 'Featured'}
-                  </>
-                </Badge>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <Button

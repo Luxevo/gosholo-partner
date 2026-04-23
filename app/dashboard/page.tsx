@@ -7,7 +7,7 @@ import { t } from "@/lib/category-translations"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Store, Plus, Zap, X } from "lucide-react"
+import { Store, Plus } from "lucide-react"
 import CommerceCreationFlow from "@/components/commerce-creation-flow"
 import CommerceCard from "@/components/commerce-card"
 import { useRouter } from "next/navigation"
@@ -17,37 +17,16 @@ export default function Dashboard() {
   const { userProfile, commerces, isLoading, refreshCounts } = useDashboard()
   const { locale } = useLanguage()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [showBoostPopup, setShowBoostPopup] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const router = useRouter()
   const isMobile = useIsMobile()
 
-  // Afficher le popup de bienvenue si l'utilisateur n'a pas de commerce
   useEffect(() => {
     if (!isLoading && commerces.length === 0) {
-      // Toujours afficher le popup s'il n'y a pas de commerce
       setShowWelcomePopup(true)
-      // S'assurer que le popup de boost est fermé
-      setShowBoostPopup(false)
     }
   }, [commerces.length, isLoading])
 
-  // Afficher le popup de boost après la création du premier commerce
-  useEffect(() => {
-    if (!isLoading && commerces.length === 1) {
-      // Vérifier si l'utilisateur vient de créer un commerce
-      const justCreatedCommerce = localStorage.getItem('justCreatedCommerce')
-      const hasSeenBoostPopup = localStorage.getItem('hasSeenBoostPopup')
-      
-      if (justCreatedCommerce && !hasSeenBoostPopup) {
-        // Fermer le popup de bienvenue et afficher le popup de boost
-        setShowWelcomePopup(false)
-        setShowBoostPopup(true)
-        // Nettoyer le flag
-        localStorage.removeItem('justCreatedCommerce')
-      }
-    }
-  }, [commerces.length, isLoading])
 
   const handleWelcomePopupClose = () => {
     setShowWelcomePopup(false)
@@ -64,23 +43,8 @@ export default function Dashboard() {
   }
 
   const handleCommerceCreated = () => {
-    // Fermer le dialog de création
     setIsDialogOpen(false)
-    // Rafraîchir les données
     refreshCounts()
-    // Marquer qu'on vient de créer un commerce pour déclencher le popup de boost
-    localStorage.setItem('justCreatedCommerce', 'true')
-  }
-
-  const handleBoostPopupClose = () => {
-    setShowBoostPopup(false)
-    localStorage.setItem('hasSeenBoostPopup', 'true')
-  }
-
-  const handleGoToBoosts = () => {
-    setShowBoostPopup(false)
-    localStorage.setItem('hasSeenBoostPopup', 'true')
-    router.push('/dashboard/boosts')
   }
 
 
@@ -232,52 +196,6 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Popup de boost après création du premier commerce */}
-      <Dialog open={showBoostPopup} onOpenChange={setShowBoostPopup}>
-        <DialogContent className="w-[95vw] max-w-none sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-brand-primary">
-              {t('dashboard.makeCommerceShine', locale)}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-accent/10 rounded-full mb-4">
-                <Zap className="h-8 w-8 text-brand-accent" />
-              </div>
-              <p className="text-gray-600 text-base leading-relaxed">
-                {locale === 'fr' ? (
-                  <>
-                    Vous êtes présentement sur le plan gratuit.<br />
-                    Passez au niveau supérieur et découvrez nos boosts et abonnements pour gagner en visibilité et attirer encore plus de clients.
-                  </>
-                ) : (
-                  <>
-                    You are currently on the free plan.<br />
-                    Level up and discover our boosts and subscriptions to gain visibility and attract even more customers.
-                  </>
-                )}
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button 
-                onClick={handleGoToBoosts}
-                className="flex-1 bg-brand-accent hover:bg-brand-accent/90 h-12 sm:h-10"
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                {t('dashboard.seeBoosts', locale)}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleBoostPopupClose}
-                className="h-12 sm:h-10"
-              >
-                {t('dashboard.later', locale)}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

@@ -14,7 +14,6 @@ import { useDashboard } from "@/contexts/dashboard-context"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
 import ImageUpload from "@/components/image-upload"
-import BoostPurchaseForm from "@/components/boost-purchase-form"
 import { AddressSuggestion } from "@/lib/mapbox-geocoding"
 import AddressAutocomplete from "@/components/address-autocomplete"
 import { useToast } from "@/hooks/use-toast"
@@ -67,9 +66,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   const [isConfirmationMode, setIsConfirmationMode] = useState(false)
   const [isSuccessMode, setIsSuccessMode] = useState(false)
   const [createdOfferId, setCreatedOfferId] = useState<string | null>(null)
-  const [boostCredits, setBoostCredits] = useState<{available_en_vedette: number, available_visibilite: number} | null>(null)
-  const [showPurchaseForm, setShowPurchaseForm] = useState<'en_vedette' | 'visibilite' | null>(null)
-  
   // Initialize form with offer data if editing, otherwise with defaults
   const [form, setForm] = useState({
     title: offer?.title || "",
@@ -130,7 +126,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
     loadCategories()
   }, [locale])
 
-  // Load user's commerces and boost credits
+  // Load user's commerces
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -179,15 +175,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
             category_id: commercesData[0].category_id
           }))
         }
-
-        // Load boost credits
-        const { data: boostCreditsData } = await supabase
-          .from('user_boost_credits')
-          .select('available_en_vedette, available_visibilite')
-          .eq('user_id', user.id)
-          .single()
-
-        setBoostCredits(boostCreditsData || { available_en_vedette: 0, available_visibilite: 0 })
 
         // Load existing additional commerce associations in edit mode
         if (offer) {
@@ -465,7 +452,6 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
           onCancel()
         }
       } else {
-        // For new offers, show success screen with boost options
         setIsSuccessMode(true)
       }
     } catch (error) {
@@ -571,192 +557,25 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   }
 
 
-  // Success with Boost Offers Component
-  const SuccessWithBoosts = () => {
-    const handleApplyBoost = async (boostType: 'en_vedette' | 'visibilite') => {
-      if (!createdOfferId || !boostCredits) return
-
-      const availableCredits = boostType === 'en_vedette' 
-        ? boostCredits.available_en_vedette 
-        : boostCredits.available_visibilite
-
-      if (availableCredits <= 0) {
-        // Show purchase form
-        setShowPurchaseForm(boostType)
-        return
-      }
-
-      try {
-        setIsLoading(true)
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
-
-        // Apply boost to the created offer
-        const { data: applyResult, error } = await supabase.rpc('use_boost_credits', {
-          user_uuid: user.id,
-          credits_to_use: 1
-        })
-
-        if (error) {
-          console.error('Error applying boost:', error)
-          return
-        }
-
-        // Update the offer with boost
-        await supabase
-          .from('offers')
-          .update({
-            boosted: true,
-            boost_type: boostType,
-            boosted_at: new Date().toISOString()
-          })
-          .eq('id', createdOfferId)
-
-        // Update local boost credits
-        setBoostCredits(prev => prev ? {
-          ...prev,
-          [boostType === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
-            (boostType === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) - 1
-        } : null)
-
-        // Show success and close after delay
-        setTimeout(() => {
-          if (onCancel) {
-            onCancel()
-          }
-        }, 2000)
-
-      } catch (error) {
-        console.error('Error applying boost:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    const handlePurchaseSuccess = async () => {
-      if (!showPurchaseForm) return
-
-      // Close purchase form
-      setShowPurchaseForm(null)
-      
-      // Update boost credits (add 1 credit for the purchased boost)
-      setBoostCredits(prev => prev ? {
-        ...prev,
-        [showPurchaseForm === 'en_vedette' ? 'available_en_vedette' : 'available_visibilite']:
-          (showPurchaseForm === 'en_vedette' ? prev.available_en_vedette : prev.available_visibilite) + 1
-      } : { available_en_vedette: showPurchaseForm === 'en_vedette' ? 1 : 0, available_visibilite: showPurchaseForm === 'visibilite' ? 1 : 0 })
-
-      // Automatically apply the boost
-      setTimeout(() => {
-        handleApplyBoost(showPurchaseForm)
-      }, 500)
-    }
-
-    const handleSkipBoost = () => {
-      if (onCancel) {
-        onCancel()
-      }
-    }
-
-
+  // Success Component
+  const SuccessScreen = () => {
     return (
-      <div className="space-y-4">
-        {/* Success Message */}
-        <div className="text-center mb-4">
-          <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-            <Check className="h-6 w-6 text-green-600" />
-          </div>
-          <h2 className="text-lg font-semibold text-primary mb-1">
-            {t('offers.offerCreatedSuccess', locale)}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t('offers.offerNowOnline', locale)}
-          </p>
+      <div className="space-y-4 text-center py-6">
+        <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+          <Check className="h-6 w-6 text-green-600" />
         </div>
-
-        {/* Boost Offers */}
-        <div className="bg-brand-light/20 border border-brand-primary/30 rounded-xl p-4">
-          <div className="text-center mb-3">
-            <Zap className="h-6 w-6 text-brand-primary mx-auto mb-1" />
-            <h3 className="text-base font-semibold text-brand-primary">
-              {t('offers.boostOfferNow', locale)}
-            </h3>
-            <p className="text-xs text-brand-primary/80 mt-1">
-              {t('offers.increaseVisibility72h', locale)}
-            </p>
-          </div>
-
-          <div className="mb-4">
-            {/* En Vedette Boost */}
-            <div className="bg-white rounded-lg p-4 border border-brand-primary/30">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-brand-light/20 rounded-full">
-                  <Sparkles className="h-5 w-5 text-brand-primary" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-brand-primary">{t('offers.featuredBoost', locale)}</h4>
-                  <p className="text-xs text-brand-primary/80">{t('offers.premiumVisibility72h', locale)}</p>
-                </div>
-              </div>
-              <ul className="text-xs text-brand-primary/80 space-y-1 mb-3">
-                <li>• {t('offers.featuredBadgeVisible', locale)}</li>
-                <li>• {t('offers.priorityInSearch', locale)}</li>
-                <li>• {t('offers.highlightedOnMap', locale)}</li>
-                <li>• {t('offers.featuredOnWebsite', locale).split('gosholo.com').map((part, i, arr) => 
-                  i < arr.length - 1 ? (
-                    <React.Fragment key={i}>
-                      {part}
-                      <a 
-                        href="https://gosholo.com" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-brand-primary underline hover:text-brand-primary/80"
-                      >
-                        gosholo.com
-                      </a>
-                    </React.Fragment>
-                  ) : part
-                )}</li>
-              </ul>
-              <Button
-                onClick={() => handleApplyBoost('en_vedette')}
-                disabled={isLoading}
-                className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white text-sm py-2"
-                size="sm"
-              >
-                {boostCredits?.available_en_vedette ? 
-                  `${t('offers.useCredit', locale)} (${boostCredits.available_en_vedette} ${t('offers.available', locale)})` : 
-                  t('offers.buy5dollars', locale)
-                }
-              </Button>
-            </div>
-          </div>
-
-          {/* Skip Option */}
-          <div className="text-center pt-3 border-t border-brand-primary/30">
-            <Button
-              variant="ghost"
-              onClick={handleSkipBoost}
-              className="text-brand-primary hover:text-brand-primary/80 text-sm"
-              disabled={isLoading}
-            >
-{t('offers.skipForNow', locale)}
-            </Button>
-          </div>
-        </div>
-
-        {/* Purchase Form Modal */}
-        {showPurchaseForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="max-w-md w-full">
-              <BoostPurchaseForm
-                boostType={showPurchaseForm}
-                onSuccess={handlePurchaseSuccess}
-                onCancel={() => setShowPurchaseForm(null)}
-              />
-            </div>
-          </div>
-        )}
+        <h2 className="text-lg font-semibold text-primary mb-1">
+          {t('offers.offerCreatedSuccess', locale)}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t('offers.offerNowOnline', locale)}
+        </p>
+        <Button
+          onClick={() => { if (onCancel) onCancel() }}
+          className="mt-4"
+        >
+          {locale === 'fr' ? 'Terminer' : 'Done'}
+        </Button>
       </div>
     )
   }
@@ -764,7 +583,7 @@ export default function OfferCreationFlow({ onCancel, commerceId, offer }: Offer
   return (
       <Card className="w-full mx-auto border-primary/20 shadow-none">
       {isSuccessMode ? (
-        <SuccessWithBoosts />
+        <SuccessScreen />
       ) : isConfirmationMode ? (
         <OfferConfirmation />
       ) : (

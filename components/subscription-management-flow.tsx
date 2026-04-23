@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Star, Check, X, Zap, Tag, Calendar, ArrowRight } from "lucide-react"
+import { Crown, Star, Check, X, Tag, Calendar, ArrowRight } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
@@ -33,12 +33,10 @@ const plans = {
     price: "Gratuit",
     features: [
       "1 publication total (offre OU événement)",
-      "0 crédit boost par mois",
       "Profil commerce de base",
       "Support communautaire"
     ],
     limitations: [
-      "Pas de boosts",
       "Limite de publication stricte",
       "Fonctionnalités limitées"
     ]
@@ -54,7 +52,6 @@ const plans = {
     savings: "Économisez $8 (2 mois gratuits)",
     features: [
       "10 publications totaux (offres ET événements)",
-      "1 crédit boost par mois (auto-renouvelé)",
       "Profil commerce complet",
       "Support prioritaire",
       "Statistiques avancées",

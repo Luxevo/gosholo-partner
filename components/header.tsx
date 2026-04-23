@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {  Settings, LogOut, User, Menu, Zap, Crown, Star, Sparkles, TrendingUp } from "lucide-react"
+import { LogOut, User, Menu, Crown, Star } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useState, useEffect } from "react"
@@ -83,98 +83,27 @@ export function Header({ onMenuClick, showMobileMenu }: HeaderProps) {
           </h1>
          </div>
 
-                 {/* Right side - Boost credits and user menu */}
+                 {/* Right side - subscription plan and user menu */}
          <div className="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
-             {/* Mobile: Clean boost display */}
-           <div className="sm:hidden flex items-center space-x-1">
-             {/* Vedette boost - Green */}
-             <Link href="/dashboard/boosts">
-               <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] bg-brand-light/20 border-brand-primary/30 hover:bg-brand-light/30 hover:border-brand-primary/50">
-                 <Sparkles className="h-3 w-3 text-brand-primary" />
-                 <span className="text-xs font-medium text-brand-primary">
-                   {counts.isLoading ? '...' : counts.boostCreditsVedette}
-                 </span>
-               </div>
-             </Link>
-             
-             {/* Visibilité boost - Blue */}
-             <Link href="/dashboard/boosts">
-               <div className="flex items-center space-x-1 px-2 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
-                    style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
-                 <TrendingUp className="h-3 w-3" style={{ color: 'rgb(70,130,180)' }} />
-                 <span className="text-xs font-medium" style={{ color: 'rgb(70,130,180)' }}>
-                   {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
-                 </span>
-               </div>
-             </Link>
-             
-             {/* Subscription plan indicator */}
-             <div className={`flex items-center px-2 py-1.5 rounded-lg border min-h-[44px] ${
-               counts.subscriptionPlan === 'pro' 
-                 ? 'bg-orange-50 border-orange-200' 
-                 : 'bg-gray-50 border-gray-200'
-             }`}>
-               {counts.subscriptionPlan === 'pro' ? (
-                 <Crown className="h-4 w-4 text-orange-600" />
-               ) : (
-                 <Star className="h-4 w-4 text-gray-500" />
-               )}
-             </div>
-           </div>
-
-                                                                                                                                                                                       {/* Desktop: Full boost credits display */}
-               <div className="hidden sm:flex items-center space-x-2">
-                 {/* Boost Credits - Vedette */}
-                 <Link href="/dashboard/boosts">
-                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] bg-brand-light/20 border-brand-primary/30 hover:bg-brand-light/30 hover:border-brand-primary/50">
-                     <Sparkles className="h-4 w-4 text-brand-primary" />
-                     <div className="flex items-center space-x-1 text-sm">
-                       <span className="text-brand-primary">{t('boosts.vedette', locale)}:</span>
-                       <span className="font-medium text-brand-primary">
-                         {counts.isLoading ? '...' : counts.boostCreditsVedette}
-                       </span>
-                     </div>
-                   </div>
-                 </Link>
-
-                 {/* Boost Credits - Visibilité */}
-                 <Link href="/dashboard/boosts">
-                   <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px]" 
-                        style={{ backgroundColor: 'rgb(222,243,248)', borderColor: 'rgb(105,200,221)' }} 
-                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'rgb(200,235,245)'; e.currentTarget.style.borderColor = 'rgb(85,180,200)' }} 
-                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgb(222,243,248)'; e.currentTarget.style.borderColor = 'rgb(105,200,221)' }}>
-                     <TrendingUp className="h-4 w-4" style={{ color: 'rgb(70,130,180)' }} />
-                     <div className="flex items-center space-x-1 text-sm">
-                       <span style={{ color: 'rgb(70,130,180)' }}>{t('boosts.visibility', locale)}:</span>
-                       <span className="font-medium" style={{ color: 'rgb(70,130,180)' }}>
-                         {counts.isLoading ? '...' : counts.boostCreditsVisibilite}
-                       </span>
-                     </div>
-                   </div>
-                 </Link>
-
-            {/* Subscription Plan */}
-            <Link href="/dashboard/boosts">
-              <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] ${
-                counts.subscriptionPlan === 'pro' 
-                  ? 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300' 
-                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+          {/* Subscription Plan */}
+          <Link href="/dashboard/boosts">
+            <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-colors cursor-pointer min-h-[44px] ${
+              counts.subscriptionPlan === 'pro'
+                ? 'bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300'
+                : 'bg-gray-50 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+            }`}>
+              {counts.subscriptionPlan === 'pro' ? (
+                <Crown className="h-4 w-4 text-brand-accent" />
+              ) : (
+                <Star className="h-4 w-4 text-gray-500" />
+              )}
+              <span className={`text-sm font-medium hidden sm:inline ${
+                counts.subscriptionPlan === 'pro' ? 'text-brand-accent' : 'text-gray-700'
               }`}>
-                {counts.subscriptionPlan === 'pro' ? (
-                  <Crown className="h-4 w-4 text-brand-accent" />
-                ) : (
-                  <Star className="h-4 w-4 text-gray-500" />
-                )}
-                <span className={`text-sm font-medium ${
-                  counts.subscriptionPlan === 'pro' ? 'text-brand-accent' : 'text-gray-700'
-                }`}>
-                  {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? t('boosts.pro', locale) : t('boosts.free', locale)}
-                </span>
-              </div>
-            </Link>
-          </div>
+                {counts.isLoading ? '...' : counts.subscriptionPlan === 'pro' ? t('boosts.pro', locale) : t('boosts.free', locale)}
+              </span>
+            </div>
+          </Link>
 
           {/* User Menu - improved touch target */}
           <DropdownMenu>

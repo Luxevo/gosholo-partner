@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, TrendingUp, AlertCircle, Crown, Star, Sparkles, Share2, Link } from "lucide-react"
+import { Calendar, MapPin, Users, Plus, Edit, BarChart3, Clock, Building2, Trash2, LayoutGrid, List, Heart, AlertCircle, Crown, Share2, Link } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import EventCreationFlow from "@/components/event-creation-flow"
@@ -36,9 +36,6 @@ interface Event {
   updated_at: string | null
   start_date: string | null
   end_date: string | null
-  boosted: boolean | null
-  boost_type: "en_vedette" | "visibilite" | null
-  boosted_at: string | null
   category_events_id: number | null
   additional_commerce_ids?: string[]
   like_count?: number
@@ -133,26 +130,6 @@ const CustomerEventCard = ({ event, commerce, allCommerces, onEdit, onDelete, lo
             </div>
           )}
           
-          {/* Boost Badge */}
-          {event.boosted && (
-            <div className="absolute top-3 left-3">
-              <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
-                event.boost_type === 'en_vedette' 
-                  ? 'bg-brand-primary text-white' 
-                  : 'bg-blue-600'
-              }`}>
-                <>
-                  {event.boost_type === 'en_vedette' ? (
-                    <Sparkles className="h-2 w-2 mr-1" />
-                  ) : (
-                    <Star className="h-2 w-2 mr-1" />
-                  )}
-                  {locale === 'fr' ? 'Vedette' : 'Featured'}
-                </>
-              </div>
-            </div>
-          )}
-
           {/* Heart Icon */}
           <div className="absolute top-3 right-3">
             <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
@@ -308,24 +285,6 @@ const EventCard = ({ event, onEdit, onDelete, locale }: EventCardProps) => {
               <Badge variant="secondary" className="text-xs w-fit">
                 Événement
               </Badge>
-              {event.boosted && (
-                <Badge 
-                  className={`text-xs w-fit text-white ${
-                    event.boost_type === 'en_vedette' 
-                      ? 'bg-brand-primary hover:bg-brand-primary/90' 
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  <>
-                    {event.boost_type === 'en_vedette' ? (
-                      <Sparkles className="h-3 w-3 mr-1" />
-                    ) : (
-                      <Star className="h-3 w-3 mr-1" />
-                    )}
-                    {locale === 'fr' ? 'Vedette' : 'Featured'}
-                  </>
-                </Badge>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <Button

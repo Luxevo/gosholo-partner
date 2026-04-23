@@ -7,9 +7,6 @@ interface DashboardCounts {
   commerces: number
   offers: number
   events: number
-  totalBoosts: number
-  boostCreditsVedette: number
-  boostCreditsVisibilite: number
   subscriptionPlan: 'free' | 'pro'
   isLoading: boolean
   totalContent: number
@@ -48,9 +45,6 @@ interface Commerce {
   close_at: string | null
   created_at: string | null
   updated_at: string | null
-  boosted?: boolean
-  boost_type?: 'en_vedette' | 'visibilite'
-  boosted_at?: string | null
   offers?: Offer[]
   events?: Event[]
 }
@@ -96,9 +90,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     commerces: 0,
     offers: 0,
     events: 0,
-    totalBoosts: 0,
-    boostCreditsVedette: 0,
-    boostCreditsVisibilite: 0,
     subscriptionPlan: 'free',
     isLoading: true,
     totalContent: 0,
@@ -240,23 +231,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
       setCommerces(commercesWithContent)
 
-      // Get boost credits
-      let totalBoosts = 0
-      let boostCreditsVedette = 0
-      let boostCreditsVisibilite = 0
-      
-      const { data: boostCredits } = await supabase
-        .from('user_boost_credits')
-        .select('available_en_vedette, available_visibilite')
-        .eq('user_id', user.id)
-        .maybeSingle()
-      
-      if (boostCredits) {
-        boostCreditsVedette = boostCredits.available_en_vedette || 0
-        boostCreditsVisibilite = boostCredits.available_visibilite || 0
-        totalBoosts = boostCreditsVedette + boostCreditsVisibilite
-      }
-
       // Get subscription status
       let subscriptionPlan: 'free' | 'pro' = 'free'
       
@@ -291,9 +265,6 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         commerces: commercesCount,
         offers: offersCount,
         events: eventsCount,
-        totalBoosts,
-        boostCreditsVedette,
-        boostCreditsVisibilite,
         subscriptionPlan,
         isLoading: false,
         totalContent,
@@ -304,11 +275,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
-      setCounts(prev => ({ 
-        ...prev, 
-        totalBoosts: 0, 
-        boostCreditsVedette: 0, 
-        boostCreditsVisibilite: 0,
+      setCounts(prev => ({
+        ...prev,
         subscriptionPlan: 'free',
         isLoading: false,
         totalContent: prev.offers + prev.events,

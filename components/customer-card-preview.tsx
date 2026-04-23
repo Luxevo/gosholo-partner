@@ -1,6 +1,6 @@
 "use client"
 
-import { Store, Sparkles, Star, X, Heart, MapPin, Calendar } from "lucide-react"
+import { Store, X, Heart, MapPin, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/language-context"
 import { renderTextWithLinks } from "@/lib/text-utils"
@@ -22,20 +22,16 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
       ? 'Profitez de cette offre spéciale sur nos délicieux cafés artisanaux.' 
       : 'Enjoy this special offer on our delicious artisanal coffees.',
     image_url: imageUrl,
-    boosted: false,
-    boost_type: null as any,
     custom_location: null
   }
 
   const mockEvent = {
     id: 'preview',
     title: locale === 'fr' ? 'Atelier de cuisine' : 'Cooking Workshop',
-    description: locale === 'fr' 
-      ? 'Apprenez les techniques de base de la cuisine française avec notre chef expert.' 
+    description: locale === 'fr'
+      ? 'Apprenez les techniques de base de la cuisine française avec notre chef expert.'
       : 'Learn basic French cooking techniques with our expert chef.',
     image_url: imageUrl,
-    boosted: false,
-    boost_type: null as any,
     custom_location: null
   }
 
@@ -102,26 +98,6 @@ export default function CustomerCardPreview({ imageUrl, type, onRemove }: Custom
             </div>
           )}
           
-          {/* Boost Badge */}
-          {item.boosted && (
-            <div className="absolute top-3 left-3">
-              <div className={`px-2 py-1 rounded-full text-xs font-bold flex items-center text-white shadow-lg ${
-                item.boost_type === 'en_vedette' 
-                  ? 'bg-brand-primary text-white'
-                  : 'bg-blue-600'
-              }`}>
-                <>
-                  {item.boost_type === 'en_vedette' ? (
-                    <Sparkles className="h-2 w-2 mr-1" />
-                  ) : (
-                    <Star className="h-2 w-2 mr-1" />
-                  )}
-                  {locale === 'fr' ? 'Vedette' : 'Featured'}
-                </>
-              </div>
-            </div>
-          )}
-
           {/* Heart Icon */}
           <div className="absolute top-3 right-3">
             <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">

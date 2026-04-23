@@ -5,17 +5,13 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { 
-  Receipt, 
+import {
+  Receipt,
   Calendar,
   CreditCard,
   CheckCircle,
   XCircle,
   Clock,
-  Zap,
-  TrendingUp,
-  Sparkles,
-  ExternalLink,
   Settings
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
@@ -23,17 +19,6 @@ import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useLanguage } from "@/contexts/language-context"
 import { t } from "@/lib/category-translations"
-
-interface Transaction {
-  id: string
-  boost_type: 'en_vedette' | 'visibilite'
-  amount_cents: number
-  status: string
-  card_brand?: string
-  card_last_four?: string
-  stripe_payment_intent_id?: string
-  created_at: string
-}
 
 interface SubscriptionTransaction {
   id: string
@@ -44,14 +29,8 @@ interface SubscriptionTransaction {
 }
 
 
-const getBoostLabel = (boostType: 'en_vedette' | 'visibilite') => {
-  return boostType === 'en_vedette' ? t('boosts.vedette') : t('boosts.visibility')
-}
-
-
 export default function PaymentHistoryPage() {
   const { locale } = useLanguage()
-  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [subscriptions, setSubscriptions] = useState<SubscriptionTransaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -67,27 +46,12 @@ export default function PaymentHistoryPage() {
       setIsLoading(true)
       setError(null)
 
-      // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       if (userError || !user) {
         setError(t('paymentHistory.userNotAuthenticated', locale))
         return
       }
 
-      // Fetch boost transactions
-      const { data: boostTransactions, error: boostError } = await supabase
-        .from('boost_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (boostError) {
-        console.error('Error fetching boost transactions:', boostError)
-        setError(t('paymentHistory.errorLoadingBoosts', locale))
-        return
-      }
-
-      // Fetch subscription transactions
       const { data: subscriptionData, error: subError } = await supabase
         .from('subscriptions')
         .select('*')
@@ -96,13 +60,13 @@ export default function PaymentHistoryPage() {
 
       if (subError) {
         console.error('Error fetching subscriptions:', subError)
-        // Don't return here as boost transactions are more important
+        setError(t('paymentHistory.error', locale))
+        return
       }
 
-      setTransactions(boostTransactions || [])
       setSubscriptions(subscriptionData?.map(sub => ({
         ...sub,
-        amount: 800 // $8 CAD in cents for Pro subscription
+        amount: 800
       })) || [])
 
     } catch (error) {
@@ -269,10 +233,7 @@ export default function PaymentHistoryPage() {
     }
   }
 
-  const allTransactions = [
-    ...transactions.map(t => ({ ...t, type: 'boost' as const })),
-    ...subscriptions.map(s => ({ ...s, type: 'subscription' as const }))
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  const allTransactions = subscriptions.map(s => ({ ...s, type: 'subscription' as const }))
 
   return (
       <div className="space-y-6">
@@ -353,8 +314,8 @@ export default function PaymentHistoryPage() {
                 </div>
                 <Button asChild className="h-12 sm:h-10 w-full sm:w-auto">
                   <a href="/dashboard/boosts">
-                    <Zap className="h-4 w-4 mr-2" />
-                    {t('paymentHistory.buyBoosts', locale)}
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    {locale === 'fr' ? 'Voir les abonnements' : 'View subscriptions'}
                   </a>
                 </Button>
               </div>
@@ -366,155 +327,33 @@ export default function PaymentHistoryPage() {
         {!isLoading && !error && allTransactions.length > 0 && (
           <div className="space-y-4">
             {allTransactions.map((transaction) => {
-              const isBoost = transaction.type === 'boost'
-              const boostTransaction = isBoost ? transaction as Transaction : null
-              const subscriptionTransaction = !isBoost ? transaction as SubscriptionTransaction : null
-
+              const sub = transaction as SubscriptionTransaction
               return (
-                <Card key={`${transaction.type}-${transaction.id}`} className="hover:shadow-md transition-shadow">
+                <Card key={`subscription-${transaction.id}`} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4 sm:p-6">
-                    {/* Mobile Layout */}
-                    <div className="block sm:hidden">
-                      <div className="flex items-start space-x-3 mb-3">
-                        <div className={`p-2 rounded-full flex-shrink-0 ${
-                          isBoost ? (
-                            boostTransaction!.boost_type === 'en_vedette' 
-                              ? 'bg-brand-light/20' 
-                              : 'bg-[rgb(222,243,248)]'
-                          ) : 'bg-yellow-100'
-                        }`}>
-                          {isBoost ? (
-                            boostTransaction!.boost_type === 'en_vedette' ? (
-                              <Sparkles className="h-5 w-5 text-brand-primary" />
-                            ) : (
-                              <TrendingUp className="h-5 w-5" style={{ color: 'rgb(70,130,180)' }} />
-                            )
-                          ) : (
-                            <CreditCard className="h-5 w-5 text-yellow-600" />
-                          )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 rounded-full bg-yellow-100">
+                          <CreditCard className="h-6 w-6 text-yellow-600" />
                         </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-base mb-1">
-                            {isBoost 
-                              ? `Boost ${getBoostLabel(boostTransaction!.boost_type)}`
-                              : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
-                            }
+                        <div className="space-y-1">
+                          <h3 className="font-semibold text-lg">
+                            {t('paymentHistory.subscriptionPro', locale)} {sub.plan_type.toUpperCase()}
                           </h3>
-                          <p className="text-sm text-muted-foreground mb-1">
+                          <p className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Calendar className="h-3 w-3" />
                             {formatDate(transaction.created_at)}
                           </p>
-                          {isBoost && boostTransaction!.card_brand && (
-                            <p className="text-xs text-muted-foreground">
-                              {boostTransaction!.card_brand.toUpperCase()} •••• {boostTransaction!.card_last_four}
-                            </p>
-                          )}
                         </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="text-lg font-bold text-brand-primary">
-                          {formatCurrency(
-                            isBoost 
-                              ? boostTransaction!.amount_cents 
-                              : subscriptionTransaction!.amount
-                          )}
+                      <div className="text-right space-y-2">
+                        <div className="text-xl font-bold text-brand-primary">
+                          {formatCurrency(sub.amount)}
                         </div>
-                        {getStatusBadge(transaction.status)}
-                      </div>
-                      
-                      {isBoost && boostTransaction!.stripe_payment_intent_id && (
-                        <div className="flex flex-col gap-2">
-                          <Button
-                            onClick={() => openReceipt(boostTransaction!.stripe_payment_intent_id!)}
-                            variant="outline"
-                            size="sm"
-                            className="w-full h-10"
-                          >
-                            <Receipt className="h-4 w-4 mr-2" />
-{t('paymentHistory.viewReceipt', locale)}
-                          </Button>
-                          <p className="text-xs text-muted-foreground break-all">
-                            ID: {boostTransaction!.stripe_payment_intent_id}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Desktop Layout */}
-                    <div className="hidden sm:block">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={`p-3 rounded-full ${
-                            isBoost ? (
-                              boostTransaction!.boost_type === 'en_vedette' 
-                                ? 'bg-brand-light/20' 
-                                : 'bg-[rgb(222,243,248)]'
-                            ) : 'bg-yellow-100'
-                          }`}>
-                            {isBoost ? (
-                              boostTransaction!.boost_type === 'en_vedette' ? (
-                                <Sparkles className="h-6 w-6 text-brand-primary" />
-                              ) : (
-                                <TrendingUp className="h-6 w-6" style={{ color: 'rgb(70,130,180)' }} />
-                              )
-                            ) : (
-                              <CreditCard className="h-6 w-6 text-yellow-600" />
-                            )}
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <h3 className="font-semibold text-lg">
-                              {isBoost 
-                                ? `Boost ${getBoostLabel(boostTransaction!.boost_type)}`
-                                : `${t('paymentHistory.subscriptionPro', locale)} ${subscriptionTransaction!.plan_type.toUpperCase()}`
-                              }
-                            </h3>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(transaction.created_at)}
-                            </p>
-                            {isBoost && boostTransaction!.card_brand && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <CreditCard className="h-3 w-3" />
-                                {boostTransaction!.card_brand.toUpperCase()} •••• {boostTransaction!.card_last_four}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="text-right space-y-2">
-                          <div className="text-xl font-bold text-brand-primary">
-                            {formatCurrency(
-                              isBoost 
-                                ? boostTransaction!.amount_cents 
-                                : subscriptionTransaction!.amount
-                            )}
-                          </div>
-                          <div className="flex items-center justify-end gap-2">
-                            {getStatusBadge(transaction.status)}
-                            {isBoost && boostTransaction!.stripe_payment_intent_id && (
-                              <Button
-                                onClick={() => openReceipt(boostTransaction!.stripe_payment_intent_id!)}
-                                variant="ghost"
-                                size="sm"
-                              >
-                                <Receipt className="h-3 w-3 mr-1" />
-{t('paymentHistory.receipt', locale)}
-                              </Button>
-                            )}
-                          </div>
+                        <div className="flex items-center justify-end gap-2">
+                          {getStatusBadge(transaction.status)}
                         </div>
                       </div>
-
-                      {/* Transaction ID */}
-                      {isBoost && boostTransaction!.stripe_payment_intent_id && (
-                        <div className="mt-4 pt-4 border-t border-gray-100">
-                          <p className="text-xs text-muted-foreground">
-{t('paymentHistory.transactionId', locale)}: {boostTransaction!.stripe_payment_intent_id}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -531,25 +370,16 @@ export default function PaymentHistoryPage() {
               <CardDescription>{t('paymentHistory.paymentStats', locale)}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-brand-primary">
-                    {transactions.length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">{t('paymentHistory.boostsPurchased', locale)}</div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-brand-accent">
                     {subscriptions.length}
                   </div>
                   <div className="text-sm text-muted-foreground">{t('paymentHistory.subscriptions', locale)}</div>
                 </div>
-                <div className="text-center sm:col-span-2 lg:col-span-1">
+                <div className="text-center">
                   <div className="text-xl sm:text-2xl font-bold text-green-600">
-                    {formatCurrency(
-                      transactions.reduce((sum, t) => sum + t.amount_cents, 0) +
-                      subscriptions.reduce((sum, s) => sum + s.amount, 0)
-                    )}
+                    {formatCurrency(subscriptions.reduce((sum, s) => sum + s.amount, 0))}
                   </div>
                   <div className="text-sm text-muted-foreground">{t('paymentHistory.totalSpent', locale)}</div>
                 </div>

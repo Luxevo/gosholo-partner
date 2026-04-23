@@ -13,7 +13,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "gosholo  - dashboard",
-  description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
+  description: "Gérez vos commerces, offres et événements avec gosholo",
   manifest: "/manifest.json",
   generator: 'v0.dev',
   icons: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "gosholo - dashboard",
-    description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
+    description: "Gérez vos commerces, offres et événements avec gosholo",
     url: "https://partner.gosholo.com",
     siteName: "gosholo",
     images: [
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "gosholo - dashboard",
-    description: "Gérez vos commerces, offres, événements et boosts de visibilité avec gosholo",
+    description: "Gérez vos commerces, offres et événements avec gosholo",
     images: ["/logopwa.png"],
   },
 }

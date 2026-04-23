@@ -14,20 +14,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input"
 import {
   Crown,
-  Zap,
   Star,
-  Eye,
   Calendar,
   Tag,
-  ArrowRight,
   CheckCircle,
   XCircle,
-  Sparkles,
-  TrendingUp,
   User,
   Lock,
   CreditCard,
-  Settings,
   LogOut,
   Building2,
   Trash2,
@@ -65,7 +59,6 @@ interface UserStats {
   totalContent: number
   offers: number
   events: number
-  boostCredits: number
 }
 
 interface Profile {
@@ -155,13 +148,6 @@ export default function ProfilPage() {
       
       setCommerces(commercesData || [])
 
-      // Get boost credits
-      const { data: boostCreditsData } = await supabase
-        .from('user_boost_credits')
-        .select('available_en_vedette, available_visibilite')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
       // Get content counts
       const { data: offersData } = await supabase
         .from('offers')
@@ -180,7 +166,6 @@ export default function ProfilPage() {
         totalContent: offersCount + eventsCount,
         offers: offersCount,
         events: eventsCount,
-        boostCredits: (boostCreditsData?.available_en_vedette || 0) + (boostCreditsData?.available_visibilite || 0)
       })
 
     } catch (error) {
@@ -195,8 +180,8 @@ export default function ProfilPage() {
   }, [])
 
   const planLimits = {
-    free: { content: 2, boosts: 0 },
-    pro: { content: 10, boosts: 1 }
+    free: { content: 2 },
+    pro: { content: 10 }
   }
 
   const currentLimit = planLimits[subscription?.plan_type || 'free']

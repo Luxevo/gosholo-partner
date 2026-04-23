@@ -46,96 +46,6 @@ export async function POST(request: NextRequest) {
     console.log('Processing webhook event:', event.type)
 
     switch (event.type) {
-      case 'payment_intent.succeeded': {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent
-        const { userId, boostType, type } = paymentIntent.metadata || {}
-
-        if (type === 'boost_purchase' && userId && boostType) {
-          
-          // Get payment method details for card info
-          let cardLast4 = ''
-          let cardBrand = ''
-          
-          try {
-            if (paymentIntent.payment_method) {
-              const paymentMethod = await stripe.paymentMethods.retrieve(
-                paymentIntent.payment_method as string
-              )
-              cardLast4 = paymentMethod.card?.last4 || ''
-              cardBrand = paymentMethod.card?.brand || ''
-            }
-          } catch (pmError) {
-            console.error('Error retrieving payment method:', pmError)
-            // Continue without card details rather than failing the whole webhook
-            cardLast4 = 'unknown'
-            cardBrand = 'unknown'
-          }
-
-          // Record transaction
-          const { error: transactionError } = await supabase.from('boost_transactions').insert({
-            user_id: userId,
-            boost_type: boostType as 'en_vedette' | 'visibilite',
-            amount_cents: paymentIntent.amount,
-            stripe_payment_intent_id: paymentIntent.id,
-            card_last_four: cardLast4,
-            card_brand: cardBrand,
-            status: 'completed',
-          })
-          
-          if (transactionError) {
-            console.error('Error recording transaction:', transactionError)
-            throw new Error(`Transaction insert failed: ${transactionError.message}`)
-          }
-
-          // Add boost credit to user - simplified approach
-          const creditField = boostType === 'en_vedette' 
-            ? 'available_en_vedette' 
-            : 'available_visibilite'
-
-          // First, try to get existing record
-          const { data: existingCredits, error: fetchError } = await supabase
-            .from('user_boost_credits')
-            .select('*')
-            .eq('user_id', userId)
-            .single()
-
-          if (fetchError && fetchError.code !== 'PGRST116') {
-            console.error('Error fetching existing credits:', fetchError)
-            throw new Error(`Credits fetch failed: ${fetchError.message}`)
-          }
-
-          if (existingCredits) {
-            // Update existing record by incrementing the credit
-            const newValue = (existingCredits[creditField] || 0) + 1
-            const { error: updateError } = await supabase
-              .from('user_boost_credits')
-              .update({ [creditField]: newValue })
-              .eq('user_id', userId)
-              
-            if (updateError) {
-              console.error('Error updating boost credits:', updateError)
-              throw new Error(`Credits update failed: ${updateError.message}`)
-            }
-          } else {
-            // Create new record
-            const { error: insertError } = await supabase
-              .from('user_boost_credits')
-              .insert({
-                user_id: userId,
-                available_en_vedette: boostType === 'en_vedette' ? 1 : 0,
-                available_visibilite: boostType === 'visibilite' ? 1 : 0,
-              })
-              
-            if (insertError) {
-              console.error('Error creating boost credits:', insertError)
-              throw new Error(`Credits insert failed: ${insertError.message}`)
-            }
-          }
-
-        }
-        break
-      }
-
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const { userId, type } = session.metadata || {}
@@ -152,41 +62,6 @@ export async function POST(request: NextRequest) {
             console.error('Error updating profile subscription:', profileError)
           }
 
-          // Add subscription boost credits (don't overwrite existing ones)
-          const { data: existingCredits } = await supabase
-            .from('user_boost_credits')
-            .select('*')
-            .eq('user_id', userId)
-            .single()
-
-          if (existingCredits) {
-            // Add to existing credits
-            const { error: updateError } = await supabase
-              .from('user_boost_credits')
-              .update({
-                available_en_vedette: (existingCredits.available_en_vedette || 0) + 1,
-                available_visibilite: (existingCredits.available_visibilite || 0) + 1,
-              })
-              .eq('user_id', userId)
-              
-            if (updateError) {
-              console.error('Error updating subscription boost credits:', updateError)
-            }
-          } else {
-            // Create new credits record
-            const { error: insertError } = await supabase
-              .from('user_boost_credits')
-              .insert({
-                user_id: userId,
-                available_en_vedette: 1,
-                available_visibilite: 1,
-              })
-              
-            if (insertError) {
-              console.error('Error creating subscription boost credits:', insertError)
-            }
-          }
-          
           // Record subscription in database
           const { error: subscriptionError } = await supabase
             .from('subscriptions')
