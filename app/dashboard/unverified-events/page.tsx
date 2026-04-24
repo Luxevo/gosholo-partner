@@ -416,14 +416,7 @@ export default function UnverifiedEventsPage() {
                       </div>
                     </div>
                     {event.source && (
-                      <a
-                        href={event.source}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-brand-primary underline mt-2 block truncate"
-                      >
-                        {event.source}
-                      </a>
+                      <p className="text-xs text-muted-foreground mt-2 truncate">{event.source}</p>
                     )}
                   </CardContent>
                 </Card>

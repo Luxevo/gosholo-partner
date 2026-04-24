@@ -480,14 +480,7 @@ export default function UnverifiedOffersPage() {
                     </div>
                   </div>
                   {offer.source && (
-                    <a
-                      href={offer.source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-brand-primary underline mt-2 block truncate"
-                    >
-                      {offer.source}
-                    </a>
+                    <p className="text-xs text-muted-foreground mt-2 truncate">{offer.source}</p>
                   )}
                 </CardContent>
               </Card>
