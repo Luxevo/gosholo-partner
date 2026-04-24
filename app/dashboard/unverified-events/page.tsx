@@ -125,12 +125,9 @@ export default function UnverifiedEventsPage() {
 
   const handleSubmit = async () => {
     const errors = []
-    if (!form.commerce_name) errors.push("Nom du commerce requis")
     if (!form.title) errors.push("Titre requis")
     if (!form.description) errors.push("Description requise")
-    if (!form.start_date) errors.push("Date de début requise")
-    if (!form.end_date) errors.push("Date de fin requise")
-    if (form.end_date < form.start_date) errors.push("La date de fin doit être après la date de début")
+    if (form.start_date && form.end_date && form.end_date < form.start_date) errors.push("La date de fin doit être après la date de début")
 
     if (errors.length > 0) {
       toast({ variant: "destructive", title: "Erreurs", description: errors.join(', ') })
@@ -193,7 +190,7 @@ export default function UnverifiedEventsPage() {
             {/* Nom du commerce */}
             <div>
               <label className="block text-sm font-medium text-primary mb-2">
-                Nom du commerce <span className="text-red-500">*</span>
+                Nom du commerce <span className="text-muted-foreground text-xs">(optionnel)</span>
               </label>
               <Input
                 placeholder="Ex: Salle des fêtes de Paris"
@@ -281,7 +278,7 @@ export default function UnverifiedEventsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Date de début <span className="text-red-500">*</span>
+                  Date de début <span className="text-muted-foreground text-xs">(optionnel)</span>
                 </label>
                 <Input
                   type="date"
@@ -291,7 +288,7 @@ export default function UnverifiedEventsPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-primary mb-2">
-                  Date de fin <span className="text-red-500">*</span>
+                  Date de fin <span className="text-muted-foreground text-xs">(optionnel)</span>
                 </label>
                 <Input
                   type="date"

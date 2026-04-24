@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     tag_ids,
   } = body
 
-  if (!commerce_name || !title || !description || !offer_type || !start_date || !end_date) {
+  if (!commerce_name || !title || !description || !offer_type) {
     return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
   }
 
